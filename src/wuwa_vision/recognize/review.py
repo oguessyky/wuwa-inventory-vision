@@ -1,0 +1,94 @@
+# Copyright 2026 oguessyky
+# SPDX-License-Identifier: Apache-2.0
+# Part of WuWa Inventory Vision (https://github.com/oguessyky). Keep this notice: see NOTICE.
+"""What the scanners have learned, and where the catalogue disagrees (D166).
+
+Every picture saved from the game under a name is matched exactly by every scan after it, so
+a wrong name, once learned, sticks: on 2026-10-12 a panel credited to the sword beside it filed
+永远的启明星's picture as 云琅 three times. The catalogue's own pictures are an independent
+witness. Where they are SURE a learned picture is another item -- the best of them names
+something else, by at least the margin a weapon's panel is refused at (PICTURE_SURE) -- the
+picture is flagged for the 更新 › 识别 page, which is where a person puts it right -- or says
+the name is right after all (D167), and the flag stays down while the name stays the same.
+
+Plain numpy over the stored embeddings: no encoder, no torch, so a home that has no recogniser
+(D145) can show it too.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+from ..store.db import Store
+from .reference import RARITY_ANY
+
+#: How sure the catalogue must be that a learned picture is another item (D165, D166).
+SURE = 0.05
+
+
+@dataclass(frozen=True, slots=True)
+class Crop:
+    """One picture saved from the game, and what the catalogue makes of it."""
+
+    hash: str
+    name: str
+    rarity: int
+    tab: str | None
+    created_at: str
+    doubt: str | None = None
+    """The item the catalogue is sure this is, when that is not `name`."""
+    margin: float = 0.0
+    confirmed: bool = False
+    """A person said `name` is right (D167): the catalogue's doubt is not shown."""
+
+
+def learned(store: Store) -> list[Crop]:
+    """Every named picture saved from the game, with the catalogue's doubts beside it."""
+    rows = store.conn.execute(
+        "SELECT icon_hash, item_name, rarity, tab, backbone, embedding, created_at FROM gallery "
+        "WHERE item_name IS NOT NULL AND (tab IS NULL OR tab != 'reference')"
+    ).fetchall()
+    refs = store.conn.execute(
+        "SELECT item_name, rarity, backbone, embedding FROM gallery "
+        "WHERE tab = 'reference' AND item_name IS NOT NULL AND embedding IS NOT NULL"
+    ).fetchall()
+    confirmed = store.confirmed_crops()
+    by_backbone: dict[str, tuple[list[str], np.ndarray, np.ndarray]] = {}
+    for backbone in {r[2] for r in refs}:
+        mine = [r for r in refs if r[2] == backbone]
+        matrix = np.stack([_unit(r[3]) for r in mine]) if mine else np.zeros((0, 0), np.float32)
+        by_backbone[backbone] = ([r[0] for r in mine], np.array([r[1] for r in mine]), matrix)
+    out = []
+    for digest, name, rarity, tab, backbone, blob, created in rows:
+        doubt, margin = None, 0.0
+        sure = confirmed.get(digest) == name
+        if blob is not None and backbone in by_backbone and not sure:
+            doubt, margin = _verdict(name, rarity, _unit(blob), *by_backbone[backbone])
+        out.append(Crop(digest, name, rarity, tab, created, doubt, margin, sure))
+    return out
+
+
+def _unit(blob: bytes) -> np.ndarray:
+    v = np.frombuffer(blob, dtype=np.float32)
+    return v / max(float(np.linalg.norm(v)), 1e-12)
+
+
+def _verdict(name: str, rarity: int, vec: np.ndarray, names: list[str], rarities: np.ndarray,
+             matrix: np.ndarray) -> tuple[str | None, float]:
+    """The other item the catalogue is sure this picture is, and by how much; else (None, 0)."""
+    if not len(names) or matrix.shape[1] != vec.shape[0]:
+        return None, 0.0
+    allowed = (rarities == rarity) | (rarities == RARITY_ANY)
+    if not allowed.any():
+        allowed = np.ones(len(names), dtype=bool)
+    scores = np.where(allowed, matrix @ vec, -np.inf)
+    best = int(np.argmax(scores))
+    top = names[best]
+    if top == name:
+        return None, 0.0
+    # the margin is to the best picture of any OTHER item, as the gallery measures it
+    rest = [float(s) for n, s in zip(names, scores, strict=True) if n != top and np.isfinite(s)]
+    margin = float(scores[best]) - (max(rest) if rest else 0.0)
+    return (top, margin) if margin >= SURE else (None, 0.0)

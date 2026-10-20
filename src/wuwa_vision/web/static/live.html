@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Scan</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --line:#e2e5ea; --ink:#12161c; --muted:#68707d;
+    --accent:#3b6ef0; --ok:#1a7f4b; --warn:#9a6b00; --bad:#b3261e;
+    --box-named:#2fbf71; --box-panel:#4fc3f7; --box-unnamed:#8fa3bf; --box-review:#f2c230;
+    --box-click:#ff4d4d;
+    --r1:#8d949f; --r2:#7bcf7d; --r3:#5198ff; --r4:#c85cff; --r5:#e8c95a;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --bg:#0e1116; --panel:#161b22; --line:#262d36; --ink:#e7ebf0; --muted:#98a1ae;
+    --accent:#6f9bff; --ok:#57d08c; --warn:#e3b341; --bad:#ff7b72;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --panel:#161b22; --line:#262d36; --ink:#e7ebf0; --muted:#98a1ae;
+    --accent:#6f9bff; --ok:#57d08c; --warn:#e3b341; --bad:#ff7b72;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans SC",sans-serif}
+  header{padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);
+         display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;position:sticky;top:0;z-index:2}
+  h1{margin:0;font-size:16px;letter-spacing:-.01em}
+  /* The phase banner answers "can I click the next item yet?" at a glance. */
+  .phase{display:flex;align-items:center;gap:10px;padding:8px 16px;border-radius:10px;
+         font-weight:700;font-size:15px;border:2px solid var(--line);min-width:330px;
+         background:var(--bg);color:var(--muted)}
+  .phase .dot{width:12px;height:12px;border-radius:50%;background:currentColor;flex:none}
+  .phase small{font-weight:500;font-size:12.5px;opacity:.85}
+  .phase.ready{color:var(--ok);border-color:var(--ok)}
+  .phase.busy{color:var(--warn);border-color:var(--warn)}
+  .phase.busy .dot{animation:pulse .8s ease-in-out infinite alternate}
+  .phase.stopped{color:var(--bad);border-color:var(--bad)}
+  @keyframes pulse{from{opacity:1}to{opacity:.25}}
+  /* The page's own dialog (D88), not prompt() / alert(). */
+  .modal-scrim{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;
+       background:rgba(0,0,0,.5)}
+  .modal{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:12px;
+       padding:18px 18px 14px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .modal h3{margin:0 0 4px;font-size:15px}
+  .modal p{margin:0 0 10px;color:var(--muted);font-size:13px}
+  .modal p.err{color:var(--bad)}
+  .modal input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+       background:var(--bg);color:var(--ink);font:inherit}
+  .modal input:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+  .modal button{padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);
+       color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+  .modal button.primary{border-color:var(--accent);color:var(--accent)}
+  @media (prefers-reduced-motion:reduce){ .phase.busy .dot{animation:none} }
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+  .tab{border:1px solid var(--line);border-radius:8px;padding:4px 10px 6px;min-width:130px;
+       background:var(--bg)}
+  .tab.current{border-color:var(--accent)}
+  .tab .l{font-weight:650;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+  .tab .n{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:500}
+  .tab.done .n{color:var(--ok)} .tab.over .n{color:var(--bad)}
+  .meter{height:4px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--accent)}
+  .tab.done .meter i{background:var(--ok)} .tab.over .meter i{background:var(--bad)}
+  /* The sync with the home (D156): what is crossing, how much is left, how fast. */
+  .sync .said{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px}
+  .sync .what,.sync .left{color:var(--muted);font-variant-numeric:tabular-nums}
+  .sync .rate{margin-left:auto;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sync .meter{height:6px;margin-top:6px}
+  .sync .meter.unknown i{width:30%;animation:slide 1.1s ease-in-out infinite alternate}
+  @keyframes slide{from{margin-left:0}to{margin-left:70%}}
+  @media (prefers-reduced-motion:reduce){ .sync .meter.unknown i{animation:none;margin-left:35%} }
+  .sync{flex-basis:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;
+        background:var(--bg);font-size:13.5px}
+  .sync[hidden]{display:none}
+  /* The view is the main monitor: the live game grid with every tile's scores. */
+  main{padding:16px 20px 60px;display:grid;gap:16px;
+       grid-template-columns:minmax(0,1080px) minmax(260px,1fr);max-width:1800px}
+  @media (max-width:1000px){ main{grid-template-columns:minmax(0,1fr)} header .tabs{margin-left:0} }
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .card h2{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .view{position:relative;line-height:0;border-radius:6px;overflow:hidden;background:#000}
+  .view img{width:100%;height:auto;display:block}
+  .view svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .15s}
+  .view svg.stale{opacity:.2}
+  .waiting-msg{color:var(--muted);padding:60px 10px;text-align:center;line-height:1.5}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:10px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .sel b{font-size:18px;display:block}
+  .sel .own{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  .log{font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow:auto;
+       margin:0;padding:0;list-style:none}
+  .log li{padding:2px 0;border-bottom:1px dashed var(--line);word-break:break-word}
+  .log time{color:var(--muted);margin-right:6px}
+  .items{grid-column:1/-1}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+  .it{border:1px solid var(--line);border-radius:9px;padding:7px;text-align:center;position:relative;
+      background:var(--bg)}
+  .it.new{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .it.confirmed{border-color:var(--box-panel)}
+  .it.click{border-color:var(--box-click);box-shadow:0 0 0 1px var(--box-click)}
+  .it .nm.click{color:var(--box-click);font-style:normal;font-weight:600}
+  .it img{width:100%;aspect-ratio:1;object-fit:contain;display:block;border-radius:5px}
+  .it .c{font-weight:650;font-variant-numeric:tabular-nums;margin-top:4px}
+  .it .c.review{color:var(--bad)}
+  .it .nm{font-size:11.5px;line-height:1.25;min-height:2.5em;overflow:hidden;
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .it .nm.unk{color:var(--muted);font-style:italic}
+  .it .nm.fix{cursor:pointer} .it .nm.fix:hover{text-decoration:underline dotted}
+  .bar{height:3px;border-radius:2px;margin-top:5px;background:var(--r1)}
+  .bar[data-r="2"]{background:var(--r2)} .bar[data-r="3"]{background:var(--r3)}
+  .bar[data-r="4"]{background:var(--r4)} .bar[data-r="5"]{background:var(--r5)}
+  .mark{position:absolute;top:5px;left:5px;font-size:9px;font-weight:700;border-radius:4px;
+        padding:0 4px;background:var(--box-panel);color:#04202c}
+</style>
+</head>
+<body>
+<header>
+  <h1>Live scan</h1>
+  <div class="phase" id="phase" role="status" aria-live="polite"><span class="dot"></span><span>connecting…</span></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="sync" id="sync" role="status" hidden>
+    <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
+    <div class="meter" role="progressbar" aria-label="Sync with home" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+  </div>
+</header>
+<main>
+  <section class="card">
+    <h2 id="view-title">Current view</h2>
+    <div class="view" id="view"><div class="waiting-msg">Waiting for the first view.<br>Open the bag in game and hold still for a moment.</div></div>
+    <div class="legend">
+      <span><i style="background:var(--box-panel)"></i>read from panel</span>
+      <span><i style="background:var(--box-named)"></i>named by icon</span>
+      <span><i style="background:var(--box-unnamed)"></i>unnamed</span>
+      <span><i style="background:var(--box-click)"></i>looks identical to another item: click it in game</span>
+      <span><i style="background:var(--box-review)"></i>count unsure</span>
+      <span>thick border = new in this view</span>
+      <span>labels: name (guess?) · ×count OCR confidence · .93 = icon similarity, Δ = lead over the runner-up</span>
+      <span>boxes fade while the screen moves; counts are read only once it holds still</span>
+    </div>
+  </section>
+  <aside style="display:grid;gap:16px;align-content:start">
+    <section class="card sel" id="sel">
+      <h2>Selected item</h2>
+      <div class="waiting-msg" style="padding:14px 0">Click an item in game to read its name and 拥有 count.</div>
+    </section>
+    <section class="card">
+      <h2>Events</h2>
+      <ul class="log" id="log"></ul>
+    </section>
+  </aside>
+  <section class="card items">
+    <h2 id="items-title">Items</h2>
+    <div class="grid" id="items"></div>
+  </section>
+</main>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let lastVersion = -1;
+
+function boxColor(b){
+  if(b.click) return 'var(--box-click)';
+  if(b.review) return 'var(--box-review)';
+  if(b.confirmed) return 'var(--box-panel)';
+  if(b.name) return 'var(--box-named)';
+  return 'var(--box-unnamed)';
+}
+
+// By default there is no picture: the boxes sit on black, laid out as the grid is
+// on screen. With `wuwa live --preview` the picture is the LIVE stream (MJPEG,
+// ~8 fps) once the grid has been located. Either way the boxes are from the last
+// READ view: while the screen moves they no longer line up, so they fade until
+// the next read -- the phase banner says when.
+let streaming = false;
+// Addresses are relative, as on the phone's page: the page is served at / and at
+// /live, and under a path of their own by the tests.
+function renderView(d){
+  const view = document.getElementById('view');
+  if(!d.has_view){ return; }
+  const [w, h] = d.frame_size;
+  let img = view.querySelector('img'), svg = view.querySelector('svg');
+  if(!svg){
+    view.innerHTML = (d.picture ? '<img alt="Current inventory view">' : '')
+      + '<svg preserveAspectRatio="none" role="img" aria-label="Current inventory view"></svg>';
+    img = view.querySelector('img'); svg = view.querySelector('svg');
+  }
+  if(img){
+    if(d.has_preview && !streaming){ img.src = 'api/live/stream.mjpg'; streaming = true; }
+    if(!streaming && d.has_frame) img.src = `api/live/frame.jpg?v=${d.version}`;
+  } else {
+    view.style.aspectRatio = `${w} / ${h}`;  // no picture to give the box its height
+  }
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  // Sized to the picture, so labels stay legible when the page scales it down.
+  const fs = Math.max(13, Math.round(w / 64));
+  const width = s => [...s].reduce((a, ch) => a + (ch.charCodeAt(0) > 255 ? fs : fs * .6), 0);
+  const fit = (t, room) => {
+    if(width(t) <= room) return t;
+    const chars = [...t];
+    while(chars.length && width(chars.join('') + '…') > room) chars.pop();
+    return chars.join('') + '…';
+  };
+  const pct = v => v == null ? '' : Math.round(v * 100) + '%';
+  const lineH = fs + 4;
+  svg.innerHTML = d.boxes.map(b => {
+    const c = boxColor(b), room = b.w - 8;
+    const count = (b.count == null ? '×?' : '×' + b.count) + (b.count_conf != null ? ' ' + pct(b.count_conf) : '');
+    // Line 1: what it is (or the best guess, marked "?"). Line 2: count + OCR
+    // confidence. Line 3: gallery similarity and margin over the runner-up.
+    const name = b.click ? '点击确认: ' + (b.rivals || []).join('/')
+               : b.name ? b.name
+               : b.guess ? b.guess + ' ?'
+               : (b.rarity > 0 ? b.rarity + '★' : '?★') + ' unnamed';
+    const lines = [fit(name, room), fit(count, room)];
+    // ".93 Δ.04": similarity to the best named icon, lead over the runner-up.
+    const two = v => v.toFixed(2).replace(/^(-?)0\./, '$1.');
+    if(b.score != null) lines.push(fit(`${two(b.score)} Δ${two(b.margin)}`, room));
+    const tw = Math.min(b.w, Math.max(...lines.map(width)) + 8);
+    const text = lines.map((t, i) =>
+      `<text x="${b.x + 4}" y="${b.y + fs + i * lineH}" font-size="${fs}" font-weight="${i ? 600 : 700}" fill="#0b0d10">${esc(t)}</text>`
+    ).join('');
+    return `<g>
+      <title>${esc(name)} ${esc(count)}${b.score != null ? ' · similarity ' + b.score.toFixed(3) + ', margin ' + b.margin.toFixed(3) : ''}</title>
+      <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="6" fill="none"
+            stroke="${c}" stroke-width="${b.new || b.selected || b.click ? 6 : 3}"/>
+      <rect x="${b.x}" y="${b.y}" width="${tw}" height="${lines.length * lineH + 4}" rx="4" fill="${c}" opacity=".9"/>
+      ${text}
+    </g>`;
+  }).join('');
+}
+
+function fadeBoxes(d){
+  const svg = document.querySelector('#view svg');
+  if(svg) svg.classList.toggle('stale', ['moving', 'settling'].includes(d.phase));
+}
+
+function renderTabs(d){
+  document.getElementById('tabs').innerHTML = d.tabs.filter(t => t.label).map(t => {
+    const pct = t.total ? Math.min(100, 100 * t.found / t.total) : 0;
+    const cls = ['tab', t.label === d.current_tab ? 'current' : '',
+                 t.complete ? 'done' : '', t.overcount ? 'over' : ''].join(' ');
+    return `<div class="${cls}"><div class="l">${esc(t.label)}
+      <span class="n">${t.found}/${t.total ?? '?'}${t.complete ? ' ✓' : ''}</span></div>
+      <div class="meter"><i style="width:${pct}%"></i></div></div>`;
+  }).join('');
+}
+
+function renderSelected(d){
+  if(!d.panel) return;
+  const other = d.panel.tab && d.panel.tab !== d.current_tab ? ` · in ${esc(d.panel.tab)}` : '';
+  document.getElementById('sel').innerHTML = `<h2>Selected item${other}</h2>
+    <b>${esc(d.panel.name)}</b>
+    <div style="color:var(--muted)">${esc(d.panel.category ?? '')}</div>
+    ${d.panel.level != null
+      // a weapon: one copy per tile, so a level and a 谐振 rank instead of 拥有
+      ? `<div>Lv. <span class="own">${esc(d.panel.level)}</span>${d.panel.rank != null ? ` · 谐振 ${esc(d.panel.rank)} 阶` : ''}</div>`
+      : `<div>拥有 <span class="own">${esc(d.panel.owned ?? '?')}</span></div>`}`;
+}
+
+function renderLog(d){
+  document.getElementById('log').innerHTML = d.log.slice().reverse().map(e =>
+    `<li><time>${new Date(e.t * 1000).toLocaleTimeString()}</time>${esc(e.msg)}</li>`).join('');
+}
+
+function renderItems(d){
+  const newKeys = new Set(d.boxes.filter(b => b.new).map(b => b.key));
+  const tab = d.tabs.find(t => t.label === d.current_tab);
+  document.getElementById('items-title').textContent =
+    `Items${d.current_tab ? ' · ' + d.current_tab : ''}` +
+    (tab ? ` · ${tab.found}/${tab.total ?? '?'} · named ${tab.named} · from panel ${tab.panel_reads}` +
+           (tab.click ? ` · ${tab.click} need a click` : '') : '');
+  document.getElementById('items').innerHTML = d.items.map(it => `
+    <div class="it ${newKeys.has(it.key) ? 'new' : ''} ${it.confirmed ? 'confirmed' : ''} ${it.click ? 'click' : ''}"
+         ${it.click ? `title="Looks identical to ${esc(it.rivals.join(', '))}. Click it in game to tell which."` : ''}>
+      ${it.confirmed ? '<span class="mark">拥有</span>' : ''}
+      <img src="api/icon/${esc(it.key)}.webp" alt="" loading="lazy">
+      <div class="c ${it.review ? 'review' : ''}">${it.count ?? '?'}</div>
+      ${it.click
+        ? `<div class="nm click">click in game: ${esc(it.rivals.join(' / '))}?</div>`
+        : `<div class="nm ${it.name ? 'fix' : 'unk'}" ${it.name ? `data-fix="${esc(it.name)}" title="Wrong name? Click to correct it."` : ''}>${esc(it.name ?? (it.rarity > 0 ? it.rarity + '★ unnamed' : 'unnamed'))}</div>`}
+      <div class="bar" data-r="${esc(it.rarity)}"></div>
+    </div>`).join('');
+}
+
+const PHASES = {
+  starting:        ['', 'Starting…', ''],
+  waiting:         ['', 'Waiting for the game', 'alt-tab into the game'],
+  moving:          ['', 'Moving…', 'wait for the screen to stop'],
+  settling:        ['busy', 'Settling…', 'hold still'],
+  reading:         ['busy', 'Reading the view…', 'hold still'],
+  'reading-panel': ['busy', 'Reading the selected item…', 'hold still'],
+  ready:           ['ready', 'Ready', 'scroll, or click the next item'],
+  paused:          ['', 'Paused', 'the game is not in front'],
+  stopped:         ['stopped', 'Stopped', 'everything read so far is saved'],
+  offline:         ['stopped', 'Not scanning', 'run: wuwa live'],
+};
+function renderPhase(d){
+  const key = d.status === 'stopped' || d.status === 'offline' ? d.status
+            : (d.phase && d.phase !== 'starting' ? d.phase : d.status);
+  const [cls, title, hint] = PHASES[key] ?? ['', key, ''];
+  const el = document.getElementById('phase');
+  el.className = 'phase ' + cls;
+  el.innerHTML = `<span class="dot"></span><span>${esc(title)} <small>${esc(hint)}</small></span>`;
+}
+
+// The sync with the home (D156): what is crossing, how much is left, how fast.
+// Told with every answer and not with a new version of the scan: it moves ten
+// times a second while the scan it belongs to stands still.
+const size = n => n >= 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.round(n / 1e3) + ' KB';
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const SYNC = {
+  scans:     s => `${plural(s.holds.scans ?? 0, 'scan')}, ${plural(s.holds.crops ?? 0, 'crop')}`,
+  learned:   () => 'what it has learned',
+  crops:     s => `${s.items - s.items_done} of ${plural(s.items, 'crop')} left`,
+  catalogue: s => `${s.items - s.items_done} of ${plural(s.items, 'catalogue file')} left`,
+};
+function renderSync(s){
+  const el = document.getElementById('sync');
+  el.hidden = !s;
+  if(!s) return;
+  el.dataset.way = s.way; el.dataset.step = s.step;
+  el.querySelector('b').textContent = s.way === 'up' ? 'Sending to home' : 'Fetching from home';
+  el.querySelector('.what').textContent = (SYNC[s.step] ?? (() => s.step))(s);
+  el.querySelector('.left').textContent =
+    s.bytes ? `${size(Math.max(s.bytes - s.bytes_done, 0))} left of ${size(s.bytes)}` : '';
+  el.querySelector('.rate').textContent = s.rate ? `${size(s.rate)}/s` : '';
+  const meter = el.querySelector('.meter');
+  meter.classList.toggle('unknown', s.fraction == null);
+  meter.firstElementChild.style.width = s.fraction == null ? '' : `${Math.round(1000 * s.fraction) / 10}%`;
+  if(s.fraction == null) meter.removeAttribute('aria-valuenow');
+  else meter.setAttribute('aria-valuenow', Math.round(100 * s.fraction));
+}
+
+async function tick(){
+  try{
+    const d = await (await fetch('api/live', {cache:'no-store'})).json();
+    renderPhase(d); fadeBoxes(d); renderSync(d.sync);
+    if(d.status !== 'offline' && d.version !== lastVersion){
+      lastVersion = d.version;
+      renderTabs(d); renderView(d); renderSelected(d); renderLog(d); renderItems(d);
+    }
+  }catch(e){
+    renderPhase({status: 'offline'}); renderSync(null);
+  }
+  setTimeout(tick, 250);
+}
+tick();
+
+// Goodbye (D156): once the scan is over, `wuwa live` stays up only for as long as
+// this page is looked at. Closing the tab says so; a reload says so too, and then
+// asks again at once, which is how the two are told apart.
+addEventListener('pagehide', () => navigator.sendBeacon('api/live/bye'));
+
+// Name fixes (D40): click a name to correct an OCR misread. The fix is kept and
+// applied to every later read of the same misread, in every scan.
+function fixName(wrong, after){
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const back = document.activeElement;
+  const scrim = document.createElement('div');
+  scrim.className = 'modal-scrim';
+  scrim.innerHTML = `<form class="modal" role="dialog" aria-modal="true" aria-labelledby="fix-t">
+    <h3 id="fix-t">Correct a name</h3>
+    <p>Every later read of <b>${esc(wrong)}</b> will use this name, in every scan.</p>
+    <input name="right" value="${esc(wrong)}" autocomplete="off" aria-label="Correct name">
+    <p class="err" hidden></p>
+    <div class="acts"><button type="button" data-cancel>Cancel</button>
+      <button type="submit" class="primary">Save</button></div></form>`;
+  const form = scrim.querySelector('form'), input = form.right, err = form.querySelector('.err');
+  const close = () => { document.removeEventListener('keydown', keys, true); scrim.remove(); back?.focus?.(); };
+  const keys = e => { if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+  scrim.onclick = e => { if(e.target === scrim || e.target.closest('[data-cancel]')) close(); };
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const right = input.value.trim();
+    if(!right || right === wrong) return close();
+    const res = await fetch('api/names', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({wrong, right})});
+    // a failure stays in the dialog, next to what was typed, instead of an alert()
+    if(!res.ok){ err.textContent = 'Could not save the correction. Try again.'; err.hidden = false; return; }
+    close();
+    if(after) after();
+  };
+  document.addEventListener('keydown', keys, true);
+  document.body.appendChild(scrim);
+  input.focus(); input.select();
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-fix]');
+  if(el) fixName(el.dataset.fix, window.afterFix);
+});
+</script>
+</body>
+</html>

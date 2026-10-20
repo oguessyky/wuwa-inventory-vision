@@ -1,0 +1,84 @@
+[project]
+name = "wuwa-vision"
+version = "1.0.2"
+description = "Local-only screen-reading inventory scanner for Wuthering Waves"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=2.1",
+    "pillow>=11",
+    "opencv-python-headless>=4.10",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "rapidocr-onnxruntime>=1.4",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "pypinyin>=0.50",
+]
+
+# Milestone 3 (embedding gallery). Install with:  uv sync --extra recognition
+[project.optional-dependencies]
+# Live screen capture (Milestone 2). Windows Graphics Capture per PLAN.md D4:
+# lossless BGRA, per-window, no game-process interaction.
+capture = [
+    "windows-capture>=2.0; sys_platform == 'win32'",
+    "pywin32>=306; sys_platform == 'win32'",
+]
+
+# macOS (D71): the window server's own copy of the window, via pyobjc. Same
+# read-only path a screenshot takes -- no hooks, no injection. Needs Screen
+# Recording permission, granted once.
+capture-macos = [
+    "pyobjc-framework-Quartz>=10.3; sys_platform == 'darwin'",
+    "pyobjc-framework-Cocoa>=10.3; sys_platform == 'darwin'",
+]
+
+# DINOv2 is loaded via transformers (AutoModel), matching the sibling wucv
+# project, which moved MobileNet -> DINOv2 because it suits instance retrieval.
+recognition = [
+    "torch>=2.7",
+    "torchvision>=0.22",
+    "transformers>=4.45",
+    "scikit-image>=0.24",
+]
+
+[project.scripts]
+wuwa = "wuwa_vision.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3", "ruff>=0.7"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wuwa_vision"]
+
+# The environment is built on the Python the user installed, never on one uv downloads
+# (D151). uv's own builds are unsigned, and Windows Smart App Control refuses to start
+# them: "Failed to spawn: `python` ... An Application Control policy has blocked this
+# file". With this, a machine with no Python 3.12 is told so instead.
+[tool.uv]
+python-preference = "only-system"
+
+# torch must come from the CUDA 12.8 index: RTX 5080 is sm_120 (Blackwell).
+# A default-PyPI torch may lack sm_120 SASS and die with
+# "CUDA error: no kernel image is available for execution on the device".
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

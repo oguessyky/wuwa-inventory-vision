@@ -1,0 +1,52 @@
+# Captures & generated data — never commit (contains player UID + friend names)
+train_dataset/
+data/
+gallery/
+frames/
+exports/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Curated, redacted regression fixtures ARE tracked
+!tests/fixtures/
+!tests/fixtures/**
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Models
+*.onnx
+*.pt
+*.pth
+*.safetensors
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code local machine state
+.claude/settings.local.json
+
+# UI parity tests: recordings are made from your own inventory
+e2e/node_modules/
+e2e/.golden/
+e2e/test-results/
+e2e/playwright-report/
+
+# The Next.js pages
+web/node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts
+web/tsconfig.tsbuildinfo
+e2e/compare/

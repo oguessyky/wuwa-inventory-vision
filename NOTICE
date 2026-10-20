@@ -1,0 +1,24 @@
+WuWa Inventory Vision
+Copyright 2026 oguessyky
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes the WuWa Inventory Vision scanner -- screen capture, tile
+detection, icon recognition, text reading and scan logic -- created by
+oguessyky (https://github.com/oguessyky). If you reuse, redistribute or build
+on any part of this project, keep this notice and credit:
+
+    WuWa Inventory Vision by oguessyky -- https://github.com/oguessyky
+
+This is an unofficial, fan-made tool. It is not affiliated with, endorsed by,
+sponsored by, or approved by Kuro Games. "Wuthering Waves" and everything that
+comes from the game -- names, icons, portraits, artwork, text, screenshots,
+logos -- belong to Kuro Games and are not covered by the licence above.
+
+Some interface icons are taken or adapted from Feather (MIT License, Copyright
+(c) 2013-2023 Cole Bemis) and Lucide (ISC License, Copyright (c) Lucide Icons
+and Contributors). The page icons, the weapon-type icons and the app's own icon
+were made for this project.
+
+CREDITS.md says in full what in this repository is whose, and reproduces the
+notices of the icon sets. TERMS.md says how the project asks to be used.

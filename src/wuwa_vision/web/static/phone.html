@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Scan status</title>
+<!--
+  The scan monitor for a phone (PLAN.md D153): what `wuwa live --share` gives the
+  user's tailnet. Read-only -- the app behind it has no route that writes -- and
+  boxes only, never a picture of the game. Hand-written and self-contained, like
+  live.html; addresses are relative so it can be served under any path.
+-->
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --line:#e2e5ea; --ink:#12161c; --muted:#68707d;
+    --accent:#3b6ef0; --ok:#1a7f4b; --warn:#9a6b00; --bad:#b3261e;
+    --fill-ok:#1a7f4b; --fill-busy:#9a6b00; --fill-bad:#b3261e;
+    --box-named:#2fbf71; --box-panel:#4fc3f7; --box-unnamed:#8fa3bf; --box-review:#f2c230;
+    --box-click:#ff4d4d;
+    --r1:#8d949f; --r2:#7bcf7d; --r3:#5198ff; --r4:#c85cff; --r5:#e8c95a;
+  }
+  @media (prefers-color-scheme:dark){ :root{
+    --bg:#0e1116; --panel:#161b22; --line:#262d36; --ink:#e7ebf0; --muted:#98a1ae;
+    --accent:#6f9bff; --ok:#57d08c; --warn:#e3b341; --bad:#ff7b72;
+  }}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.45 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;
+       padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+
+  /* The phase is the page: read from arm's length, phone propped by the laptop.
+     Filled, not outlined -- the colour is the message, the words confirm it. */
+  .top{display:contents}
+  .phase{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;
+         padding:calc(16px + env(safe-area-inset-top)) 18px 16px;
+         background:var(--panel);color:var(--muted);border-bottom:1px solid var(--line)}
+  .phase .dot{width:16px;height:16px;border-radius:50%;background:currentColor;flex:none}
+  .phase b{display:block;font-size:24px;line-height:1.15;letter-spacing:-.01em;color:var(--ink)}
+  .phase small{display:block;font-size:15px;margin-top:2px}
+  .phase[data-state="ready"]{background:var(--fill-ok)}
+  .phase[data-state="settling"],.phase[data-state="reading"],
+  .phase[data-state="reading-panel"]{background:var(--fill-busy)}
+  .phase[data-state="stopped"],.phase[data-state="offline"]{background:var(--fill-bad)}
+  .phase:is([data-state="ready"],[data-state="settling"],[data-state="reading"],
+            [data-state="reading-panel"],[data-state="stopped"],[data-state="offline"]){
+    color:#fff;border-color:transparent}
+  .phase:is([data-state="ready"],[data-state="settling"],[data-state="reading"],
+            [data-state="reading-panel"],[data-state="stopped"],[data-state="offline"]) b{color:#fff}
+  .phase:is([data-state="settling"],[data-state="reading"],[data-state="reading-panel"]) .dot{
+    animation:pulse .8s ease-in-out infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.25}}
+  @media (prefers-reduced-motion:reduce){ .phase .dot{animation:none !important} }
+
+  .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:12px 12px 0}
+  .tabs:empty{display:none}
+  .tab{border:1px solid var(--line);border-radius:10px;padding:8px 12px 10px;background:var(--panel);min-width:0}
+  .tab.current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .tab .l{font-weight:650;display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
+  .tab .n{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:500}
+  .tab.done .n{color:var(--ok)} .tab.over .n{color:var(--bad)}
+  .meter{height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--accent)}
+  .tab.done .meter i{background:var(--ok)} .tab.over .meter i{background:var(--bad)}
+
+  /* The sync with the home (D156): what is crossing, how much is left, how fast. */
+  .sync .said{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px}
+  .sync .what,.sync .left{color:var(--muted);font-variant-numeric:tabular-nums}
+  .sync .rate{margin-left:auto;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sync .meter{height:6px;margin-top:6px}
+  .sync .meter.unknown i{width:30%;animation:slide 1.1s ease-in-out infinite alternate}
+  @keyframes slide{from{margin-left:0}to{margin-left:70%}}
+  @media (prefers-reduced-motion:reduce){ .sync .meter.unknown i{animation:none;margin-left:35%} }
+  .sync b{font-size:17px;flex-basis:100%}
+  .sync .meter{height:8px;border-radius:4px;margin-top:8px}
+
+  main{display:grid;gap:12px;padding:12px;grid-template-columns:minmax(0,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+  .card h2{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  [hidden]{display:none !important}
+  /* What was last heard from a scan that no longer answers: still there, set back. */
+  .stale .tabs,.stale main{opacity:.5}
+
+  .needs ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .needs li{display:flex;gap:10px;align-items:center;border-left:4px solid var(--box-click);
+            padding:6px 0 6px 10px;font-weight:600;min-width:0}
+  .needs li[data-kind="done"]{border-left-color:var(--ok)}
+  .needs li span{min-width:0;overflow-wrap:anywhere}
+  .needs li small{display:block;font-weight:400;color:var(--muted);font-size:13.5px}
+  .needs img{width:44px;height:44px;flex:none;object-fit:contain;border-radius:6px;background:var(--bg)}
+
+  .sel{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .sel h2{margin:0;flex-basis:100%}
+  .sel b{font-size:18px;overflow-wrap:anywhere}
+  .sel .own{margin-left:auto;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sel .cat{color:var(--muted);font-size:13.5px}
+
+  /* The box grid is for a phone held sideways: upright its labels would be 6 px. */
+  .view-card{display:none}
+  .view{position:relative;line-height:0;border-radius:8px;overflow:hidden;background:#000;margin:0 auto;
+        aspect-ratio:var(--ar,2.6);width:min(100%,calc((100dvh - 96px) * var(--ar,2.6)))}
+  .view svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .15s}
+  .view svg.stale{opacity:.2}
+  .view .none{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+        color:#98a1ae;line-height:1.5;padding:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+  .log{font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:42vh;overflow:auto;
+       margin:0;padding:0;list-style:none;overscroll-behavior:contain}
+  .log li{padding:3px 0;border-bottom:1px dashed var(--line);overflow-wrap:anywhere}
+  .log li:last-child{border-bottom:0}
+  .log time{color:var(--muted);margin-right:6px}
+  .log:empty::after,.grid:empty::after{content:attr(data-empty);color:var(--muted);font:inherit}
+  .grid:empty{display:block}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+  .it{border:1px solid var(--line);border-radius:9px;padding:6px;text-align:center;background:var(--bg);min-width:0}
+  .it.new{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .it.confirmed{border-color:var(--box-panel)}
+  .it.click{border-color:var(--box-click);box-shadow:0 0 0 1px var(--box-click)}
+  .it .ic{aspect-ratio:1;border-radius:5px;background:var(--line);overflow:hidden}
+  .it img{width:100%;height:100%;object-fit:contain;display:block}
+  .it .c{font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px}
+  .it .c.review{color:var(--bad)}
+  .it .nm{font-size:11.5px;line-height:1.25;min-height:2.5em;overflow:hidden;overflow-wrap:anywhere;
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .it .nm.unk{color:var(--muted);font-style:italic}
+  .it .nm.click{color:var(--box-click);font-weight:600}
+  .bar{height:3px;border-radius:2px;margin-top:4px;background:var(--r1)}
+  .bar[data-r="2"]{background:var(--r2)} .bar[data-r="3"]{background:var(--r3)}
+  .bar[data-r="4"]{background:var(--r4)} .bar[data-r="5"]{background:var(--r5)}
+
+  /* Sideways: the phase and the tabs in one line, over the grid. */
+  @media (orientation:landscape){
+    .top{display:flex;align-items:stretch;gap:8px;position:sticky;top:0;z-index:2;
+         background:var(--bg);padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+         border-bottom:1px solid var(--line)}
+    .phase{position:static;flex:none;padding:8px 14px;border-radius:10px;gap:10px;border:1px solid var(--line)}
+    .phase .dot{width:12px;height:12px}
+    .phase b{font-size:17px;display:inline}
+    .phase small{display:inline;font-size:13px;margin:0 0 0 6px}
+    .tabs{flex:1;display:flex;gap:8px;padding:0;overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:none;padding:4px 10px 6px;min-width:112px}
+    .tab .l{font-size:13.5px} .meter{height:4px;margin-top:4px}
+    .view-card{display:block}
+  }
+  /* A wide window is the PC, which has live.html: here, the same column, not stretched. */
+  @media (orientation:landscape) and (min-width:1000px){ main{max-width:1100px;margin:0 auto} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="phase" id="phase" role="status" aria-live="polite" data-state="connecting">
+    <span class="dot"></span><div><b>Connecting…</b><small></small></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main>
+  <section class="card sync" id="sync" role="status" hidden>
+    <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
+    <div class="meter" role="progressbar" aria-label="Sync with home" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+  </section>
+  <section class="card view-card">
+    <div class="view" id="view"><div class="none">Waiting for the first view.<br>Open the bag in game and hold still for a moment.</div></div>
+    <div class="legend">
+      <span><i style="background:var(--box-panel)"></i>read from panel</span>
+      <span><i style="background:var(--box-named)"></i>named by icon</span>
+      <span><i style="background:var(--box-unnamed)"></i>unnamed</span>
+      <span><i style="background:var(--box-click)"></i>click it in game</span>
+      <span><i style="background:var(--box-review)"></i>count unsure</span>
+      <span>thick border = new in this view</span>
+    </div>
+  </section>
+  <section class="card needs" id="needs" hidden>
+    <h2>Needs you</h2>
+    <ul></ul>
+  </section>
+  <section class="card sel" id="sel" hidden></section>
+  <section class="card">
+    <h2>Events</h2>
+    <ul class="log" id="log" data-empty="Nothing yet."></ul>
+  </section>
+  <section class="card items">
+    <h2 id="items-title">Items</h2>
+    <div class="grid" id="items" data-empty="Nothing read yet."></div>
+  </section>
+</main>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const icon = key => `api/icon/${encodeURIComponent(key)}.webp`;
+
+const PHASES = {
+  connecting:      ['Connecting…', ''],
+  starting:        ['Starting…', ''],
+  waiting:         ['Waiting for the game', 'alt-tab into the game'],
+  capturing:       ['Scanning', ''],
+  moving:          ['Moving…', 'wait for the screen to stop'],
+  settling:        ['Settling…', 'hold still'],
+  reading:         ['Reading the view…', 'hold still'],
+  'reading-panel': ['Reading the item…', 'hold still'],
+  ready:           ['Ready', 'scroll, or click the next item'],
+  paused:          ['Paused', 'the game is not in front'],
+  stopped:         ['Stopped', 'everything read so far is saved'],
+  offline:         ['No scan to show', 'start one with: wuwa live --share'],
+};
+function renderPhase(d){
+  const key = d.status === 'stopped' || d.status === 'offline' || d.status === 'connecting' ? d.status
+            : (d.phase && d.phase !== 'starting' ? d.phase : d.status);
+  const [title, hint] = PHASES[key] ?? [key, ''];
+  const el = $('phase');
+  if(el.dataset.state === key && el.dataset.note === (d.note ?? '')) return;
+  el.dataset.state = key; el.dataset.note = d.note ?? '';
+  document.body.classList.toggle('stale', key === 'offline');
+  el.innerHTML = `<span class="dot"></span><div><b>${esc(title)}</b><small>${esc(d.note || hint)}</small></div>`;
+}
+
+function renderTabs(d){
+  $('tabs').innerHTML = d.tabs.filter(t => t.label).map(t => {
+    const pct = t.total ? Math.min(100, 100 * t.found / t.total) : 0;
+    const cls = ['tab', t.label === d.current_tab ? 'current' : '',
+                 t.complete ? 'done' : '', t.overcount ? 'over' : ''].join(' ');
+    return `<div class="${cls}" data-tab="${esc(t.label)}"${t.label === d.current_tab ? ' aria-current="true"' : ''}>
+      <div class="l">${esc(t.label)}<span class="n">${t.found}/${t.total ?? '?'}${t.complete ? ' ✓' : ''}</span></div>
+      <div class="meter"><i style="width:${pct}%"></i></div></div>`;
+  }).join('');
+}
+
+// What the terminal would have said, had the game not been covering it.
+const NEEDS = {
+  gap: n => [`A view in ${n.tab} did not overlap the one before`,
+             'Rows in between may be missing. Scroll back up until earlier items show again; '
+             + 'this clears when the tab is complete.'],
+  click: n => [`Click in game: ${n.rivals.join(' / ')}?`, 'It looks identical to another item.'],
+  'click-there': n => [`${n.items} item${n.items > 1 ? 's' : ''} in ${n.tab} still need a click`,
+                       'They look identical to other items.'],
+  done: n => [`${n.tab} is complete${n.total ? `: all ${n.total} seen` : ''}`,
+              'Switch tab to keep going, or press the panic key to finish.'],
+};
+function renderNeeds(d){
+  const needs = (d.needs || []).filter(n => NEEDS[n.kind]);
+  $('needs').hidden = !needs.length;
+  $('needs').querySelector('ul').innerHTML = needs.map(n => {
+    const [what, why] = NEEDS[n.kind](n);
+    return `<li data-kind="${esc(n.kind)}">${n.key ? `<img src="${icon(n.key)}" alt="" onerror="this.remove()">` : ''}
+      <span>${esc(what)}<small>${esc(why)}</small></span></li>`;
+  }).join('');
+}
+
+function renderSelected(d){
+  $('sel').hidden = !d.panel;
+  if(!d.panel) return;
+  const p = d.panel;
+  const other = p.tab && p.tab !== d.current_tab ? ` · in ${esc(p.tab)}` : '';
+  $('sel').innerHTML = `<h2>Selected item${other}</h2><b>${esc(p.name)}</b>
+    <span class="cat">${esc(p.category ?? '')}</span>
+    <span class="own">${p.level != null
+      // a weapon: one copy per tile, so a level and a 谐振 rank instead of 拥有
+      ? `Lv. ${esc(p.level)}${p.rank != null ? ` · 谐振 ${esc(p.rank)} 阶` : ''}`
+      : `拥有 ${esc(p.owned ?? '?')}`}</span>`;
+}
+
+function boxColor(b){
+  if(b.click) return 'var(--box-click)';
+  if(b.review) return 'var(--box-review)';
+  if(b.confirmed) return 'var(--box-panel)';
+  if(b.name) return 'var(--box-named)';
+  return 'var(--box-unnamed)';
+}
+// The boxes of the last READ view, laid out as the grid is on screen (as on
+// live.html, D94). There is never a picture under them, so a name has the box to
+// itself: it runs on to a second and a third line before it is cut. What it is
+// and how many -- the scores behind them are for the PC's page.
+function renderView(d){
+  if(!d.has_view) return;
+  const view = $('view'), [w, h] = d.frame_size;
+  view.style.setProperty('--ar', w / h);
+  let svg = view.querySelector('svg');
+  if(!svg){
+    view.innerHTML = '<svg preserveAspectRatio="none" role="img" aria-label="Current inventory view"></svg>';
+    svg = view.querySelector('svg');
+  }
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const fs = Math.max(13, Math.round(w / 58)), lineH = fs + 4;
+  const width = s => [...s].reduce((a, ch) => a + (ch.charCodeAt(0) > 255 ? fs : fs * .6), 0);
+  const fit = (t, room) => {
+    if(width(t) <= room) return t;
+    const chars = [...t];
+    while(chars.length && width(chars.join('') + '…') > room) chars.pop();
+    return chars.join('') + '…';
+  };
+  const wrap = (t, room, most) => {
+    const lines = [];
+    let line = '';
+    for(const ch of t){
+      if(line && width(line + ch) > room){ lines.push(line); line = ch; } else line += ch;
+    }
+    if(line) lines.push(line);
+    return lines.length > most ? [...lines.slice(0, most - 1), fit(lines.slice(most - 1).join(''), room)] : lines;
+  };
+  svg.innerHTML = d.boxes.map(b => {
+    const c = boxColor(b), room = b.w - 8;
+    const name = b.click ? ['点击确认', ...wrap((b.rivals || []).join('/'), room, 2)]
+               : wrap(b.name ? b.name
+                    : b.guess ? b.guess + ' ?'
+                    : (b.rarity > 0 ? b.rarity + '★' : '?★') + ' ?', room, 3);
+    const lines = [...name, fit(b.count == null ? '×?' : '×' + b.count, room)];
+    const tw = Math.min(b.w, Math.max(...lines.map(width)) + 8);
+    return `<g><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="6" fill="none"
+        stroke="${c}" stroke-width="${b.new || b.selected || b.click ? 6 : 3}"/>
+      <rect x="${b.x}" y="${b.y}" width="${tw}" height="${lines.length * lineH + 4}" rx="4" fill="${c}" opacity=".9"/>
+      ${lines.map((t, i) => `<text x="${b.x + 4}" y="${b.y + fs + i * lineH}" font-size="${fs}" font-weight="${i < lines.length - 1 ? 700 : 600}" fill="#0b0d10">${esc(t)}</text>`).join('')}</g>`;
+  }).join('');
+}
+function fadeBoxes(d){
+  $('view').querySelector('svg')?.classList.toggle('stale', ['moving', 'settling'].includes(d.phase));
+}
+
+function renderLog(d){
+  $('log').innerHTML = d.log.slice().reverse().map(e =>
+    `<li><time>${new Date(e.t * 1000).toLocaleTimeString()}</time>${esc(e.msg)}</li>`).join('');
+}
+
+function renderItems(d){
+  const newKeys = new Set(d.boxes.filter(b => b.new).map(b => b.key));
+  const tab = d.tabs.find(t => t.label === d.current_tab);
+  $('items-title').textContent = `Items${d.current_tab ? ' · ' + d.current_tab : ''}` +
+    (tab ? ` · ${tab.found}/${tab.total ?? '?'} · named ${tab.named}` : '');
+  $('items').innerHTML = d.items.map(it => `
+    <div class="it ${newKeys.has(it.key) ? 'new' : ''} ${it.confirmed ? 'confirmed' : ''} ${it.click ? 'click' : ''}">
+      <div class="ic"><img src="${icon(it.key)}" alt="" loading="lazy" onerror="this.remove()"></div>
+      <div class="c ${it.review ? 'review' : ''}">${esc(it.count ?? '?')}</div>
+      ${it.click
+        ? `<div class="nm click">${esc(it.rivals.join(' / '))}?</div>`
+        : `<div class="nm ${it.name ? '' : 'unk'}">${esc(it.name ?? (it.rarity > 0 ? it.rarity + '★ unnamed' : 'unnamed'))}</div>`}
+      <div class="bar" data-r="${esc(it.rarity)}"></div>
+    </div>`).join('');
+}
+
+// The sync with the home (D156): what is crossing, how much is left, how fast.
+// Told with every answer and not with a new version of the scan: it moves ten
+// times a second while the scan it belongs to stands still.
+const size = n => n >= 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.round(n / 1e3) + ' KB';
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const SYNC = {
+  scans:     s => `${plural(s.holds.scans ?? 0, 'scan')}, ${plural(s.holds.crops ?? 0, 'crop')}`,
+  learned:   () => 'what it has learned',
+  crops:     s => `${s.items - s.items_done} of ${plural(s.items, 'crop')} left`,
+  catalogue: s => `${s.items - s.items_done} of ${plural(s.items, 'catalogue file')} left`,
+};
+function renderSync(s){
+  const el = $('sync');
+  el.hidden = !s;
+  if(!s) return;
+  el.dataset.way = s.way; el.dataset.step = s.step;
+  el.querySelector('b').textContent = s.way === 'up' ? 'Sending to home' : 'Fetching from home';
+  el.querySelector('.what').textContent = (SYNC[s.step] ?? (() => s.step))(s);
+  el.querySelector('.left').textContent =
+    s.bytes ? `${size(Math.max(s.bytes - s.bytes_done, 0))} left of ${size(s.bytes)}` : '';
+  el.querySelector('.rate').textContent = s.rate ? `${size(s.rate)}/s` : '';
+  const meter = el.querySelector('.meter');
+  meter.classList.toggle('unknown', s.fraction == null);
+  meter.firstElementChild.style.width = s.fraction == null ? '' : `${Math.round(1000 * s.fraction) / 10}%`;
+  if(s.fraction == null) meter.removeAttribute('aria-valuenow');
+  else meter.setAttribute('aria-valuenow', Math.round(100 * s.fraction));
+}
+
+// One missed answer is a phone changing cell towers, not a scan that ended: the
+// page says so only after a few, and keeps showing what it last heard.
+const EVERY = 500, PATIENCE = 4, GIVE_UP = 4000;
+let version = -1, missed = 0, heard = null, timer = null, asking = false;
+async function tick(){
+  if(asking) return;  // looked at again mid-question: the answer on its way will do
+  clearTimeout(timer);
+  if(document.hidden) return;  // asked again when the page is looked at
+  asking = true;
+  try{
+    const res = await fetch(`api/live?since=${version}`, {cache: 'no-store', signal: AbortSignal.timeout(GIVE_UP)});
+    if(!res.ok) throw new Error(res.status);
+    const d = await res.json();
+    missed = 0; heard = new Date();
+    renderSync(d.sync);  // with every answer, and gone with the first that has none
+    if(!d.same){
+      version = d.version;
+      renderPhase(d); renderTabs(d); renderNeeds(d); renderSelected(d);
+      renderView(d); fadeBoxes(d); renderLog(d); renderItems(d);
+      document.body.dataset.version = d.version;
+    }
+  }catch(e){
+    if(++missed >= PATIENCE){
+      version = -1;  // whatever answers next is drawn in full
+      renderSync(null);
+      renderPhase({status: 'offline',
+                   note: heard ? `last heard from the scan at ${heard.toLocaleTimeString()}` : ''});
+    }
+  }
+  asking = false;
+  timer = setTimeout(tick, EVERY);
+}
+document.addEventListener('visibilitychange', tick);
+tick();
+</script>
+</body>
+</html>

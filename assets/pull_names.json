@@ -1,0 +1,314 @@
+{
+ "about": "Names for placing pulls (PLAN.md D135, D147). 'weapons' and 'resonators': pulls named by hand -- the game's id, its name in the catalogue, and the English name a pull export gives it -- written by tools/make_pull_names.py from names given on the 更新 page. 'english': for the weapons nobody has pulled and named yet, the name in the catalogue and the game's own English name for it, with no id, so that a pull is placed by its name alone. The app fetches nothing of this from anywhere.",
+ "english": {
+  "不灭航路": "Unflickering Valor",
+  "云琅": "Glint of Clouds",
+  "光影双生": "Lux & Umbra",
+  "凌空": "Aether Strike",
+  "千般渡": "Thousandfold Deliverance",
+  "原初佩枪·穿林": "Tyro Pistols",
+  "原初臂铠·磐岩": "Tyro Gauntlets",
+  "原初迅刀·鸣雨": "Tyro Sword",
+  "原初长刃·朴石": "Tyro Broadblade",
+  "原初音感仪·听浪": "Tyro Rectifier",
+  "叙别的罗曼史": "Romance in Farewell",
+  "大海的馈赠": "Ocean's Gift",
+  "天之苍苍": "Azure Oath",
+  "奔雷": "Thunderbolt",
+  "存帧": "Freeze Frame",
+  "容赦的沉思录": "Meditations on Mercy",
+  "心之锚": "Somnoire Anchor",
+  "戍关佩枪·平云": "Guardian Pistols",
+  "戍关臂铠·拔山": "Guardian Gauntlets",
+  "戍关迅刀·镇海": "Guardian Sword",
+  "戍关长刃·定军": "Guardian Broadblade",
+  "戍关音感仪·留光": "Guardian Rectifier",
+  "教学佩枪": "Training Pistols",
+  "教学臂铠": "Training Gauntlets",
+  "教学迅刀": "Training Sword",
+  "教学长刃": "Training Broadblade",
+  "教学音感仪": "Training Rectifier",
+  "昭日译注": "Solsworn Ciphers",
+  "曜光": "Radiant Dawn",
+  "栖霞饮露": "Firstlight's Herald",
+  "清音": "Augment",
+  "渊海回声": "Call of the Abyss",
+  "源能机锋": "Radiance Cleaver",
+  "灼霜": "Frostburn",
+  "焰痕": "Wildfire Mark",
+  "玉阙玄华": "Blooming Jadehaven",
+  "玻色星仪": "Boson Astrolabe",
+  "琼枝冰绡": "Rime-Draped Sprouts",
+  "白昼之脊": "Daybreaker's Spine",
+  "瞬斩刀-18型": "Sword#18",
+  "碎骨": "Skull Thrasher",
+  "穿击枪-26型": "Pistols#26",
+  "纹秋": "Autumntrace",
+  "翼锋": "Feather Edge",
+  "脉冲协臂": "Pulsation Bracer",
+  "苍鳞千嶂": "Verdant Summit",
+  "虚饰的华尔兹": "Waltz in Masquerade",
+  "蜃影": "Spectral Trigger",
+  "血誓盟约": "Bloodpact's Pledge",
+  "裁竹": "Emerald Sentence",
+  "赫奕流明": "Blazing Brilliance",
+  "酩酊的英雄志": "Legend of Drunken Hero",
+  "重破刃-41型": "Broadblade#41",
+  "金掌": "Stonard",
+  "金穹": "Aureate Zenith",
+  "钢影拳-21丁型": "Gauntlets#21D",
+  "钧天正音": "Beguiling Melody",
+  "镭射切变": "Laser Shearer",
+  "阳焰": "Solar Flame",
+  "风流的寓言诗": "Fables of Wisdom",
+  "飞景": "Lumingloss",
+  "驭冕铸雷之权": "Thunderflare Dominion",
+  "鸣动仪-25型": "Rectifier#25"
+ },
+ "weapons": {
+  "21010013": {
+   "name": "暗夜长刃·玄明",
+   "english": "Broadblade of Night"
+  },
+  "21010015": {
+   "name": "浩境粼光",
+   "english": "Lustrous Razor"
+  },
+  "21010023": {
+   "name": "源能长刃·测壹",
+   "english": "Originite: Type I"
+  },
+  "21010024": {
+   "name": "异响空灵",
+   "english": "Discord"
+  },
+  "21010026": {
+   "name": "时和岁稔",
+   "english": "Ages of Harvest"
+  },
+  "21010043": {
+   "name": "远行者长刃·辟路",
+   "english": "Broadblade of Voyager"
+  },
+  "21010044": {
+   "name": "永夜长明",
+   "english": "Dauntless Evernight"
+  },
+  "21010056": {
+   "name": "昙切",
+   "english": "Kumokiri"
+  },
+  "21010064": {
+   "name": "东落",
+   "english": "Helios Cleaver"
+  },
+  "21010066": {
+   "name": "宙算仪轨",
+   "english": "Starfield Calibrator"
+  },
+  "21010084": {
+   "name": "凋亡频移",
+   "english": "Waning Redshift"
+  },
+  "21020013": {
+   "name": "暗夜迅刀·黑闪",
+   "english": "Sword of Night"
+  },
+  "21020015": {
+   "name": "千古洑流",
+   "english": "Emerald of Genesis"
+  },
+  "21020023": {
+   "name": "源能迅刀·测贰",
+   "english": "Originite: Type II"
+  },
+  "21020024": {
+   "name": "行进序曲",
+   "english": "Overture"
+  },
+  "21020026": {
+   "name": "裁春",
+   "english": "Red Spring"
+  },
+  "21020043": {
+   "name": "远行者迅刀·旅迹",
+   "english": "Sword of Voyager"
+  },
+  "21020044": {
+   "name": "不归孤军",
+   "english": "Commando of Conviction"
+  },
+  "21020056": {
+   "name": "不屈命定之冠",
+   "english": "Defier's Thorn"
+  },
+  "21020064": {
+   "name": "西升",
+   "english": "Lunar Cutter"
+  },
+  "21020076": {
+   "name": "永远的启明星",
+   "english": "Everbright Polestar"
+  },
+  "21020084": {
+   "name": "永续坍缩",
+   "english": "Endless Collapse"
+  },
+  "21020106": {
+   "name": "云琅"
+  },
+  "21030013": {
+   "name": "暗夜佩枪·暗星",
+   "english": "Pistols of Night"
+  },
+  "21030015": {
+   "name": "停驻之烟",
+   "english": "Static Mist"
+  },
+  "21030016": {
+   "name": "死与舞",
+   "english": "The Last Dance"
+  },
+  "21030023": {
+   "name": "源能佩枪·测叁",
+   "english": "Originite: Type III"
+  },
+  "21030024": {
+   "name": "华彩乐段",
+   "english": "Cadenza"
+  },
+  "21030026": {
+   "name": "林间的咏叹调",
+   "english": "Woodland Aria"
+  },
+  "21030043": {
+   "name": "远行者佩枪·洞察",
+   "english": "Pistols of Voyager"
+  },
+  "21030044": {
+   "name": "无眠烈火",
+   "english": "Undying Flame"
+  },
+  "21030045": {
+   "name": "相位涟漪",
+   "english": "Phasic Homogenizer"
+  },
+  "21030046": {
+   "name": "溢彩荧辉",
+   "english": "Spectrum Blaster"
+  },
+  "21030064": {
+   "name": "飞逝",
+   "english": "Novaburst"
+  },
+  "21030084": {
+   "name": "悖论喷流",
+   "english": "Relativistic Jet"
+  },
+  "21040013": {
+   "name": "暗夜臂铠·夜芒",
+   "english": "Gauntlets of Night"
+  },
+  "21040015": {
+   "name": "擎渊怒涛",
+   "english": "Abyss Surges"
+  },
+  "21040016": {
+   "name": "诸方玄枢",
+   "english": "Verity's Handle"
+  },
+  "21040023": {
+   "name": "源能臂铠·测肆",
+   "english": "Originite: Type IV"
+  },
+  "21040024": {
+   "name": "呼啸重音",
+   "english": "Marcato"
+  },
+  "21040026": {
+   "name": "悲喜剧",
+   "english": "Tragicomedy"
+  },
+  "21040036": {
+   "name": "焰光裁定",
+   "english": "Blazing Justice"
+  },
+  "21040043": {
+   "name": "远行者臂铠·破障",
+   "english": "Gauntlets of Voyager"
+  },
+  "21040044": {
+   "name": "袍泽之固",
+   "english": "Amity Accord"
+  },
+  "21040046": {
+   "name": "万物持存的注释",
+   "english": "Moongazer's Sigil"
+  },
+  "21040064": {
+   "name": "骇行",
+   "english": "Hollow Mirage"
+  },
+  "21040084": {
+   "name": "尘云旋臂",
+   "english": "Celestial Spiral"
+  },
+  "21050013": {
+   "name": "暗夜矩阵·暝光",
+   "english": "Rectifier of Night"
+  },
+  "21050015": {
+   "name": "漪澜浮录",
+   "english": "Cosmic Ripples"
+  },
+  "21050016": {
+   "name": "掣傀之手",
+   "english": "Stringmaster"
+  },
+  "21050023": {
+   "name": "源能音感仪·测五",
+   "english": "Originite: Type V"
+  },
+  "21050024": {
+   "name": "奇幻变奏",
+   "english": "Variation"
+  },
+  "21050036": {
+   "name": "星序协响",
+   "english": "Stellar Symphony"
+  },
+  "21050043": {
+   "name": "远行者矩阵·探幽",
+   "english": "Rectifier of Voyager"
+  },
+  "21050044": {
+   "name": "今州守望",
+   "english": "Jinzhou Keeper"
+  },
+  "21050046": {
+   "name": "和光回唱",
+   "english": "Luminous Hymn"
+  },
+  "21050056": {
+   "name": "海的呢喃",
+   "english": "Whispers of Sirens"
+  },
+  "21050064": {
+   "name": "异度",
+   "english": "Comet Flare"
+  },
+  "21050066": {
+   "name": "幽冥的忘忧章",
+   "english": "Lethean Elegy"
+  },
+  "21050076": {
+   "name": "赝作的矮星",
+   "english": "Forged Dwarf Star"
+  },
+  "21050084": {
+   "name": "核熔星盘",
+   "english": "Fusion Accretion"
+  }
+ },
+ "resonators": {}
+}

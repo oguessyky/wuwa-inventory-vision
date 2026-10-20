@@ -1,0 +1,9 @@
+# The built pages: generated files, taken as they are
+src/wuwa_vision/web/ui/** -text
+
+# Run on Linux (the NAS): a carriage return in one stops it starting
+*.sh text eol=lf
+deploy/nas/** text eol=lf
+
+# Drawings are built into the pages by content: the same bytes on every machine
+*.svg text eol=lf

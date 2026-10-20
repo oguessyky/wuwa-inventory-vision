@@ -1,0 +1,11 @@
+{
+ "about": "Ingredients of a dish that Kuro's wiki has wrong, and what the game asks for (PLAN.md D155). Per dish: 'was' is the name the dish's page gives one ingredient, and the fix is applied only while the page still says that; 'now' is what the game calls it, checked there by hand. The amount is the page's. Applied when recipes.json is read (catalogue.apply_recipe_fixes).",
+ "ingredients": {
+  "早安，共鸣者": [
+   {
+    "was": "禽蛋",
+    "now": "鸟蛋"
+   }
+  ]
+ }
+}

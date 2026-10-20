@@ -1,0 +1,5 @@
+# What you put here is yours and stays on your machine: nothing in this folder is committed
+# except the note that says what it is for (PLAN.md D140).
+*
+!.gitignore
+!README.md

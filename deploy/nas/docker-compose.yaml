@@ -1,0 +1,37 @@
+# The home on a NAS (docs/nas.md). Built here, from app/ beside this file.
+#
+#   sh setup.sh          the first time: sets the network, builds, starts, and serves it
+#                        to your tailnet
+#
+# After that, any way of bringing the project up rebuilds it from app/ (`pull_policy:
+# build` below): `docker compose up -d` here, or the rebuild / redeploy button of the
+# NAS's own Docker app once this folder is one of its projects. There is no image to
+# download -- "update", which looks for one in a registry, has nothing to find.
+#
+# What is yours to set is in .env (see .env.example):
+#
+#   WUWA_NETWORK  whose network the app shares. It listens on 127.0.0.1 and nothing else,
+#                 and no port is published, so the only way in is Tailscale's own proxy
+#                 (`tailscale serve`). Which loopback that is depends on how Tailscale runs:
+#                   host                    Tailscale is on the NAS itself, or in a
+#                                           container with `network_mode: host`
+#                   container:<its name>    Tailscale is a container with a network of its own
+#   WUWA_DATA     where the data lives: a folder on the NAS, or a volume's name (the
+#                 default). Not the folder that syncs from your PC.
+#   WUWA_IMAGE, WUWA_CONTAINER   what Docker calls them.
+services:
+  wuwa:
+    build: ./app
+    # built from app/ every time the project is brought up (quick when nothing changed)
+    pull_policy: build
+    image: ${WUWA_IMAGE:-wuwa-vision-home}
+    container_name: ${WUWA_CONTAINER:-wuwa-vision}
+    restart: unless-stopped
+    network_mode: ${WUWA_NETWORK:-host}
+    volumes:
+      - ${WUWA_DATA:-wuwa-data}:/app/data
+      # read once, on the very first start, if it is there (entrypoint.sh)
+      - ./seed-data:/seed:ro
+
+volumes:
+  wuwa-data:
