@@ -157,8 +157,8 @@ would bring it all back.
 ## After a patch
 
 - **从 Wiki 更新** on the home's 更新 page fetches the new catalogue there. Each scanner fetches
-  it from the home before its next scan and embeds the new icons itself after that scan (as a
-  single machine does). The "also rebuild the recognition gallery" switch is not shown on the
+  it from the home before its next scan and embeds the new icons itself before reading
+  anything (D179), so that scan already knows them. The "also rebuild the recognition gallery" switch is not shown on the
   home: it has no recogniser to rebuild with.
 - **A new version of the app**: `git pull` on the PC, run step 1 again without `--seed`, then
   rebuild on the NAS -- `sh setup.sh` again, or from the NAS's own Docker app (below). Update the scanner and the home together — they

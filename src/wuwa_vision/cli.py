@@ -170,12 +170,36 @@ def _reference_is_stale(db: Path | str) -> bool:
     return bool(on_disk) and on_disk != embedded
 
 
+def _reference_icons() -> list:  # list[ReferenceIcon]
+    """The catalogue's icons, ready to embed; none when no catalogue is downloaded."""
+    from .recognize.reference import load_reference_icons
+
+    try:
+        return load_reference_icons()
+    except FileNotFoundError:
+        return []
+
+
+def _gallery_for_scan(args: argparse.Namespace, store: Store, say=print):  # noqa: ANN001, ANN202
+    """The gallery a scan names tiles with, brought up to date with the catalogue first
+    (D179). A wiki update -- on this machine, or fetched from the home just now -- has
+    icons nobody embedded; embedded after the scan (D85), the scan itself could not
+    name them, and a new weapon waited for a click. Only what is new is embedded."""
+    gallery = _open_gallery(store)
+    if not getattr(args, "no_seed", False) and _reference_is_stale(args.db):
+        icons = _reference_icons()
+        if icons:
+            added, dropped = gallery.refresh_reference(icons)
+            say(f"the catalogue grew: {added} new icon(s) learned before the scan"
+                + (f", {dropped} gone" if dropped else ""))
+    return gallery
+
+
 def _cmd_seed(args: argparse.Namespace) -> int:
     """Seed the gallery from canonical reference icons."""
-    from .recognize.appearance import hue_signature
     from .recognize.encoder import IconEncoder
     from .recognize.gallery import Gallery
-    from .recognize.reference import load_reference_icons, reference_key
+    from .recognize.reference import load_reference_icons
 
     store = Store(args.db)
     try:
@@ -193,22 +217,11 @@ def _cmd_seed(args: argparse.Namespace) -> int:
     print(f"reference icons: {len(icons)}")
 
     gallery = Gallery(store, IconEncoder())
-    # The reference set is replaced, not merged: English and Chinese names for one
-    # icon would make every item look like two differently-named twins (D42).
-    dropped = store.conn.execute("DELETE FROM gallery WHERE tab = 'reference'").rowcount
-    store.conn.commit()
+    # Brought up to date, not rebuilt (D179): what is new is embedded, and an entry the
+    # catalogue no longer has -- an English name of old (D42), an item renamed -- goes.
+    added, dropped = gallery.refresh_reference(icons)
     if dropped:
-        print(f"replaced {dropped} earlier reference entries")
-    added = gallery.add(
-        [i.image for i in icons],
-        [reference_key(i.image, i.name) for i in icons],
-        [i.rarity for i in icons],
-        names=[i.name for i in icons],
-        tab="reference",
-        # The catalogue's own art: its hue matches the screen (113 vs 109 right on
-        # real crops), unlike the wuwatracker renders D30 left ungated.
-        colours=[hue_signature(i.image) for i in icons],
-    )
+        print(f"dropped {dropped} reference entries the catalogue no longer has")
     # Names learned from panel reads before the catalogue existed carry OCR slips
     # (改造环 for 改造镣环). Next to the real name they would look like twins, so
     # snap them now; the alias also fixes every later read of the slip (D40/D42).
@@ -407,7 +420,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     store = Store(args.db)
     gallery = holders = None
     if args.identify:
-        gallery = _open_gallery(store)
+        gallery = _gallery_for_scan(args, store, say)
         print(f"gallery: {gallery.load()} entries on {gallery.encoder.device}")
         # The 武器 tab's portraits (D61): who is carrying which weapon. Shares the
         # encoder -- one CUDA framework in the process, and one model in VRAM.
@@ -603,12 +616,8 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     if args.web:
         _stay_with_the_page(state)
 
-    # A catalogue that grew since the last seed has icons nobody embedded, and
-    # the scan just proved the machine is set up to do it (D85).
-    if args.identify and not args.no_seed and _reference_is_stale(args.db):
-        print("\nthe catalogue grew since the gallery was built -- seeding it now")
-        print("  (skip this with --no-seed)")
-        _cmd_seed(argparse.Namespace(db=args.db, dir=None))
+    # A catalogue that grew is learned before the scan now, not after it (D179,
+    # `_gallery_for_scan`): the scan that follows a wiki update knows its new items.
     return 0
 
 
@@ -1023,8 +1032,8 @@ def main(argv: list[str] | None = None) -> int:
     p_live.add_argument("--identify", action="store_true")
     p_live.add_argument(
         "--no-seed", action="store_true",
-        help="do not rebuild the recognition gallery afterwards when the "
-             "catalogue has grown since it was last built",
+        help="do not learn the catalogue's new icons before the scan when it has "
+             "grown since the gallery was last brought up to date (D179)",
     )
     p_live.add_argument(
         "--no-web", dest="web", action="store_false",

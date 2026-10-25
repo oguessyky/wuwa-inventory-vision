@@ -55,14 +55,20 @@ def _cut(rows: list[dict]) -> dict:
     return {"count": len(rows), "rows": rows[:ROWS]}
 
 
-def short(to_buy: list[dict], dishes: list[dict], plans: dict) -> dict:
-    """What is missing, three ways.
+def short(to_buy: list[dict], dishes: list[dict], plans: dict,
+          materials: list[dict] | None = None) -> dict:
+    """What is missing, four ways.
 
     `to_buy`: `shops.to_buy` -- everything below its base amount (D158).
     `dishes`: `Craftable.as_dict` rows; kept are the ones below a target that can
     be cooked on this account, the most servings short first.
     `plans`: `planner.view`; kept are the materials all plans together still lack.
+    `materials`: 材料's groups (`MaterialGroup.as_dict`, D181); kept are the tiers it marks
+    缺 N -- short after synthesis, against the targets set there -- the most short first.
     """
+    tiers = sorted((t for g in materials or [] for t in g.get("tiers") or []
+                    if t.get("shortfall", 0) > 0),
+                   key=lambda t: (-t["shortfall"], t["name"]))
     below = sorted((d for d in dishes if d["shortfall"] > 0 and not d.get("missing")),
                    key=lambda d: (-d["shortfall"], d["name"]))
     lacking = sorted((m for m in plans.get("materials") or [] if m["shortfall"] > 0),
@@ -71,6 +77,8 @@ def short(to_buy: list[dict], dishes: list[dict], plans: dict) -> dict:
         "buy": {**_cut(to_buy), "trips": shops.trips(to_buy)},
         "dishes": _cut([{k: d[k] for k in ("name", "rarity", "icon_file", "owned", "target",
                                            "shortfall", "makeable")} for d in below]),
+        "materials": _cut([{k: t[k] for k in ("name", "rarity", "icon_file", "owned", "target",
+                                              "shortfall")} for t in tiers]),
         "plans": {**_cut([{k: m[k] for k in ("name", "rarity", "icon_file", "owned", "target",
                                              "shortfall")} for m in lacking]),
                   "plans": len(plans.get("plans") or []),

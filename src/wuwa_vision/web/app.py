@@ -1440,7 +1440,8 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                 "short": dashboard_mod.short(
                     shops_mod.to_buy(cat, owned, st.base_amounts()),
                     [d.as_dict() for d in dishes_of(st, cat, inventory)],
-                    planner.view(cat, inventory, plans, done_tabs(st))),
+                    planner.view(cat, inventory, plans, done_tabs(st)),
+                    [g.as_dict() for g in material_groups(st, cat, inventory)]),
                 "trust": dashboard_mod.trust(tab_summary(st), inventory, unsent),
                 # whether the shop table was ever fetched: "nothing to buy" means
                 # something else without it
@@ -1842,22 +1843,27 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         finally:
             st.close()
 
+    def material_groups(st: Store, cat: Catalogue, inventory: list) -> list:
+        """材料's groups, as that page has them; 总览 shows their short tiers (D181)."""
+        done = {t["tab"] for t in tab_summary(st) if t["complete"]}
+        away = hidden(st)
+        progress = progress_of(st)
+        return build_materials(cat, inventory, complete_tabs=done,
+                               done=roster.finished(cat, progress),
+                               extra=cooking_needs(st, cat, inventory), skip=away,
+                               wanted=st.material_targets(),
+                               still=roster.still_needed(cat, progress, read_pulls(st), away),
+                               base=st.base_amounts())
+
     @app.get("/api/materials")
     def materials() -> dict:
         """Every build material against one full build, synthesis counted (D45 decision 9)."""
         st = Store(db())
         try:
             cat = catalogue.get()
-            done = {t["tab"] for t in tab_summary(st) if t["complete"]}
             inventory = build_inventory(st, cat)
-            wanted = cooking_needs(st, cat, inventory)
             away = hidden(st)
-            progress = progress_of(st)
-            groups = build_materials(cat, inventory, complete_tabs=done,
-                                     done=roster.finished(cat, progress), extra=wanted,
-                                     skip=away, wanted=st.material_targets(),
-                                     still=roster.still_needed(cat, progress, read_pulls(st), away),
-                                     base=st.base_amounts())
+            groups = material_groups(st, cat, inventory)
             owned = {i.name: i.count or 0 for i in inventory if i.name}
             return {
                 "groups": [g.as_dict() for g in groups],

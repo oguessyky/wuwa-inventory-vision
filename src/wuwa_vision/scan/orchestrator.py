@@ -381,8 +381,18 @@ def _pulled_weapons(store: Store, report: ScanReport) -> frozenset[str] | None:
     return frozenset(pulls["weapons"])
 
 
+def _known_at_import(store: Store, report: ScanReport) -> frozenset[str] | None:
+    """The weapons the catalogue knew when the pull history was imported (D179), or None:
+    another tab, no import, or an import from before this was kept."""
+    if (report.tab_label or "") != WEAPON_TAB:
+        return None
+    known = (store.pulls() or {}).get("weapons_known")
+    return frozenset(known) if known else None
+
+
 def _never_pulled(
-    name: str, rarity: int, match: object, pulled: frozenset[str] | None
+    name: str, rarity: int, match: object, pulled: frozenset[str] | None,
+    known: frozenset[str] | None = None,
 ) -> bool:
     """Is this a 5-star weapon named from catalogue artwork alone, which the pull
     history says was never pulled (D101)?
@@ -391,11 +401,16 @@ def _never_pulled(
     right icon gated out on hue. Artwork is not enough against that; the panel is,
     so a name the panel gave a crop like this one (`learned`) is not doubted: the
     handful of 5-star weapons given away outside the convene cost one click, once.
+
+    `known`, the weapons the catalogue had when the history was imported (D179): one
+    newer than that -- 沉冥, fetched with a wiki update after the import -- cannot be in
+    it, and is not doubted for that.
     """
     return (
         pulled is not None
         and rarity >= PULL_ONLY_RARITY
         and name not in pulled
+        and (known is None or name in known)
         and not getattr(match, "learned", False)
         and name in weapon_names()
     )
@@ -438,6 +453,7 @@ def _ingest(
 
     levels, holder_reads = _weapon_reads(tiles, report, holders, read_counts, count_only)
     pulled = _pulled_weapons(store, report)
+    known = _known_at_import(store, report)
 
     rows: list[Observation] = []
     panel_used = False
@@ -513,7 +529,8 @@ def _ingest(
             known = weapon_names() if level is not None and item_name else frozenset()
             if known and item_name not in known:
                 item_name = None
-            elif item_name and _never_pulled(item_name, tile.rarity.rarity, match, pulled):
+            elif item_name and _never_pulled(item_name, tile.rarity.rarity, match, pulled,
+                                             known):
                 # Not asserted: offered beside the next-best name, for a click.
                 runner_up = getattr(match, "runner_up", None)
                 rivals = (item_name, runner_up) if runner_up else rivals

@@ -63,7 +63,8 @@ def one_round(rows: list[dict], want: int) -> dict:
         buys.append({"row": index, "shop": row["shop"], "shop_id": row["shop_id"],
                      "purchases": purchases,
                      "pieces": pieces, "cost": paid, "gated": row["gated"],
-                     "kind": row.get("kind") or "general", "icon": row.get("icon")})
+                     "kind": row.get("kind") or "general", "icon": row.get("icon"),
+                     "regions": row.get("regions") or [], "place": row.get("place")})
         left -= pieces
     return {"buys": buys, "pieces": sum(b["pieces"] for b in buys), "left": max(left, 0),
             "cost": [{"item": k, "amount": v} for k, v in cost.items()]}
@@ -91,14 +92,16 @@ def trips(rows: list[dict]) -> list[dict]:
     dashboard draws a shop with the things to pick up in it, which is how a
     shopping round is walked; the most pieces first.
 
-    {shop, shop_id, kind, icon, cost, goods: [{name, rarity, icon_file, pieces}]}
+    {shop, shop_id, kind, icon, regions, place, cost, goods: [{name, rarity, icon_file, pieces}]}
+    -- where the shop is (D177), as the 商店 page says it: the map's marks, else the wiki's place
     """
     out: dict[int, dict] = {}
     for row in rows:
         for buy in row["plan"]["buys"]:
             trip = out.setdefault(buy["shop_id"], {
                 "shop": buy["shop"], "shop_id": buy["shop_id"], "kind": buy["kind"],
-                "icon": buy["icon"], "cost": {}, "goods": []})
+                "icon": buy["icon"], "regions": buy.get("regions") or [],
+                "place": buy.get("place"), "cost": {}, "goods": []})
             trip["goods"].append({"name": row["name"], "rarity": row["rarity"],
                                   "icon_file": row["icon_file"], "pieces": buy["pieces"],
                                   "gated": buy["gated"]})

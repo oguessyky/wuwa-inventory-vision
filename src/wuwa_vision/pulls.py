@@ -119,7 +119,10 @@ def parse(export: dict, catalogue: Catalogue) -> dict:
                             **({"rarity": int(rarity)} if str(rarity or "").isdigit() else {})})
     return {"date": str(export.get("date") or "")[:32], "pulls": len(pulls),
             "resonators": dict(resonators), "weapons": dict(weapons),
-            "unknown": sorted(unknown, key=lambda u: u["gid"])}
+            "unknown": sorted(unknown, key=lambda u: u["gid"]),
+            # what the history could have listed (D179): a weapon the catalogue did not
+            # know yet is newer than this import, and its absence here proves nothing
+            "weapons_known": sorted(arms)}
 
 
 def resolve(data: dict | None, catalogue: Catalogue) -> dict | None:

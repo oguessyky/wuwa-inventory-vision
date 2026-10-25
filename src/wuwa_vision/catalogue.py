@@ -413,7 +413,8 @@ class Catalogue:
                  "price": [{**p, "icon_file": self.icon_file(p["item"])} for p in good["price"]],
                  "gated": bool(good.get("gated")),
                  # when the limit starts over (D161), and where the shop is
-                 "refresh": self.refresh_of(shop, good), "regions": shop.get("regions") or []}
+                 "refresh": self.refresh_of(shop, good), "regions": shop.get("regions") or [],
+                 "place": shop.get("place")}
                 for shop in self.shops for good in shop["goods"] if good["item"] == name]
         return sorted(rows, key=lambda r: (r["limit"] is not None,
                                            -(r["limit"] or 0) * r["amount"], r["shop_id"]))

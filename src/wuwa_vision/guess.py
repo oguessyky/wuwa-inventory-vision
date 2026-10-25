@@ -140,8 +140,11 @@ def clues(catalogue: Catalogue, name: str) -> dict[str, dict]:
                    "name": dish, "icon_file": catalogue.icon_file(dish) if dish else None}
     out["dish"]["values"] = out["dish"]["values"] or [NONE]
     by_slot: dict[str, list[str]] = {slot: [] for slot in _SLOTS}
+    own = _rover_skills(catalogue, name, build)
     for material in build.get("materials") or {}:
         slot = materials.slot_of(catalogue, material)
+        if slot == "enemy" and own is not None and material not in own:
+            continue        # the family every 漂泊者 ascends on, not this form's (D180)
         if slot == "enemy":
             # the family, by its highest tier: all four tiers are one answer
             material = (materials.family(catalogue, material) or [material])[-1]
@@ -152,6 +155,20 @@ def clues(catalogue: Catalogue, name: str) -> dict[str, dict]:
                      "items": [_material(catalogue, n) for n in sorted(names)]}
     cached[name] = out
     return out
+
+
+def _rover_skills(catalogue: Catalogue, name: str, build: dict) -> set[str] | None:
+    """What a 漂泊者 form's skills spend, when they spend an enemy drop (D180); None for
+    anyone else, or a form the wiki has not filled in. Every form ascends once, on one
+    family; what tells 气动 from 衍射 is the drop its own skills take."""
+    if not name.startswith(roster.ROVER):
+        return None
+    spent = {m for skill in (build.get("skills") or {}).values()
+             for step in [*(skill.get("levels") or []), *(skill.get("nodes") or [])]
+             for m in step}
+    if not any(materials.slot_of(catalogue, m) == "enemy" for m in spent):
+        return None
+    return spent
 
 
 def _major(version: str) -> str:

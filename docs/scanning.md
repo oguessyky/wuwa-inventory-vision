@@ -94,9 +94,14 @@ tallies can be read. Close its tab and `live` ends by itself, a couple of second
 Enter in the terminal does the same, and is what is left if the page was never opened. A reload is
 not a close. If the scan is still being sent to a [home](nas.md), it is sent first.
 
-**When the scan ends it seeds the gallery if it needs to** (D85): a patch that added items leaves
-reference icons nobody has embedded, and the machine has just proved it can do the work. It says so
-before it starts; `--no-seed` turns it off.
+**Before it reads anything it learns the catalogue's new icons** (D85, D179): a patch that added
+items -- updated here, or fetched from a [home](nas.md) a moment ago -- leaves reference icons nobody
+has embedded. Only those are embedded, so it takes seconds, and the scan that follows a wiki update
+names the new weapon itself. It says how many it learned; `--no-seed` turns it off.
+
+A 5-star weapon the pull history does not list is asked about rather than named from its picture
+(D101) -- unless the weapon is newer than the import: one the catalogue did not know when the
+history was imported is not held against it (D179).
 
 **A wrong name? Click it.** On the main page or the live page, click an item's name and type the
 right one. The fix is kept and applied to every later read of that same misread, in every scan.

@@ -354,6 +354,37 @@ class Gallery:
         self.store.conn.commit()
         return len(unique)
 
+    def refresh_reference(self, icons: list) -> tuple[int, int]:  # list[ReferenceIcon]
+        """Bring the catalogue's icons in the gallery up to date: (added, dropped) (D179).
+
+        Only what is new is embedded -- an entry already there keeps its vector and its
+        date -- and an entry the catalogue no longer has is dropped (an English name of
+        old, D42; an item renamed). Crops learned from scans are never touched. Cheap
+        when nothing changed, so a scan can do it before it reads anything: a wiki
+        update's new weapon is then known to the very next scan, not the one after.
+        """
+        from .appearance import hue_signature
+        from .reference import reference_key
+
+        keys = [reference_key(i.image, i.name) for i in icons]
+        wanted = set(keys)
+        gone = [r[0] for r in self.store.conn.execute(
+            "SELECT icon_hash FROM gallery WHERE tab = 'reference'") if r[0] not in wanted]
+        self.store.conn.executemany("DELETE FROM gallery WHERE icon_hash = ?",
+                                    [(h,) for h in gone])
+        self.store.conn.commit()
+        have = {r[0] for r in self.store.conn.execute(
+            "SELECT icon_hash FROM gallery WHERE tab = 'reference' AND backbone = ?",
+            (self.encoder.info.key(),))}
+        new = [n for n, k in enumerate(keys) if k not in have]
+        added = self.add(
+            [icons[n].image for n in new], [keys[n] for n in new],
+            [icons[n].rarity for n in new], names=[icons[n].name for n in new], tab="reference",
+            # the catalogue's own art: its hue matches the screen (D30, D42)
+            colours=[hue_signature(icons[n].image) for n in new],
+        ) if new else 0
+        return added, len(gone)
+
     def name_item(self, icon_hash: str, item_name: str) -> None:
         """Attach a real item name, harvested from the detail panel during bootstrap."""
         self.store.conn.execute(

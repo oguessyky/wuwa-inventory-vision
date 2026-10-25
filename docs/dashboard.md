@@ -11,8 +11,10 @@ Open <http://127.0.0.1:4000>. It is separate from the scan monitor (`live`, port
 run at once. Every page is a view of the same database, so a correction made anywhere shows up
 everywhere.
 
-The pages are in a column down the left, in two groups: the ones you look at daily (总览, 库存,
-料理, 材料, 共鸣者) and the ones for managing things (武器, 商店, 规划, 猜谜, 更新). The app's icon at
+The pages are in a column down the left, in two groups: the ones you look at daily (总览, 规划,
+料理, 材料, 共鸣者) and the ones for managing things (武器, 商店, 库存, 猜谜, 更新).
+总览 already says what is short and what waits for a name, so 库存 is where you go to look an item
+up or fix it, not every day (D182). The app's icon at
 the top leads back to 总览. The button at the column's foot folds it to a rail of icons, and the
 browser remembers that; a window narrower than about 1100 px shows the rail by itself. 帮助, and
 the scan monitor while a scan runs, are at the foot of the column too.
@@ -47,9 +49,9 @@ Open the same address on a phone and the layout changes for it:
 - **Every search box takes pinyin, initials and English.** 声核 is found by `shenghe` or `sh`,
   金阳凤 by `jyf`, 面粉 by `flour`; a dish is found by an ingredient's pinyin too. Every item,
   dish, resonator, weapon and shop has its English name (D163).
-- **The five pages you look at daily are a tab bar along the bottom**: 总览, 库存, 料理, 材料 and
+- **The five pages you look at daily are a tab bar along the bottom**: 总览, 规划, 料理, 材料 and
   共鸣者. The menu button at the top
-  left opens a drawer with every page in it, 武器, 商店, 规划, 猜谜 and 更新 included. Close it with ✕, a tap
+  left opens a drawer with every page in it, 武器, 商店, 库存, 猜谜 and 更新 included. Close it with ✕, a tap
   beside it, a swipe to the left, or by going back.
 - **The filter chips fold into a sheet** behind one **筛选** button, which says how many are
   picked and which. While anything is picked, **清除** beside it clears the lot in one tap.
@@ -156,10 +158,13 @@ here; each group leads to the page that owns it, and a tile opens its item.
   With a 底数 on 密音筒 (below), a line under the echoes' bars says how many +25 your EXP is
   enough for against it; click it for a tube's panel and the exchanges that sell them.
 - **这轮去买.** Everything below the 底数 you gave it, as one round of the shops: a block per
-  shop with its picture, what that stop costs, and the things to pick up there with ×N,
-  cheapest first. What one round cannot cover is said under it.
-- **料理低于目标** and **规划还缺的材料.** Tiles with 缺 N and owned / wanted, the worst first,
+  shop with its picture, where it is (country · town, as 商店 says it -- D177), what that stop
+  costs, and the things to pick up there with ×N, cheapest first. What one round cannot cover
+  is said under it.
+- **料理低于目标**, **材料低于目标** (D181: the tiers 材料 marks 缺 N, after synthesis, against
+  its targets) and **规划还缺的材料.** Tiles with 缺 N and owned / wanted, the worst first,
   two rows at most and a link to the rest; the plans' faces are above theirs.
+- **件待确认**, in the strip, opens 库存 on exactly what waits for a name (D178).
 
 A group with nothing to show says why: no wallet read yet, no plan, the shop table not fetched.
 
@@ -179,7 +184,9 @@ and a button for its direction — 降序 ↓ / 升序 ↑, click to turn the li
 Here the chips are 稀有度, **拥有** (已拥有 is picked as the page
 opens; add 未拥有 for the whole catalogue including what you have not scanned) and **状态** —
 待确认 (unnamed or look-alike items that still need a click in game) and 有变化 (what the last scan
-moved).
+moved). The "N 种待确认" in the line above the grid shows exactly those, whatever the chips were
+(D178); a tile that is not an item at all -- a row cut off by the scroll -- is removed from its
+panel (不是物品).
 
 Rest the pointer on anything for a card about it — a material's family, a dish's ingredients,
 what a resonator is still short of — and **move onto the card to click what it shows**: the
@@ -449,7 +456,7 @@ All of these are prefixed with `uv run python -m wuwa_vision`:
 | `seed` | (re)build the gallery from the downloaded catalogue, or import the shipped pack |
 | `pack` | write the gallery's reference entries to `assets/gallery_pack.npz` |
 | `show --limit 40` | print the latest scan |
-| `serve` | the main app (总览, 库存, 料理, 材料, 共鸣者, 武器, 商店, 规划, 猜谜, 更新) on 127.0.0.1:4000, shared with your tailnet when Tailscale is connected (`--local`: this PC only) |
+| `serve` | the main app (总览, 规划, 料理, 材料, 共鸣者, 武器, 商店, 库存, 猜谜, 更新) on 127.0.0.1:4000, shared with your tailnet when Tailscale is connected (`--local`: this PC only) |
 
 `live` options are listed under [scanning](scanning.md#options); the fetch tools under
 [setup](setup.md#where-everything-lives).
