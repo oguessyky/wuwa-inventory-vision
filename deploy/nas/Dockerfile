@@ -6,6 +6,11 @@
 # them out).
 FROM python:3.12-slim
 
+# Where it comes from (D183): the published image is built from the public repository.
+LABEL org.opencontainers.image.source="https://github.com/oguessyky/wuwa-inventory-vision" \
+      org.opencontainers.image.description="WuWa Inventory Vision: the home (dashboard and data)" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONUTF8=1 \
     PYTHONDONTWRITEBYTECODE=1 \

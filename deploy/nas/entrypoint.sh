@@ -9,4 +9,8 @@ if [ ! -f /app/data/wuwa.sqlite ] && [ -f /seed/wuwa.sqlite ]; then
     cp -a /seed/. /app/data/
 fi
 
+if [ ! -f /app/data/home.key ]; then
+    echo "first start: the key a scanner needs will be the one line of home.key in the data folder"
+fi
+
 exec "$@"

@@ -55,7 +55,8 @@ every frame before it is saved or shown.
 
 **Releases** come in three zips, each with a `START-HERE.md` that says how to set it up:
 **full** (scanner and dashboard on one PC), **scanner** (the PC with the game, sending to a
-home), and **home** (the dashboard on a NAS, with Docker). `tools/make_release.py` makes them.
+home), and **home** (the dashboard on a NAS: a ready-made image with Tailscale beside it, deployed
+from the NAS's Docker app). On a PC each step is a file to double-click.
 
 The short version, on Windows:
 

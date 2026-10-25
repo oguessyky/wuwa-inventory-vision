@@ -27,7 +27,20 @@ One machine on its own is still the default and needs none of this ([setup](setu
 - **Viewing and editing have no login**, as on a desktop: anyone on your tailnet can use every
   button. **Uploading a scan needs a key**, so only a scanner you set up can add to the data.
 
-## What you need
+## Two ways to set a home up
+
+- **Ready-made** (D183, the easy one): the *home* release package -- a compose file that runs the
+  published image (amd64 and arm64) with Tailscale beside it, deployed from the NAS's own Docker
+  app. No build, no SSH, no script; its `START-HERE.md` is the whole guide, and the Docker app's
+  **update** button brings each new version. That Tailscale joins your tailnet as a device of its
+  own; one already on the NAS is not touched.
+- **Built from source** (below): the app laid out from the repository and built on the NAS. For
+  trying changes before a release, or a NAS that already runs Tailscale and should share it.
+
+A second home of either kind runs beside the first without disturbing it: its own folder, its
+own data, its own name on the tailnet. That is how a new version is tried.
+
+## What you need (built from source)
 
 - A NAS (or any always-on Linux box) with Docker and Docker Compose.
 - [Tailscale](https://tailscale.com) on it, signed in to your tailnet.
