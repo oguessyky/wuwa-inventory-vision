@@ -1,0 +1,4 @@
+{
+  "TCP": {"4000": {"HTTP": true}},
+  "Web": {"${TS_CERT_DOMAIN}:4000": {"Handlers": {"/": {"Proxy": "http://127.0.0.1:4000"}}}}
+}

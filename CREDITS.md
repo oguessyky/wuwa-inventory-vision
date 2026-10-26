@@ -138,6 +138,15 @@ file was written.
 | windows-capture (optional: live capture on Windows) | MIT |
 | pywin32 (optional: live capture on Windows) | PSF |
 
+**Tailscale (in the home's images)**
+
+The home (D183, D191) runs beside Tailscale's own container image, `tailscale/tailscale`,
+published again as `ghcr.io/oguessyky/wuwa-inventory-vision-tailscale` so a NAS's image list says
+whose it is: unchanged -- no package added, nothing rebuilt -- with only the home's Serve
+settings and defaults put in. Tailscale is © Tailscale Inc. & contributors, under the
+BSD-3-Clause licence; its text is in `deploy/tailscale-image/TAILSCALE-LICENSE` and inside
+the image at `/usr/share/licenses/tailscale/LICENSE`.
+
 **Python itself (in the release packages for Windows)**
 
 The *full* and *scanner* release packages carry **Python 3.12.10** in `python/`: python.org's own

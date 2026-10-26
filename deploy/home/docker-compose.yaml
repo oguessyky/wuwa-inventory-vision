@@ -8,7 +8,7 @@
 # folder and `docker compose up -d` there. The key may then go in a .env beside it instead.)
 #
 # The app listens on 127.0.0.1 and nothing else, and no port is published: it shares the
-# network of the Tailscale container beside it, whose Serve (TS_SERVE_JSON below) is the only
+# network of the Tailscale container beside it, whose Serve (built into its image) is the only
 # way in -- from your own tailnet, never funnel. That Tailscale is a device of its own on your
 # tailnet (TS_HOSTNAME); a Tailscale already on this machine is not touched.
 #
@@ -16,26 +16,14 @@
 # The containers are named after the project, so a second project beside this one never clashes.
 services:
   tailscale:
-    image: tailscale/tailscale:v1.102.5
+    # Tailscale's own image under this app's name, its Serve settings built in (D191)
+    image: ${WUWA_TAILSCALE_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-tailscale}:${WUWA_VERSION:-latest}
     restart: unless-stopped
     environment:
       # your key, from https://login.tailscale.com/admin/settings/keys -- used once, on the first start
       TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}
       # this home's name on your tailnet; a second home beside it takes another (wuwa-home-test)
       TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}
-      # logged in with the key once; after that the state below is what counts
-      TS_AUTH_ONCE: "true"
-      TS_STATE_DIR: /var/lib/tailscale
-      # its own network stack in this container: no /dev/net/tun, no NET_ADMIN
-      TS_USERSPACE: "true"
-      # Serve: port 4000 of this device to the app, for your tailnet only. Written where
-      # Tailscale reads it as the container starts, so nothing has to sit beside this file.
-      TS_SERVE_CONFIG: /config/serve.json
-      TS_SERVE_JSON: '{"TCP":{"4000":{"HTTP":true}},"Web":{"$${TS_CERT_DOMAIN}:4000":{"Handlers":{"/":{"Proxy":"http://127.0.0.1:4000"}}}}}'
-    entrypoint:
-      - /bin/sh
-      - -c
-      - mkdir -p /config && printf '%s' "$$TS_SERVE_JSON" > /config/serve.json && exec /usr/local/bin/containerboot
     volumes:
       - ./tailscale-state:/var/lib/tailscale
 

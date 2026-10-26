@@ -262,7 +262,7 @@ def pic_project() -> str:
                      700 if w == "Project" else 400)
                    for k, w in enumerate(("Overview", "Project", "Container", "Image")))
     yaml = [("services:", MUTED), ("  tailscale:", MUTED),
-            ("    image: tailscale/tailscale:v1…", MUTED), ("    environment:", MUTED),
+            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-tailscale…", MUTED), ("    environment:", MUTED),
             ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
             ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}", MUTED), ("  wuwa:", MUTED),
             ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-home…", MUTED)]

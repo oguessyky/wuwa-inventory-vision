@@ -10,6 +10,7 @@ deploy/nas/** text eol=lf
 
 # The ready-made home (D183) and its workflow: read on Linux
 deploy/home/** text eol=lf
+deploy/tailscale-image/** text eol=lf
 .github/** text eol=lf
 
 # The double-click files of a release (D184): run by cmd.exe, which wants CRLF

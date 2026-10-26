@@ -1,4 +1,4 @@
-# The home's image (PLAN.md D183): built on each release of the public repository, for amd64
+# The home's images (PLAN.md D183, D191): built on each release of the public repository, for amd64
 # and arm64, and published to its packages. What is built is exactly what a NAS builds from
 # source: the app/ folder tools/make_nas_bundle.py lays out -- code, the built pages and the
 # names that ship; never data, never a game picture.
@@ -55,3 +55,12 @@ jobs:
           tags: |
             ghcr.io/oguessyky/wuwa-inventory-vision-home:${{ steps.version.outputs.version }}
             ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-home:latest' || '' }}
+      - name: the home's Tailscale, under this app's name (D191)
+        uses: docker/build-push-action@v6
+        with:
+          context: deploy/tailscale-image
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/oguessyky/wuwa-inventory-vision-tailscale:${{ steps.version.outputs.version }}
+            ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-tailscale:latest' || '' }}
