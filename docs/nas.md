@@ -29,10 +29,11 @@ One machine on its own is still the default and needs none of this ([setup](setu
 
 ## Two ways to set a home up
 
-- **Ready-made** (D183, the easy one): the *home* release package -- a compose file that runs the
-  published image (amd64 and arm64) with Tailscale beside it, deployed from the NAS's own Docker
-  app. No build, no SSH, no script; its `START-HERE.md` is the whole guide, and the Docker app's
-  **update** button brings each new version. That Tailscale joins your tailnet as a device of its
+- **Ready-made** (D183, D186, the easy one): one compose file that runs the published image
+  (amd64 and arm64) with Tailscale beside it, pasted into the NAS's Docker app -- Project ->
+  Create project, named `wuwa-inventory-vision`, an empty folder, the file with your Tailscale
+  key in it, deploy. No build, no SSH, no script, no zip; the *home* package's `START-HERE.html`
+  shows each step, and the Docker app's **update** button brings each new version. That Tailscale joins your tailnet as a device of its
   own; one already on the NAS is not touched.
 - **Built from source** (below): the app laid out from the repository and built on the NAS. For
   trying changes before a release, or a NAS that already runs Tailscale and should share it.

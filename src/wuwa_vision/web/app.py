@@ -58,7 +58,7 @@ from ..materials import (
     users,
 )
 from ..recognize.names import WEAPON_TAB
-from ..recognize.reference import REFERENCE_DIR, name_to_file
+from ..recognize.reference import name_to_file, reference_dir
 from ..scan.live_state import LiveState, needs_you
 from ..store.db import Store
 from ..update import UpdateJob
@@ -2345,7 +2345,7 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         allowed = set(name_to_file().values())
         if filename not in allowed:
             raise HTTPException(404, "unknown reference icon")
-        path = Path(REFERENCE_DIR) / filename
+        path = reference_dir() / filename        # asked now (D188)
         if not path.exists():
             raise HTTPException(404, "missing reference icon")
         media = "image/png" if filename.endswith(".png") else "image/webp"

@@ -63,6 +63,8 @@
   .meter{height:4px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
   .meter i{display:block;height:100%;background:var(--accent)}
   .tab.done .meter i{background:var(--ok)} .tab.over .meter i{background:var(--bad)}
+  /* a tab this scan covers, not scanned yet (D190) */
+  .tab.todo{border-style:dashed;opacity:.6} .tab.todo .n{color:var(--muted)}
   /* The sync with the home (D156): what is crossing, how much is left, how fast. */
   .sync .said{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px}
   .sync .what,.sync .left{color:var(--muted);font-variant-numeric:tabular-nums}
@@ -238,10 +240,11 @@ function fadeBoxes(d){
 function renderTabs(d){
   document.getElementById('tabs').innerHTML = d.tabs.filter(t => t.label).map(t => {
     const pct = t.total ? Math.min(100, 100 * t.found / t.total) : 0;
-    const cls = ['tab', t.label === d.current_tab ? 'current' : '',
+    const todo = t.visited === false;     // to scan, not reached yet (D190)
+    const cls = ['tab', t.label === d.current_tab ? 'current' : '', todo ? 'todo' : '',
                  t.complete ? 'done' : '', t.overcount ? 'over' : ''].join(' ');
     return `<div class="${cls}"><div class="l">${esc(t.label)}
-      <span class="n">${t.found}/${t.total ?? '?'}${t.complete ? ' ✓' : ''}</span></div>
+      <span class="n">${todo ? '未扫描' : `${t.found}/${t.total ?? '?'}${t.complete ? ' ✓' : ''}`}</span></div>
       <div class="meter"><i style="width:${pct}%"></i></div></div>`;
   }).join('');
 }

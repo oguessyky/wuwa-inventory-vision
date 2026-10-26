@@ -46,6 +46,7 @@ import json
 import re
 import secrets
 import shutil
+import socket
 import sqlite3
 import time
 import urllib.error
@@ -557,28 +558,56 @@ def key_matches(expected: str | None, shown: str | None) -> bool:
     return bool(expected) and bool(shown) and hmac.compare_digest(expected.encode(), shown.encode())
 
 
-def check_address(url: str) -> str:
+#: The port a home listens on when an address does not say (deploy/home, docs/nas.md).
+HOME_PORT = 4000
+TAILNET = ipaddress.ip_network("100.64.0.0/10")
+
+
+def _resolve(host: str) -> str | None:
+    """The address a name stands for, by this machine's resolver -- MagicDNS for a tailnet
+    device's own name; None when it stands for nothing."""
+    try:
+        return socket.getaddrinfo(host, None, family=socket.AF_INET)[0][4][0]
+    except (OSError, IndexError):
+        return None
+
+
+def check_address(url: str, resolve: Callable[[str], str | None] = _resolve) -> str:
     """A home's address, tidied -- or SyncError if it is not on the tailnet.
 
     A scanner sends its scans where the user said and nowhere else, and where the
     user may say is the tailnet (hard constraint 3): a `…ts.net` name, a Tailscale
     address (100.64.0.0/10), or this machine itself. Not the LAN, not the internet.
+
+    Written the ways Tailscale shows it (D189): the MagicDNS name without http:// and
+    the port, the 100.x address the admin console copies, or just the device's name
+    (`wuwa-home`) -- taken only when it resolves into 100.64.0.0/10. With no scheme
+    given, http:// and port 4000 are put in.
     """
-    parts = urllib.parse.urlsplit(url.strip())
+    said = url.strip()
+    bare = bool(said) and "://" not in said
+    parts = urllib.parse.urlsplit(f"http://{said}" if bare else said)
     host = (parts.hostname or "").lower()
     if parts.scheme not in ("http", "https") or not host or parts.username or parts.query:
-        raise SyncError("主机地址要写成 http://名字.ts.net:端口 这样。")
+        raise SyncError("主机地址要写成 http://名字.ts.net:端口、100.x，"
+                        "或者设备名（如 wuwa-home）。")
     ok = host == "localhost" or host.endswith(".ts.net")
     if not ok:
         try:
             ip = ipaddress.ip_address(host)
-            ok = ip.is_loopback or ip in ipaddress.ip_network("100.64.0.0/10")
+            ok = ip.is_loopback or ip in TAILNET
         except ValueError:
-            ok = False
+            # a device's own name, which MagicDNS answers: only if it is a tailnet address
+            found = resolve(host) if "." not in host else None
+            try:
+                ok = found is not None and ipaddress.ip_address(found) in TAILNET
+            except ValueError:
+                ok = False
     if not ok:
-        raise SyncError("主机只能是 tailnet 上的地址（…ts.net 或 100.x），不能是局域网或公网地址。")
-    port = f":{parts.port}" if parts.port else ""
-    return f"{parts.scheme}://{host}{port}"
+        raise SyncError("主机只能是 tailnet 上的地址（…ts.net、100.x 或 Tailscale 里的设备名），"
+                        "不能是局域网或公网地址。")
+    port = parts.port or (HOME_PORT if bare else None)
+    return f"{parts.scheme}://{host}" + (f":{port}" if port else "")
 
 
 def read_home(data_dir: Path) -> dict | None:

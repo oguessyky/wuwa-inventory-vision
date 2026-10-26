@@ -116,6 +116,9 @@ class LiveState:
     frame_size: tuple[int, int] = (0, 0)
     boxes: list[dict[str, Any]] = field(default_factory=list)
     tabs: list[dict[str, Any]] = field(default_factory=list)
+    planned: list[str] = field(default_factory=list)
+    """The tabs this scan covers, in the game's order (D190): each is on the page from the
+    start, so the user sees which are not scanned yet."""
     current_tab: str | None = None
     items: list[dict[str, Any]] = field(default_factory=list)
     panel: dict[str, Any] | None = None
@@ -239,6 +242,21 @@ class LiveState:
                 self.panel["name"] = right
             self.version += 1
 
+    def plan_tabs(self, labels: list[str]) -> None:
+        """The tabs this scan covers (D190): shown from the start, those not scanned marked."""
+        with self._lock:
+            self.planned = list(labels)
+            self.version += 1
+
+    def _tabs(self) -> list[dict[str, Any]]:
+        """Every tab to scan in the plan's order -- read or not yet -- then any other read."""
+        seen = {t["label"]: t for t in self.tabs}
+        out = [seen.get(label) or {"label": label, "found": 0, "total": None, "complete": False,
+                                   "overcount": False, "gaps": 0, "named": 0, "panel_reads": 0,
+                                   "review": 0, "click": 0, "visited": False}
+               for label in self.planned]
+        return out + [t for t in self.tabs if t["label"] not in self.planned]
+
     def update_tabs(self, tabs: list[Any]) -> None:
         with self._lock:
             self.tabs = [_tab_dict(t) for t in tabs]
@@ -288,7 +306,7 @@ class LiveState:
                 "has_preview": self.preview_jpeg is not None,
                 "frame_size": list(self.frame_size),
                 "boxes": list(self.boxes),
-                "tabs": list(self.tabs),
+                "tabs": self._tabs(),
                 "current_tab": self.current_tab,
                 "items": list(self.items),
                 "panel": self.panel,
@@ -337,4 +355,5 @@ def _tab_dict(tab: Any) -> dict[str, Any]:
         "panel_reads": tab.report.panel_reads,
         "review": s.needs_review,
         "click": sum(1 for i in s.items.values() if i.needs_click),
+        "visited": True,
     }

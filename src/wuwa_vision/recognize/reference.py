@@ -43,10 +43,21 @@ from PIL import Image
 #: The official Chinese catalogue (tools/fetch_catalogue.py, D42) when present,
 #: else an older English icon set an early install may still have on disk (its
 #: tool is gone since D133; nothing fetches that set any more).
-CATALOGUE_DIR = Path("data/catalogue")
 LEGACY_DIR = Path("data/reference_icons")
-REFERENCE_DIR = CATALOGUE_DIR if (CATALOGUE_DIR / "index.json").exists() else LEGACY_DIR
 INDEX_NAME = "index.json"
+
+
+def reference_dir() -> Path:
+    """Where the catalogue's pictures are -- asked each time, not once at start (D188).
+
+    A home started before 从 Wiki 更新 fetched its catalogue, or a scanner before it took one from
+    its home, had settled on `LEGACY_DIR` for good: the home's item pictures answered 404, and
+    the scanner's check before a scan (D179) never saw the new items.
+    """
+    from .. import catalogue
+
+    folder = Path(catalogue.CATALOGUE_DIR)
+    return folder if (folder / INDEX_NAME).exists() else LEGACY_DIR
 
 #: Median tile-panel colour, sampled from our own crops.
 TILE_BACKGROUND = (55, 63, 70)
@@ -97,11 +108,11 @@ def composite(rgba: Image.Image, background: tuple[int, int, int] = TILE_BACKGRO
 
 
 def load_reference_icons(
-    directory: Path | str = REFERENCE_DIR,
+    directory: Path | str | None = None,
     background: tuple[int, int, int] = TILE_BACKGROUND,
 ) -> list[ReferenceIcon]:
     """Load downloaded reference icons, composited and ready to embed."""
-    directory = Path(directory)
+    directory = Path(directory) if directory is not None else reference_dir()
     index_path = directory / INDEX_NAME
     if not index_path.exists():
         raise FileNotFoundError(
@@ -122,7 +133,7 @@ def load_reference_icons(
     return icons
 
 
-def name_to_file(directory: Path | str = REFERENCE_DIR) -> dict[str, str]:
+def name_to_file(directory: Path | str | None = None) -> dict[str, str]:
     """Map item name -> reference icon filename.
 
     Used to show the canonical artwork on the page instead of the scanned crop.
@@ -133,7 +144,7 @@ def name_to_file(directory: Path | str = REFERENCE_DIR) -> dict[str, str]:
     One name ("Spliced String") appears twice, as .png and .webp of the same icon,
     so first-wins is safe here.
     """
-    directory = Path(directory)
+    directory = Path(directory) if directory is not None else reference_dir()
     index_path = directory / INDEX_NAME
     if not index_path.exists():
         return {}

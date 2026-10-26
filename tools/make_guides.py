@@ -67,8 +67,9 @@ def esc(s: str) -> str:
 def t(x: float, y: float, s: str, size: int = 14, fill: str = INK, weight: int = 400,
       mono: bool = False, anchor: str = "start") -> str:
     family = MONO if mono else FONT
+    keep = ' xml:space="preserve"' if mono else ""     # code keeps its indentation
     return (f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" font-weight="{weight}" '
-            f'font-family="{esc(family)}" text-anchor="{anchor}">{esc(s)}</text>')
+            f'font-family="{esc(family)}" text-anchor="{anchor}"{keep}>{esc(s)}</text>')
 
 
 def box(x: float, y: float, w: float, h: float, fill: str = PANEL2, stroke: str = LINE,
@@ -216,8 +217,8 @@ def pic_connect() -> str:
                        ("home.key",)).replace('x="314"', 'x="9999"')
                + arrow(280, 90, 330, 90)
                + console(340, 16, 280, 200, "2 连接主机 Connect home", [
-                   ("Home address:", MUTED), ("http://wuwa-home.", ACCENT),
-                   ("  your-tailnet.ts.net:4000", ACCENT), ("Home key (home.key):", MUTED),
+                   ("Home address [wuwa-home]:", MUTED), ("(Enter)", ACCENT),
+                   ("Home key (home.key):", MUTED),
                    ("3f9c…(paste)", ACCENT), ("home: saved", OK)]),
                640, 232, "the key from home.key, pasted into Connect home")
 
@@ -255,32 +256,34 @@ def pic_key() -> str:
                640, 242, "Tailscale's keys page: generate an auth key and copy it")
 
 
-def pic_env() -> str:
-    lines = [("TS_AUTHKEY=tskey-auth-kXXXX…", ACCENT),
-             ("# TS_HOSTNAME=wuwa-home", MUTED), ("# WUWA_NAME=wuwa-home", MUTED),
-             ("# WUWA_DATA=./data", MUTED), ("# WUWA_VERSION=latest", MUTED)]
-    body = window(20, 16, 600, 60 + len(lines) * 26, ".env  (复制自 .env.example)")
-    for i, (line, colour) in enumerate(lines):
-        body += t(44, 70 + i * 26, line, 14, colour, 600 if i == 0 else 400, mono=True)
-    body += ring(34, 50, 330, 28) + t(380, 70, "← 只要填这一行 · only this line", 13, ACCENT)
-    return svg(body, 640, 92 + len(lines) * 26, "the .env file with the auth key on its first line")
-
-
 def pic_project() -> str:
-    side = "".join(t(40, 84 + i * 30, s, 13, ACCENT if s == "Project" else MUTED,
-                     700 if s == "Project" else 400)
-                   for i, s in enumerate(("Overview", "Container", "Image", "Project")))
-    return svg(window(20, 16, 600, 236, "Docker")
-               + f'<path d="M140 44v208" stroke="{LINE}"/>' + side
-               + t(160, 74, "Create project · 创建项目", 15, INK, 700)
-               + t(160, 104, "Name", 12, MUTED) + box(240, 90, 200, 24, PANEL, LINE, 6)
-               + t(250, 107, "wuwa-home", 13, INK, mono=True)
-               + t(160, 136, "Path", 12, MUTED) + box(240, 122, 360, 24, PANEL, LINE, 6)
-               + t(250, 139, "/volume1/docker/wuwa-home", 13, INK, mono=True)
-               + t(160, 170, "Compose", 12, MUTED)
-               + t(240, 170, "docker-compose.yaml  ✓ found", 13, OK, mono=True)
-               + button(500, 206, 100, "Deploy") + ring(494, 200, 112, 42),
-               640, 268, "the NAS's Docker app: create a project in the folder, deploy")
+    """UGOS-like Create project, sketched: name, storage path, the pasted compose file."""
+    side = "".join(t(40, 84 + k * 30, w, 13, ACCENT if w == "Project" else MUTED,
+                     700 if w == "Project" else 400)
+                   for k, w in enumerate(("Overview", "Project", "Container", "Image")))
+    yaml = [("services:", MUTED), ("  tailscale:", MUTED),
+            ("    image: tailscale/tailscale:v1…", MUTED), ("    environment:", MUTED),
+            ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
+            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}", MUTED), ("  wuwa:", MUTED),
+            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-home…", MUTED)]
+    editor = box(160, 176, 440, 30 + len(yaml) * 17, "#07090b", LINE, 6)
+    for k, (line, colour) in enumerate(yaml):
+        editor += t(170, 196 + k * 17, line, 11, colour, 600 if colour == ACCENT else 400,
+                    mono=True)
+    lit = 196 + 4 * 17
+    return svg(window(20, 16, 600, 390, "Docker")
+               + f'<path d="M140 44v362" stroke="{LINE}"/>' + side
+               + t(160, 72, "Create project · 创建项目", 15, INK, 700)
+               + t(160, 98, "Name", 12, MUTED) + box(160, 104, 300, 24, PANEL, LINE, 6)
+               + t(170, 121, "wuwa-inventory-vision", 13, INK, mono=True)
+               + t(160, 148, "Storage path · 空文件夹 an empty folder", 12, MUTED)
+               + box(160, 154, 440, 18, PANEL, LINE, 6)
+               + t(170, 167, "/volume1/docker/wuwa-inventory-vision", 11, INK, mono=True)
+               + editor + ring(164, lit - 14, 432, 20)
+               + t(160, 352, "Compose configuration：粘贴整个文件，把 PUT-YOURS-HERE 换成你的钥匙", 12, ACCENT)
+               + t(160, 370, "paste the whole file; put your key over PUT-YOURS-HERE", 11, MUTED)
+               + button(500, 360, 100, "Deploy"),
+               640, 422, "the NAS's Docker app: name, an empty folder, the compose file pasted, deploy")
 
 
 def pic_open() -> str:
@@ -292,6 +295,20 @@ def pic_open() -> str:
                + t(230, 168, "用名字（…ts.net），不是 100.x 地址。", 13, MUTED)
                + t(230, 190, "Use the name (…ts.net), not the 100.x address.", 12, MUTED),
                640, 264, "the home's address opened on a phone")
+
+
+def pic_catalogue() -> str:
+    side = "".join(t(40, 84 + i * 30, w, 13, ACCENT if w == "更新" else MUTED, 700 if w == "更新" else 400)
+                   for i, w in enumerate(("总览", "规划", "料理", "库存", "更新")))
+    return svg(window(20, 16, 600, 210, "http://wuwa-home.….ts.net:4000/update")
+               + f'<path d="M110 44v182" stroke="{LINE}"/>' + side
+               + t(130, 76, "更新", 20, INK, 700)
+               + box(130, 92, 470, 116, PANEL, LINE, 10)
+               + t(148, 120, "从 Wiki 更新", 15, INK, 700)
+               + t(148, 144, "只有点这个按钮时才会联网（wiki.kurobbs.com）", 12, MUTED)
+               + button(148, 160, 120, "从 Wiki 更新") + ring(142, 154, 132, 42)
+               + t(290, 180, "● 运行中…  物品与图标 3/7", 12, OK),
+               640, 242, "the home's update page: fetch the catalogue from the wiki")
 
 
 def pic_expiry() -> str:
@@ -310,34 +327,44 @@ def pic_expiry() -> str:
 def pic_update() -> str:
     return svg(window(20, 16, 600, 120, "Docker · Project")
                + box(44, 58, 552, 40, PANEL, LINE, 8)
-               + t(60, 83, "wuwa-home", 14, INK, 700, mono=True) + t(220, 83, "● Running", 12, OK)
+               + t(60, 83, "wuwa-inventory-vision", 14, INK, 700, mono=True) + t(290, 83, "● Running", 12, OK)
                + button(470, 63, 110, "Update") + ring(464, 57, 122, 42),
                640, 152, "the project's update button")
 
 
 def pic_beside() -> str:
     rows = ""
-    for i, (name, note) in enumerate((("wuwa-home", "你现在用的 · the one you use"),
-                                      ("wuwa-home-test", "试新版 · trying a version"))):
-        y = 58 + i * 48
-        rows += (box(44, y, 552, 40, PANEL, ACCENT if i else LINE, 8, 2 if i else 1)
-                 + t(60, y + 25, name, 14, INK, 700, mono=True) + t(240, y + 25, "● Running", 12, OK)
-                 + t(340, y + 25, note, 12, MUTED))
+    for k, (name, host, note) in enumerate((
+            ("wuwa-inventory-vision", "wuwa-home", "你现在用的 · the one you use"),
+            ("wuwa-inventory-vision-test", "wuwa-home-test", "试新版 · trying a version"))):
+        y = 58 + k * 48
+        rows += (box(44, y, 552, 40, PANEL, ACCENT if k else LINE, 8, 2 if k else 1)
+                 + t(60, y + 25, name, 13, INK, 700, mono=True)
+                 + t(300, y + 25, host, 12, ACCENT, mono=True) + t(420, y + 25, note, 11, MUTED))
     return svg(window(20, 16, 600, 160, "Docker · Project") + rows, 640, 192,
                "two homes side by side, each its own project and its own device")
 
 
 def pic_move() -> str:
-    return svg(window(20, 16, 280, 170, "旧的 · the old home")
+    return svg(window(20, 16, 280, 170, "旧的 · the old home's data")
                + files(44, 70, [("…/wuwa_inventory_vision/", ""), ("  wuwa.sqlite", ""),
                                 ("  icons/", ""), ("  home.key", "")]).replace('x="314"', 'x="9999"')
                + arrow(306, 100, 346, 100)
                + t(326, 88, "复制", 12, ACCENT, anchor="middle")
-               + window(352, 16, 268, 170, "新的 · the new wuwa-home/")
-               + files(374, 70, [("docker-compose.yaml", ""), (".env", ""),
-                                 ("seed-data/", ""), ("tailscale/", "")],
+               + window(352, 16, 268, 170, "新的 · its storage path")
+               + files(374, 70, [("seed-data/", ""), ("data/", ""), ("tailscale-state/", "")],
                        ("seed-data/",)).replace('x="644"', 'x="9999"'),
-               640, 200, "the old home's data folder copied into seed-data of the new one")
+               640, 200, "the old home's data folder copied into seed-data in the new project's folder")
+
+
+#: Said in the first step on a PC (D184): a zip from a browser marks every file in it.
+UNBLOCK = ('<p class="tip" lang="zh-CN">解压之前：右键下载的压缩包 → <b>属性</b> → 勾选最下面的 '
+           '<b>解除锁定</b> → 确定。否则 Windows 会对每个文件问一次（“打开文件 - 安全警告 … 未知发布者 / '
+           'Unknown Publisher”）。真的问了也没关系，按“运行”：这些都是这个包自己的文件。</p>'
+           '<p class="tip" lang="en">Before unzipping: right-click the downloaded zip → '
+           '<b>Properties</b> → tick <b>Unblock</b> at the bottom → OK. Otherwise Windows asks '
+           'about each file ("Open File - Security Warning ... Unknown Publisher"); if it does, '
+           '<b>Run</b> is safe: the files are this package\'s own.</p>')
 
 
 # --- the three guides -----------------------------------------------------------------------
@@ -361,76 +388,76 @@ def guide_home() -> str:
         '<figcaption lang="en">The home opens only inside your own tailnet: no port, never the '
         "internet.</figcaption></figure>")
     steps = [
-        step(1, "把文件夹放到 NAS 上", "Put the folder on the NAS",
-             "解压到 NAS 上一个固定的文件夹，例如 <code>/volume1/docker/wuwa-home</code>。"
-             "<code>data/</code> 和 <code>tailscale-state/</code> 会在第一次启动时自己出现。",
-             "Unzip it into a folder the NAS keeps, e.g. <code>/volume1/docker/wuwa-home</code>. "
-             "<code>data/</code> and <code>tailscale-state/</code> appear on the first start.",
-             pic_unzip("/volume1/docker/wuwa-home", [
-                 ("docker-compose.yaml", ""), (".env.example", "复制成 .env · copy to .env"),
-                 ("tailscale/serve.json", ""), ("START-HERE.html", "这一页 · this page"),
-                 ("data/", "第一次启动后 · after the first start")], ())),
-        step(2, "拿一把 Tailscale 钥匙", "Get a Tailscale auth key",
+        step(1, "拿一把 Tailscale 钥匙", "Get a Tailscale auth key",
              '打开 <a href="https://login.tailscale.com/admin/settings/keys">Tailscale 的 Keys 页</a>，'
-             "按 Generate auth key，复制出来的 <code>tskey-auth-…</code>。一次性的就够了：只在第一次启动用。",
+             "按 Generate auth key，复制出来的 <code>tskey-auth-…</code>。一次性的就够了：只在第一次启动用。别给别人看。",
              'Open <a href="https://login.tailscale.com/admin/settings/keys">Tailscale\'s keys '
              "page</a>, press Generate auth key and copy the <code>tskey-auth-…</code>. A one-off "
-             "key is enough: it is used once, on the first start.", pic_key()),
-        step(3, "填好 .env", "Fill in .env",
-             "把 <code>.env.example</code> 复制成 <code>.env</code>，第一行 <code>TS_AUTHKEY=</code> "
-             "后面贴上钥匙。其余都有默认值。",
-             "Copy <code>.env.example</code> to <code>.env</code> and paste the key after "
-             "<code>TS_AUTHKEY=</code> on its first line. Everything else has a default.",
-             pic_env()),
-        step(4, "在 Docker 应用里部署", "Deploy it from the Docker app",
-             "NAS 的 Docker 应用 → <b>Project</b>（项目 / Compose / Stacks）→ 新建，路径选这个文件夹，"
-             "它会找到 <code>docker-compose.yaml</code> → 部署。它会下载两个镜像并启动。",
-             "The NAS's Docker app → <b>Project</b> (Compose, Stacks) → create, in this folder; it "
-             "finds <code>docker-compose.yaml</code> → deploy. It pulls the two images and starts "
-             "them.", pic_project()),
-        step(5, "打开它", "Open it",
+             "key is enough: it is used once, on the first start. Keep it to yourself.", pic_key()),
+        step(2, "在 Docker 应用里建项目", "Create the project in the Docker app",
+             "NAS 的 Docker 应用 → <b>Project</b> → Create project："
+             "名称 <code>wuwa-inventory-vision</code>；存储路径选一个<b>空文件夹</b>（数据就放在里面）；"
+             "Compose configuration 粘贴整个 <code>docker-compose.yaml</code>（在发布页或这个文件夹里），"
+             "把 <code>tskey-auth-PUT-YOURS-HERE</code> 换成你的钥匙 → <b>Deploy</b>。",
+             "The NAS's Docker app → <b>Project</b> → Create project: name it "
+             "<code>wuwa-inventory-vision</code>; for the storage path pick an <b>empty folder</b> "
+             "(the data is kept there); under Compose configuration paste the whole "
+             "<code>docker-compose.yaml</code> (on the release page, or in this folder) and put your "
+             "key over <code>tskey-auth-PUT-YOURS-HERE</code> → <b>Deploy</b>. With plain Docker, "
+             "the key may go in a <code>.env</code> instead.", pic_project()),
+        step(3, "打开它", "Open it",
              "在登录了同一个 Tailscale 的手机或电脑上打开 "
              "<code>http://wuwa-home.&lt;你的 tailnet&gt;.ts.net:4000</code>。",
              "On a phone or PC signed in to the same tailnet, open "
              "<code>http://wuwa-home.&lt;your tailnet&gt;.ts.net:4000</code>.", pic_open()),
-        step(6, "关掉钥匙过期", "Turn off key expiry",
+        step(4, "第一次：拉取图鉴", "The first time: fetch the catalogue",
+             "全新的主机还没有图鉴：没有物品名、图、食谱和养成表。打开它的 <b>更新</b> 页，按 "
+             "<b>从 Wiki 更新</b>，从库洛官方 Wiki 下载（几分钟，页面会显示进度）。扫描器每次扫描前从主机拿图鉴，"
+             "所以要在第一次扫描之前做。",
+             "A home started from nothing has no catalogue yet: no item names, pictures, recipes or "
+             "builds. Open its <b>更新</b> page and press <b>从 Wiki 更新</b>; it downloads Kuro's "
+             "official catalogue (a few minutes, the page shows how far). Scanners take it from the "
+             "home before each scan, so do it before the first scan.", pic_catalogue()),
+        step(5, "关掉钥匙过期", "Turn off key expiry",
              "Tailscale 的 Machines 页里会多一台 <code>wuwa-home</code>：点 … → Disable key expiry，"
              "否则半年后要重新登录。",
              "A <code>wuwa-home</code> appears on Tailscale's machines page: … → Disable key "
              "expiry, or it asks to log in again in six months (key expiry).", pic_expiry()),
-        step(7, "连接扫描器", "Connect a scanner",
-             "扫描器要的钥匙是 <code>data/home.key</code> 里那一行（NAS 的文件管理器能打开）。"
-             "在装了扫描器的电脑上双击 <b>2 连接主机 Connect home</b>，贴上地址和钥匙。",
-             "The key a scanner needs is the one line of <code>data/home.key</code> (the NAS's "
-             "file manager opens it). On the PC with the scanner, double-click "
-             "<b>2 连接主机 Connect home</b> and paste the address and the key.", pic_connect()),
-        step(8, "更新", "Updating",
+        step(6, "连接扫描器", "Connect a scanner",
+             "扫描器要的钥匙是存储路径里 <code>data/home.key</code> 那一行（NAS 的文件管理器能打开）。"
+             "在装了扫描器的电脑上双击 <b>2 连接主机 Connect home</b>：地址直接按回车就是 <code>wuwa-home</code>，再贴上钥匙。",
+             "The key a scanner needs is the one line of <code>data/home.key</code> in the storage "
+             "path (the NAS's file manager opens it). On the PC with the scanner, double-click "
+             "<b>2 连接主机 Connect home</b>: Enter alone takes <code>wuwa-home</code> for the address; then paste the key.", pic_connect()),
+        step(7, "更新", "Updating",
              "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
              "the data stays. Update the scanner to the same version.", pic_update()),
-        step(9, "在旁边试新版", "Try a version beside the one you have",
-             "再建一个文件夹放这些文件，<code>.env</code> 里写 <code>TS_HOSTNAME=wuwa-home-test</code> 和 "
-             "<code>WUWA_NAME=wuwa-home-test</code>，部署成第二个项目。它是 Tailscale 里另一台设备、"
-             "另一份数据，不影响原来的。",
-             "Another folder with these files, <code>TS_HOSTNAME=wuwa-home-test</code> and "
-             "<code>WUWA_NAME=wuwa-home-test</code> in its <code>.env</code>, deployed as a second "
-             "project: another device on the tailnet with its own data; the first is untouched.",
-             pic_beside()),
-        step(10, "从旧的主机搬过来", "Moving from the old home",
+        step(8, "在旁边试新版", "Try a version beside the one you have",
+             "再建一个项目，名称 <code>wuwa-inventory-vision-test</code>、另一个空文件夹，粘贴同一个文件，"
+             "只改一个词：<code>TS_HOSTNAME</code> 那行的 <code>wuwa-home</code> 改成 <code>wuwa-home-test</code>。"
+             "它是 Tailscale 里另一台设备、另一份数据，不影响原来的。",
+             "A second project, <code>wuwa-inventory-vision-test</code>, in another empty folder, "
+             "with the same file and one word changed: <code>wuwa-home</code> in the "
+             "<code>TS_HOSTNAME</code> line, to <code>wuwa-home-test</code>. Another device on the "
+             "tailnet with its own data; the first is untouched.", pic_beside()),
+        step(9, "从旧的主机搬过来", "Moving from the old home",
              "旧的主机（自己编译的那种）的数据都在它的数据文件夹里：扫描、改过的名字、目标、底数、规划、"
              "抽卡记录和 <code>home.key</code>。按下面的顺序搬，什么都不会丢。",
              "Everything the old home (the one built from source) has is in its data folder: "
              "scans, names, targets, base amounts, plans, the pull history and "
              "<code>home.key</code>. Move it in this order and nothing is lost.", pic_move(),
              '<ol lang="zh-CN"><li>在 Docker 应用里<b>停掉</b>旧项目——先别删。</li>'
-             "<li>找到它的数据文件夹（旧项目 <code>.env</code> 里的 <code>WUWA_DATA</code>），整个复制到新文件夹的 "
-             "<code>seed-data/</code> 里。</li><li>按上面 1–6 部署新的：第一次启动会把 seed-data 收进来。</li>"
+             "<li>在新项目要用的空文件夹里建 <code>seed-data/</code>，把旧的数据文件夹（旧项目 <code>.env</code> 里的 "
+             "<code>WUWA_DATA</code>）里的东西整个复制进去。</li>"
+             "<li>按上面 1–3、5 建新项目：第一次启动会把 seed-data 收进来，图鉴也在里面，第 4 步不用做。</li>"
              "<li>打开新地址，确认数据都在。<code>home.key</code> 也搬过来了，钥匙不变：扫描器只要用 "
              "<b>2 连接主机</b> 换成新地址。</li><li>都没问题了，再删掉旧项目。</li></ol>"
              '<ol lang="en"><li><b>Stop</b> the old project in the Docker app -- do not delete it '
-             "yet.</li><li>Find its data folder (<code>WUWA_DATA</code> in the old project's "
-             "<code>.env</code>) and copy all of it into <code>seed-data/</code> of the new "
-             "folder.</li><li>Deploy the new one (1–6 above): its first start takes seed-data in.</li>"
+             "yet.</li><li>In the empty folder the new project will use, make <code>seed-data/</code> "
+             "and copy into it everything in the old data folder (<code>WUWA_DATA</code> in the old "
+             "project's <code>.env</code>).</li><li>Create the new project (1–3 and 5 above): its "
+             "first start takes seed-data in, the catalogue with it, so step 4 is not needed.</li>"
              "<li>Open the new address and check your data is there. <code>home.key</code> came "
              "along, so the key is the same: a scanner only needs the new address (<b>2 连接主机</b>)."
              "</li><li>When all is well, delete the old project.</li></ol>"
@@ -439,9 +466,9 @@ def guide_home() -> str:
              "only it held -- names given on a phone, targets, plans -- is gone.</p>"),
     ]
     return page("WuWa Inventory Vision · 主机 home",
-                "家里一直开着的机器上的总览：用现成的镜像，在 NAS 的 Docker 应用里部署，不用编译、不用 SSH。",
+                "家里一直开着的机器上的总览：用现成的镜像，在 NAS 的 Docker 应用里粘贴一个文件就部署，不用编译、不用 SSH、不用下载压缩包。",
                 "The dashboard on a box that is always on: a ready-made image, deployed from the "
-                "NAS's Docker app -- nothing to build, no SSH.", "".join(steps), hero)
+                "NAS's Docker app from one pasted file -- nothing to build, no SSH, no zip.", "".join(steps), hero)
 
 
 def guide_scanner() -> str:
@@ -454,7 +481,7 @@ def guide_scanner() -> str:
                  ("1 安装 Setup.cmd", ""), ("2 连接主机 Connect home.cmd", ""),
                  ("3 扫描 Scan.cmd", ""), ("python/", "已带 Python · Python included"),
                  ("START-HERE.html", "这一页 · this page")],
-                 ("1 安装 Setup.cmd", "2 连接主机 Connect home.cmd", "3 扫描 Scan.cmd"))),
+                 ("1 安装 Setup.cmd", "2 连接主机 Connect home.cmd", "3 扫描 Scan.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）。装依赖、显卡对应的 PyTorch 和识别模型；"
              "图鉴由主机发过来，这里不用下。",
@@ -462,9 +489,10 @@ def guide_scanner() -> str:
              "PyTorch for your GPU and the recognition model. The catalogue comes from the home.",
              pic_setup(True)),
         step(3, "双击 2 连接主机 Connect home", "Double-click 2 连接主机 Connect home",
-             "贴上主机的地址和钥匙（主机 <code>data/home.key</code> 里那一行）。只要做一次。",
-             "Paste the home's address and its key (the one line of <code>data/home.key</code> on "
-             "the home). Once.", pic_connect()),
+             "地址直接按回车就是 <code>wuwa-home</code>（也可以写 Tailscale 显示的名字或 100.x 地址），再贴上钥匙（主机 <code>data/home.key</code> 里那一行）。只要做一次。",
+             "For the address, Enter alone takes <code>wuwa-home</code> (the name Tailscale shows, "
+             "or its 100.x address, do too); then paste the key -- the one line of "
+             "<code>data/home.key</code> on the home. Once.", pic_connect()),
         step(4, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到主机。",
@@ -491,7 +519,7 @@ def guide_full() -> str:
              pic_unzip("C:\\wuwa-vision", [
                  ("1 安装 Setup.cmd", ""), ("2 扫描 Scan.cmd", ""), ("3 总览 Dashboard.cmd", ""),
                  ("python/", "已带 Python · Python included"), ("START-HERE.html", "这一页 · this page")],
-                 ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd"))),
+                 ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）：依赖、显卡对应的 PyTorch、识别模型，"
              "还有从库洛官方 Wiki 下载的图鉴（几分钟）。",

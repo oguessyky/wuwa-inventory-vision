@@ -1,41 +1,46 @@
-# The home, ready-made (PLAN.md D183): the dashboard from the published image, and Tailscale
-# beside it. Nothing is built here and nothing is typed on the NAS:
-#
-#   1. copy .env.example to .env and put your Tailscale auth key in it
-#   2. in the NAS's Docker app: Project -> create, in this folder, with this file -> deploy
-#      (or, anywhere with Docker: docker compose up -d)
-#   3. open http://<TS_HOSTNAME>.<your tailnet>.ts.net:4000 on a device of your tailnet
+# WuWa Inventory Vision -- the home (PLAN.md D183, D186). Paste this whole file into your NAS's
+# Docker app as it is: Project -> Create project ->
+#   Name:                  wuwa-inventory-vision
+#   Storage path:          an empty folder (the data is kept there)
+#   Compose configuration: this file, with your Tailscale auth key over tskey-auth-PUT-YOURS-HERE
+# -> Deploy. Then open http://wuwa-home.<your tailnet>.ts.net:4000 and, the first time, press
+# 从 Wiki 更新 on its 更新 page. (Anywhere else with Docker: save it as docker-compose.yaml in a
+# folder and `docker compose up -d` there. The key may then go in a .env beside it instead.)
 #
 # The app listens on 127.0.0.1 and nothing else, and no port is published: it shares the
-# network of the Tailscale container beside it, whose Serve (tailscale/serve.json) is the
-# only way in -- from your own tailnet, never funnel. That Tailscale is a device of its own
-# on your tailnet (TS_HOSTNAME); a Tailscale already on this machine is not touched.
+# network of the Tailscale container beside it, whose Serve (TS_SERVE_JSON below) is the only
+# way in -- from your own tailnet, never funnel. That Tailscale is a device of its own on your
+# tailnet (TS_HOSTNAME); a Tailscale already on this machine is not touched.
 #
-# Updating: the Docker app's update, or `docker compose pull && docker compose up -d`. Pin a
-# version with WUWA_VERSION in .env; update the scanner to the same one.
+# Updating: the Docker app's update. Pin a version with WUWA_VERSION; update the scanner too.
+# The containers are named after the project, so a second project beside this one never clashes.
 services:
   tailscale:
     image: tailscale/tailscale:v1.102.5
-    container_name: ${WUWA_NAME:-wuwa-home}-tailscale
-    hostname: ${TS_HOSTNAME:-wuwa-home}
     restart: unless-stopped
     environment:
-      TS_AUTHKEY: ${TS_AUTHKEY:?put your Tailscale auth key in .env (see .env.example)}
+      # your key, from https://login.tailscale.com/admin/settings/keys -- used once, on the first start
+      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}
+      # this home's name on your tailnet; a second home beside it takes another (wuwa-home-test)
       TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}
       # logged in with the key once; after that the state below is what counts
       TS_AUTH_ONCE: "true"
       TS_STATE_DIR: /var/lib/tailscale
       # its own network stack in this container: no /dev/net/tun, no NET_ADMIN
       TS_USERSPACE: "true"
+      # Serve: port 4000 of this device to the app, for your tailnet only. Written where
+      # Tailscale reads it as the container starts, so nothing has to sit beside this file.
       TS_SERVE_CONFIG: /config/serve.json
+      TS_SERVE_JSON: '{"TCP":{"4000":{"HTTP":true}},"Web":{"$${TS_CERT_DOMAIN}:4000":{"Handlers":{"/":{"Proxy":"http://127.0.0.1:4000"}}}}}'
+    entrypoint:
+      - /bin/sh
+      - -c
+      - mkdir -p /config && printf '%s' "$$TS_SERVE_JSON" > /config/serve.json && exec /usr/local/bin/containerboot
     volumes:
       - ./tailscale-state:/var/lib/tailscale
-      # a folder, not the file: a change to serve.json is then picked up
-      - ./tailscale:/config:ro
 
   wuwa:
     image: ${WUWA_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-home}:${WUWA_VERSION:-latest}
-    container_name: ${WUWA_NAME:-wuwa-home}
     restart: unless-stopped
     network_mode: service:tailscale
     depends_on:

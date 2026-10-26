@@ -154,9 +154,9 @@ def _reference_is_stale(db: Path | str) -> bool:
     last seed -- a new patch's items -- has reference icons nobody embedded. That
     is the only case worth spending GPU minutes on after a scan.
     """
-    from .recognize.reference import REFERENCE_DIR
+    from .recognize.reference import reference_dir
 
-    folder = Path(REFERENCE_DIR)
+    folder = reference_dir()          # asked now: the catalogue may have come since start (D188)
     if not folder.exists():
         return False
     on_disk = sum(1 for p in folder.iterdir() if p.suffix.lower() in (".png", ".webp", ".jpg"))
@@ -349,7 +349,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     from .capture.gating import FrameGate
     from .safety.panic import PanicKeyError, panic_key
     from .scan.live_state import LiveState
-    from .scan.orchestrator import DEFAULT_SKIP_TABS, run_live_scan
+    from .scan.orchestrator import DEFAULT_SKIP_TABS, run_live_scan, tabs_to_scan
 
     # Presence is checked now, so an absent game fails in a second rather than
     # after a torch import. Foreground is checked further down, once everything
@@ -437,6 +437,8 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     skip_tabs = [] if args.all_tabs else (args.skip_tab or list(DEFAULT_SKIP_TABS))
     if skip_tabs:
         print(f"skipping tabs: {', '.join(skip_tabs)}  (--all-tabs to scan everything)")
+    # the page shows every tab to scan from the start, those not scanned yet marked (D190)
+    state.plan_tabs(tabs_to_scan(skip_tabs))
 
     print(f"target: {window.title.strip()} ({window.size[0]}x{window.size[1]})")
     plan = scan_plan()
@@ -854,7 +856,8 @@ def _cmd_home(args: argparse.Namespace) -> int:
         return 0
     if args.action == "set":
         if not args.url or not args.key:
-            print("usage: wuwa home set http://<name>.ts.net:4000 <key>")
+            print("usage: wuwa home set <address> <key>")
+            print("  the address: wuwa-home, wuwa-home.<tailnet>.ts.net, or 100.x (D189)")
             print("  the key is the one line in data/home.key on the home")
             return 2
         try:

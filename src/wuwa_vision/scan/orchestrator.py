@@ -58,6 +58,12 @@ MIN_PANEL_CONFIDENCE = 0.80
 DEFAULT_SKIP_TABS: tuple[str, ...] = ("声骸", "任务", "特殊")
 
 
+def tabs_to_scan(skip_tabs: Iterable[str]) -> list[str]:
+    """The game's tabs a scan covers, in the game's order (D190): every known one not skipped."""
+    skip = tuple(skip_tabs)
+    return [t for t in header_mod.KNOWN_TABS if not is_skipped(t, skip)]
+
+
 def is_skipped(label: str | None, skip_tabs: Iterable[str]) -> bool:
     return label is not None and any(s and s in label for s in skip_tabs)
 
@@ -388,6 +394,25 @@ def _known_at_import(store: Store, report: ScanReport) -> frozenset[str] | None:
         return None
     known = (store.pulls() or {}).get("weapons_known")
     return frozenset(known) if known else None
+
+
+def _misread_label(label: str | None, count: int | None, current: str | None,
+                   current_count: int | None, visited: set[str | None]) -> bool:
+    """Is a new header label an OCR slip on the tab already open, not a switch?
+
+    Same count and a label no tab has had: 资源 once read as 过 (D28). But a label that is one
+    of the game's tabs is that tab (D187): 武器 and 补给 both held 174 items, and every view of
+    补给 was taken for 武器 -- 348 of 174. Labels are snapped onto the known tabs first
+    (`canonical_label`), so only one that matches none of them is held to be a slip.
+    """
+    return (
+        current is not None
+        and label != current
+        and label not in header_mod.KNOWN_TABS
+        and count is not None
+        and count == current_count
+        and label not in visited
+    )
 
 
 def _never_pulled(
@@ -1004,17 +1029,8 @@ def run_live_scan(
         skipping = None
 
         tab = result.current
-        misread = (
-            # Same count, never-seen label: an OCR slip on the SAME tab (资源 read
-            # as 过 on one capture), not a switch. A real switch changes the count
-            # or lands on a label already visited.
-            tab.label is not None
-            and head.label != tab.label
-            and head.unique_items is not None
-            and head.unique_items == tab.report.header_total
-            and all(t.label != head.label for t in tabs)
-        )
-        if misread:
+        if _misread_label(head.label, head.unique_items, tab.label, tab.report.header_total,
+                          {t.label for t in tabs}):
             head = replace(head, label=tab.label)
         if head.label is not None and (head.label != tab.label or entered_from_skip):
             left, tab = tab, book.switch_to(head.label)
