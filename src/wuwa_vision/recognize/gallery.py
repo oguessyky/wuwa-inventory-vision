@@ -31,7 +31,7 @@ from datetime import UTC, datetime
 import numpy as np
 
 from ..store.db import Store
-from .appearance import HUE_BINS, MIN_HUE_MASS, describe, hue_signature
+from .appearance import HUE_BINS, MIN_HUE_MASS, describe, hue_signature, is_the_other
 from .encoder import IconEncoder
 from .reference import RARITY_ANY
 
@@ -59,6 +59,17 @@ MIN_MARGIN = 0.02
 #: `appearance.same_hue`, the variants 0.0-0.2 (D30). Screen-cut entries only:
 #: reference icons come from a website render, and are left to shape + rarity.
 MIN_HUE = 0.80
+#: A catalogue picture shut out on hue by less than this much -- 0.70 to MIN_HUE -- that
+#: still scores clearly above the winner makes the match a question, not an answer (D195).
+#: The user's 千古洑流 tile was 0.799 to its own picture and was written 浩境粼光, sure; on
+#: this PC's scans 44 of the 56 tiles doubted this way were 千古洑流 written as another.
+#: Colour variants sit far below (0.0-0.2), so this never reopens what D30 closed.
+NEAR_HUE = 0.70
+#: ... and one shut out by more, when it is this much better than the winner: every picture
+#: like the tile was gone and what was left won on a colourless picture -- 气动阻抗喷雾
+#: written F型还原素 (0.653, its own picture 0.934). A colour variant beats its sibling by
+#: ~0.03, so stays shut out; 0.10 would have doubted 漪澜浮录, read right in the panel.
+FAR_GAP = 0.15
 #: A tie between two DIFFERENT names is only reported as "these look identical"
 #: when both are near-duplicates of the query. Below this the query is simply
 #: unknown, not ambiguous. Twins with pixel-identical art score ~0.97 (D31).
@@ -79,6 +90,13 @@ SAME_ITEM_CROP = 0.90
 #: one item score >= 0.99 (95%), distinct items at most 0.944 and that pair 0.90.
 #: Pixel-identical twins still pass (~1.0) and are left to the rivals rule.
 MIN_LOOK = 0.97
+#: A screen crop named in the detail panel, matched this closely, is that very tile: the
+#: colour rule for a dish and its special version leaves it alone (D193).
+SAME_TILE = 0.98
+#: ... and decides only a pair drawn alike: 蛋饼 / 青蔬蛋饼 0.92, 锅盔 / 糖心锅盔 0.95. A special
+#: dish drawn differently (雾茗 / 喜凌茶) differs in colour everywhere, and the picture
+#: model tells those apart already; colour renamed 40 of them on this PC's scans.
+DRAWN_ALIKE = 0.90
 
 
 @dataclass(frozen=True, slots=True)
@@ -141,6 +159,9 @@ class Gallery:
         self._looks: np.ndarray = np.zeros((0, 0), dtype=np.float32)
         self._has_look: np.ndarray = np.zeros(0, dtype=bool)
         self._look_cache: dict[str, np.ndarray | None] = {}
+        self._variants: dict[str, frozenset[str]] = {}
+        self._ref_colour: dict[str, np.ndarray] = {}
+        self._ref_vector: dict[str, np.ndarray] = {}
 
     # ---------------------------------------------------------------- loading
 
@@ -182,6 +203,10 @@ class Gallery:
             else np.zeros((len(rows), 0), dtype=np.float32)
         )
         self._twins = self._shared_artwork()
+        self._ref_colour = {name: self._colours[i] for i, name in enumerate(self._names)
+                            if name and self._tabs[i] == "reference" and self._has_colour[i]}
+        self._ref_vector = {name: self._matrix[i] for i, name in enumerate(self._names)
+                            if name and self._tabs[i] == "reference"}
         return len(self._hashes)
 
     def _shared_artwork(self) -> dict[str, tuple[str, ...]]:
@@ -227,6 +252,29 @@ class Gallery:
         for name in parent:
             groups.setdefault(root(name), []).append(name)
         return {name: tuple(sorted(g)) for g in groups.values() if len(g) > 1 for name in g}
+
+    def set_variants(self, pairs) -> None:  # noqa: ANN001 -- Iterable[tuple[str, str]]
+        """A dish and its special version, from the catalogue (D193): told apart by colour.
+
+        The special version is the dish drawn again with something on it, and the picture
+        model hardly sees it (青蔬蛋饼 was named 蛋饼 in every scan). Only these pairs:
+        a colour rule for every look-alike pair renamed real 霍闪声核 to 隐雷声核."""
+        variants: dict[str, set[str]] = {}
+        for one, two in pairs:
+            variants.setdefault(one, set()).add(two)
+            variants.setdefault(two, set()).add(one)
+        self._variants = {name: frozenset(v) for name, v in variants.items()}
+
+    def _by_colour(self, name: str | None, query: np.ndarray) -> str | None:
+        """The special version (or the plain dish) `query` is by colour, else None."""
+        mine = self._ref_colour.get(name or "")
+        if mine is None:
+            return None
+        hits = [other for other in sorted(self._variants.get(name or "", ()))
+                if other in self._ref_colour
+                and float(self._ref_vector[name] @ self._ref_vector[other]) >= DRAWN_ALIKE
+                and is_the_other(query, mine, self._ref_colour[other])]
+        return hits[0] if len(hits) == 1 else None
 
     def _look_of(self, row) -> np.ndarray | None:  # noqa: ANN001 -- sqlite3.Row
         """`describe` of a NAMED screen-cut entry, from its saved crop; else None.
@@ -277,13 +325,23 @@ class Gallery:
         self.store.conn.commit()
         return vec
 
-    def _hue_ok(self, query: np.ndarray) -> np.ndarray:
-        """Per entry: may this entry name `query`? Vectorised `same_hue`."""
+    def _hue_cos(self, query: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Per entry: hue cosine to `query`, and whether either is too colourless to say."""
         mass = self._colours.sum(axis=1)
         norms = np.linalg.norm(self._colours, axis=1) * float(np.linalg.norm(query))
         cos = (self._colours @ query) / np.maximum(norms, 1e-12)
-        colourless = np.minimum(mass, float(query.sum())) < MIN_HUE_MASS
+        return cos, np.minimum(mass, float(query.sum())) < MIN_HUE_MASS
+
+    def _hue_ok(self, query: np.ndarray) -> np.ndarray:
+        """Per entry: may this entry name `query`? Vectorised `same_hue`."""
+        cos, colourless = self._hue_cos(query)
         return ~self._has_colour | colourless | (cos >= MIN_HUE)
+
+    def _shut_out(self, query: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Per entry: a catalogue picture the hue check shuts out, and whether only just (D195)."""
+        cos, colourless = self._hue_cos(query)
+        is_ref = np.array([t == "reference" for t in self._tabs], dtype=bool)
+        return self._has_colour & is_ref & ~colourless & (cos < MIN_HUE), cos >= NEAR_HUE
 
     @property
     def size(self) -> int:
@@ -494,8 +552,11 @@ class Gallery:
             else:
                 mask = named_mask if require_named else np.ones(self.size, dtype=bool)
 
+            shut_out = just = None
             if colours is not None and self._has_colour.any():
                 # Screen-cut entries must also match in hue (D30).
+                shut_out, just = self._shut_out(colours[i])
+                shut_out = shut_out & mask
                 mask = mask & self._hue_ok(colours[i])
             if looks is not None and self._has_look.any():
                 mask = mask & self._look_ok(looks[i])
@@ -533,6 +594,28 @@ class Gallery:
                 )
                 continue
 
+            if shut_out is not None and shut_out.any():
+                # A picture shut out on hue that is still clearly the better one: ask (D195).
+                # By a hair, any clear lead; by more, a wide one.
+                shut = np.flatnonzero(shut_out)
+                shut_scores = self._matrix[shut] @ vec
+                j = int(np.argmax(shut_scores))
+                other = self._names[int(shut[j])]
+                gap = MIN_MARGIN if just[int(shut[j])] else FAR_GAP
+                if other != self._names[best] and float(shut_scores[j]) >= top + gap:
+                    results.append(
+                        Match(
+                            icon_hash=self._hashes[best],
+                            item_name=None,
+                            rarity=int(self._rarities[best]),
+                            score=top,
+                            margin=top - second,
+                            rivals=(other, self._names[best] or ""),
+                            runner_up=self._names[best],
+                        )
+                    )
+                    continue
+
             rivals: tuple[str, ...] = ()
             second_idx = next(
                 (int(idx[j]) for j in order[1:] if self._names[int(idx[j])] != self._names[best]),
@@ -553,16 +636,24 @@ class Gallery:
                         names.append(name)
                 rivals = tuple(names)
 
+            name = self._names[best]
+            learned = self._tabs[best] != "reference"
+            runner_up = self._names[second_idx] if second_idx is not None else None
+            if colours is not None and not rivals and not (learned and top >= SAME_TILE):
+                other = self._by_colour(name, colours[i])
+                if other is not None:
+                    # A dish and its special version, told apart by colour (D193).
+                    name, runner_up, learned = other, name, False
             results.append(
                 Match(
                     icon_hash=self._hashes[best],
-                    item_name=self._names[best],
+                    item_name=name,
                     rarity=int(self._rarities[best]),
                     score=top,
                     margin=top - second,
                     rivals=rivals,
-                    learned=self._tabs[best] != "reference",
-                    runner_up=self._names[second_idx] if second_idx is not None else None,
+                    learned=learned,
+                    runner_up=runner_up,
                 )
             )
         return results

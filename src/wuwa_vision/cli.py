@@ -78,6 +78,10 @@ def _open_gallery(store: Store):  # noqa: ANN202 -- recognize.gallery.Gallery (l
     imported = ensure_reference(store, gallery.encoder.info.key())
     if imported:
         print(f"imported the shipped gallery pack: {imported} reference items")
+    from .catalogue import Catalogue
+    from .roster import dish_variants
+
+    gallery.set_variants(dish_variants(Catalogue.load()))  # 蛋饼 / 青蔬蛋饼 (D193)
     return gallery
 
 

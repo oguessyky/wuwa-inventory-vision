@@ -61,6 +61,42 @@ def hue_signature(icon: np.ndarray) -> np.ndarray:
     return (hist / max(hue.size, 1)).astype(np.float32)
 
 
+#: A hue bin a picture "has" and one it "lacks" (D193), and how much of a colour of its own
+#: a picture needs before it can tell two pictures apart.
+HUE_PRESENT = 2e-4
+HUE_ABSENT = 5e-5
+MIN_OWN_HUE = 3e-4
+#: A tile shows a colour when it carries at least this share of the picture's amount of
+#: it, and lacks it at most this share. Measured on 蛋饼 / 青蔬蛋饼: the herb tile 0.90,
+#: the plain tile 0.005.
+SHOWS_HUE, LACKS_HUE = 0.5, 0.2
+
+
+def _own_hue(mine: np.ndarray, other: np.ndarray) -> tuple[np.ndarray, float]:
+    """The bins `mine` has and `other` lacks, and how much of `mine` is in them."""
+    bins = (mine >= HUE_PRESENT) & (other < HUE_ABSENT)
+    return bins, float(mine[bins].sum())
+
+
+def is_the_other(query: np.ndarray, mine: np.ndarray, other: np.ndarray) -> bool:
+    """Is a tile the picture model took for `mine` the near-alike `other`, by colour (D193)?
+
+    For a dish and its special version only: one is the other drawn again with something
+    on it (青蔬蛋饼's herbs), a colour the plain one has none of. Yes when the tile plainly
+    has the colour only `other` has, or plainly lacks the colour only `mine` has. A pair
+    where neither has a colour of its own (锅盔 / 糖心锅盔) is never decided here.
+    """
+    theirs, their_mass = _own_hue(other, mine)
+    ours, our_mass = _own_hue(mine, other)
+    shows_theirs = (their_mass >= MIN_OWN_HUE
+                    and float(query[theirs].sum()) >= SHOWS_HUE * their_mass)
+    shows_ours = our_mass >= MIN_OWN_HUE and float(query[ours].sum()) >= SHOWS_HUE * our_mass
+    lacks_ours = our_mass >= MIN_OWN_HUE and float(query[ours].sum()) <= LACKS_HUE * our_mass
+    if shows_theirs:
+        return not shows_ours
+    return lacks_ours and their_mass < MIN_OWN_HUE
+
+
 def same_hue(a: np.ndarray, b: np.ndarray, threshold: float) -> bool:
     """True unless both icons are clearly coloured and their hues differ.
 

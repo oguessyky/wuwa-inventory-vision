@@ -29,6 +29,7 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
@@ -188,6 +189,13 @@ class Progress(BaseModel):
     name: str = Field(min_length=1, max_length=40)
     owned: bool = True
     state: dict | None = None
+
+
+class BulkProgress(BaseModel):
+    """Several resonators marked at once (D59, D194): 已练满, 已拥有, or forgotten."""
+
+    names: list[str] = Field(min_length=1, max_length=200)
+    how: Literal["max", "owned", "clear"]
 
 
 class RoverGender(BaseModel):
@@ -1067,6 +1075,31 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             state = planner.clamp(cat, "resonator", body.name, body.state)
             st.set_progress(body.name, body.owned, state)
             return {"name": body.name, "owned": body.owned, "state": state}
+        finally:
+            st.close()
+
+    @app.post("/api/resonator/progress/bulk")
+    def set_progress_bulk(body: BulkProgress) -> dict:
+        """One request for what the page used to do one resonator at a time, each after
+        fetching its whole page for its caps (D194). 已拥有 keeps what is saved."""
+        cat = catalogue.get()
+        known = [n for n in dict.fromkeys(body.names)
+                 if planner.limits(cat, "resonator", n) is not None]
+        st = Store(db())
+        try:
+            saved = st.progress()
+            for name in known:
+                if body.how == "clear":
+                    st.clear_progress(name)
+                elif body.how == "max":
+                    st.set_progress(name, True, planner.full(cat, "resonator", name, True))
+                else:
+                    mine = (saved.get(name) or {}).get("state")
+                    state = (planner.clamp(cat, "resonator", name, mine) if mine
+                             else planner.full(cat, "resonator", name, False))
+                    st.set_progress(name, True, state)
+            return {"done": len(known),
+                    "unknown": [n for n in dict.fromkeys(body.names) if n not in known]}
         finally:
             st.close()
 

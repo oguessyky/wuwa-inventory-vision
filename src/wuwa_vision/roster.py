@@ -271,6 +271,12 @@ def signature_dishes(catalogue: Catalogue) -> dict[str, list[dict]]:
     return out
 
 
+def dish_variants(catalogue: Catalogue) -> list[tuple[str, str]]:
+    """(dish, its special version): drawn alike, told apart by colour in a scan (D193)."""
+    return [(dish["base"], dish["name"]) for dishes in signature_dishes(catalogue).values()
+            for dish in dishes if dish.get("base")]
+
+
 def resonator(catalogue: Catalogue, inventory: list[Item], name: str,
               complete_tabs: set[str] | frozenset[str] = frozenset(),
               mine: dict | None = None, pulls: dict | None = None) -> dict | None:
