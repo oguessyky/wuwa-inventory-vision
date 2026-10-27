@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Fragment, type ReactNode } from 'react';
 import type { Lang } from '@/lib/content';
-import { Copy } from './Copy';
+import { Code } from './Code';
 
 // Just enough Markdown for the site's own pages (D210), as the app's (D162) with what a guide
 // needs besides: links, pictures, numbered steps, blocks of commands and tables (a package's guide, D214). Built as React nodes,
@@ -20,7 +20,7 @@ function to(href: string, lang: Lang): string {
 /** **bold**, `code`, [links](...) and <https://...> inside one line of text. */
 function inline(text: string, key: string, lang: Lang): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)|<(https?:\/\/[^>]+)>/g;
+  const re = /\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)|<(https?:\/\/[^>]+)>|\*([^*\s][^*]*?)\*/g;
   let at = 0;
   for (let m = re.exec(text); m; m = re.exec(text)) {
     if (m.index > at) out.push(text.slice(at, m.index));
@@ -32,7 +32,8 @@ function inline(text: string, key: string, lang: Lang): ReactNode[] {
       out.push(href.startsWith('/')
         ? <Link key={k} href={to(href, lang)}>{inline(m[3], k, lang)}</Link>
         : <a key={k} href={href} target="_blank" rel="noopener noreferrer">{inline(m[3], k, lang)}</a>);
-    } else out.push(<a key={k} href={m[5]} target="_blank" rel="noopener noreferrer">{m[5]}</a>);
+    } else if (m[5] != null) out.push(<a key={k} href={m[5]} target="_blank" rel="noopener noreferrer">{m[5]}</a>);
+    else out.push(<em key={k}>{inline(m[6], k, lang)}</em>);           // *a title* (D223)
     at = m.index + m[0].length;
   }
   if (at < text.length) out.push(text.slice(at));
@@ -65,10 +66,10 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
     const line = raw.trimEnd();
     if (line.startsWith('```')) {                     // a block of commands, to copy
       flush();
+      const fence = line.slice(3).trim();             // ```yaml: coloured as YAML (D221)
       const code: string[] = [];
       for (i++; i < lines.length && !lines[i].startsWith('```'); i++) code.push(lines[i]);
-      const k = `c${blocks.length}`;
-      blocks.push(<div className="cmd" key={k}><pre><code>{code.join('\n')}</code></pre><Copy text={code.join('\n')} lang={lang} /></div>);
+      blocks.push(<Code key={`c${blocks.length}`} text={code.join('\n')} lang={fence || undefined} site={lang} />);
       continue;
     }
     if (line.startsWith('|')) {                       // a table: | a | b |, then |---|---|
@@ -83,6 +84,15 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
         {head.some(Boolean) ? <thead><tr>{head.map((c, j) => <th key={j}>{inline(c, `${k}h${j}`, lang)}</th>)}</tr></thead> : null}
         <tbody>{body.map((row, r) => <tr key={r}>{row.map((c, j) =>
           <td key={j}>{inline(c, `${k}-${r}-${j}`, lang)}</td>)}</tr>)}</tbody></table></div>);
+      continue;
+    }
+    if (line.startsWith('>')) {                       // > a line quoted, as the notices have (D223)
+      flush();
+      const quoted: string[] = [];
+      for (; i < lines.length && lines[i].startsWith('>'); i++) quoted.push(lines[i].replace(/^>\s?/, ''));
+      i--;
+      const k = `q${blocks.length}`;
+      blocks.push(<blockquote key={k}><p>{inline(quoted.join(' '), k, lang)}</p></blockquote>);
       continue;
     }
     if (!line.trim()) { flush(); continue; }

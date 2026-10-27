@@ -80,7 +80,7 @@ uv run python -m wuwa_vision platform
 
 ### 连接主机时说「钥匙」不对
 
-密钥是主机存储路径里 `data/home.key` 文件的那一行。
+密钥是主机存储路径里的 `data/home.key`。用 NAS 的文件管理器把它下载到「下载」文件夹，再双击 **`2 连接主机 Connect home`**，钥匙那一步直接按回车：它会拿「下载」里最新的 `home*.key`。下载过好几次也没关系。
 
 ### 扫描时说「两边的版本不一样」
 

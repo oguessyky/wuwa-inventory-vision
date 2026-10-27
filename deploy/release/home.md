@@ -59,10 +59,11 @@ already has it.
 
 ## 5. Connect a scanner
 
-The key a scanner needs is the one line of `home.key` in the `data` folder inside the storage
-path (made on the first start; the NAS's file manager opens it). On the PC with the *scanner*
-package, double-click `2 连接主机 Connect home` -- Enter alone takes `wuwa-home` for the address --
-or run:
+The key a scanner needs is `home.key` in the `data` folder inside the storage path (made on
+the first start). Download it with the NAS's file manager to the PC with the *scanner* package --
+it lands in Downloads -- then double-click `2 连接主机 Connect home` and press Enter at both
+questions: Enter takes `wuwa-home` for the address and the newest `home*.key` in Downloads for the
+key. Or run:
 
 ```
 uv run python -m wuwa_vision home set wuwa-home <the key>

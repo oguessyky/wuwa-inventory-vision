@@ -3,6 +3,8 @@ import { address, downloads, packages, version, type Lang } from '@/lib/content'
 import { BASE, Frame, REPO } from './Doc';
 import { Icons } from './Icons';
 import { DownloadLink } from './Download';
+import { SetupPicker } from './SetupPicker';
+import { ld, NAME, SITE } from '@/lib/seo';
 
 // The help site's landing page (D214). The user, 2026-10-27: "the help site should have a good
 // landing page". What the program is for, in one look: the bag scrolled once, read off the screen,
@@ -24,13 +26,8 @@ const W = {
       ['它读出每一格', '名称、稀有度、数量；武器还有等级、谐振和装配在谁身上。游戏自己的格数告诉它扫全了没有。'],
       ['告诉你下一步', '每种材料对照每个共鸣者和武器的完整配置，合成也算进去：还缺多少、去哪刷、商店买什么。'],
     ],
-    waysH: '选一种适合你的方式', waysSub: '每个程序包里都有一份图文指南；这里也能先看。',
-    ways: [
-      { name: '一台 Windows 电脑', pkg: 'full', what: '扫描和全部页面装在同一台电脑上。最简单。', page: 'install', guides: [['完整版指南', 'full']] },
-      { name: '电脑 + 主机，手机随时看', pkg: 'scanner + home', what: '玩游戏的电脑负责扫描；NAS 或一直开着的机器当主机，手机随时打开。', page: 'home', guides: [['扫描端指南', 'scanner'], ['主机指南', 'home']] },
-      { name: '在 Mac 上玩', pkg: 'mac-full · mac-scanner', what: '库洛官方 Mac 客户端。只读屏幕，需要「屏幕录制」权限。', page: 'mac', guides: [['Mac 指南', 'mac-full']] },
-    ],
-    steps2: '安装步骤', pagesH: '每一页都在帮你算', pagesSub: '中文、拼音、首字母、英文都能搜到。每一页都适配手机。',
+    waysH: '你该下载哪个？', waysSub: '回答两个问题，就知道要哪个包、怎么装。',
+    pagesH: '每一页都在帮你算', pagesSub: '中文、拼音、首字母、英文都能搜到。每一页都适配手机。',
     shots: [
       ['inventory', '库存', '跨扫描合并的全部物品：从哪来、用在哪，数量可以直接改。'],
       ['materials', '材料', '每种养成材料对照完整配置，合成算进去，也能设自己的目标。'],
@@ -65,13 +62,8 @@ const W = {
       ['It reads every tile', 'Name, rarity and count; for weapons also the level, refinement and who has it equipped. The game\'s own count says when a scan is complete.'],
       ['It tells you what is next', 'Every material against every resonator\'s and weapon\'s full build, synthesis counted: what is short, where to farm it, what to buy.'],
     ],
-    waysH: 'Pick the way that suits you', waysSub: 'Every package carries a picture guide; you can read it here first.',
-    ways: [
-      { name: 'One Windows PC', pkg: 'full', what: 'The scanner and every page on the same PC. The simplest.', page: 'install', guides: [['Full guide', 'full']] },
-      { name: 'A PC and a home, on your phone', pkg: 'scanner + home', what: 'The PC with the game scans; a NAS or always-on box is the home, open from your phone anytime.', page: 'home', guides: [['Scanner guide', 'scanner'], ['Home guide', 'home']] },
-      { name: 'Playing on a Mac', pkg: 'mac-full · mac-scanner', what: 'Kuro\'s own Mac client. It only reads the screen, with the Screen Recording permission.', page: 'mac', guides: [['Mac guide', 'mac-full']] },
-    ],
-    steps2: 'Install steps', pagesH: 'Every page does the sums', pagesSub: 'Find anything by English, Chinese, pinyin or initials. Every page fits a phone.',
+    waysH: 'Which one do you need?', waysSub: 'Two questions, and you know which package and how to set it up.',
+    pagesH: 'Every page does the sums', pagesSub: 'Find anything by English, Chinese, pinyin or initials. Every page fits a phone.',
     shots: [
       ['inventory', 'Inventory', 'Everything you own, merged across scans: where it comes from, what uses it, counts you can fix.'],
       ['materials', 'Materials', 'Every build material against a full build, synthesis counted, with targets of your own.'],
@@ -107,6 +99,35 @@ function Bag() {
 }
 
 
+/** What the site is about, as structured data (D222): the program -- free, for Windows and macOS,
+ * its version, where to get it -- and the site itself, in both languages. */
+function about(lang: Lang, v: string) {
+  const home = `${SITE}${address(lang, 'index')}`;
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        name: NAME[lang],
+        alternateName: lang === 'en' ? NAME.zh : NAME.en,
+        description: W[lang].lede,
+        url: home,
+        applicationCategory: 'UtilitiesApplication',
+        applicationSubCategory: 'Game companion',
+        operatingSystem: 'Windows 10, Windows 11, macOS',
+        softwareVersion: v,
+        downloadUrl: `${REPO}/releases/latest`,
+        screenshot: `${SITE}/screens/${lang === 'en' ? 'en/' : ''}dashboard.png`,
+        license: 'https://www.apache.org/licenses/LICENSE-2.0',
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        inLanguage: ['zh-CN', 'en'],
+      },
+      { '@type': 'WebSite', name: NAME[lang], url: home, inLanguage: lang === 'en' ? 'en' : 'zh-CN' },
+    ],
+  };
+}
+
 export function Landing({ lang }: { lang: Lang }) {
   const w = W[lang];
   const v = version();
@@ -114,13 +135,14 @@ export function Landing({ lang }: { lang: Lang }) {
   const guide = (kind: string) => (kind.startsWith('mac-')
     ? { href: `${lang === 'en' ? '/en' : ''}/guides/${kind}/`, inside: true }
     : { href: `${BASE}/guides/${kind}.html`, inside: false });
+  const hrefs = { install: address(lang, 'install'), home: address(lang, 'home'), mac: address(lang, 'mac') };
   const zips = downloads();
   const icons = [Icons.bag, Icons.tiles, Icons.plan];
   const safeIcons = [Icons.pixels, Icons.shield, Icons.idWiped, Icons.home];
   const trustIcons = [Icons.pixels, Icons.home, Icons.phone];
-  const wayIcons = [Icons.pc, Icons.pcHomePhone, Icons.mac];
   return (
     <Frame lang={lang}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld(about(lang, v)) }} />
       <main className="landing">
         <section className="hero">
           <div className="hero-t">
@@ -129,7 +151,7 @@ export function Landing({ lang }: { lang: Lang }) {
             <p className="lede">{w.lede}</p>
             <div className="ctas">
               <a className="btn gold dlb" href="#download">{Icons.download}{w.download(v)}</a>
-              <Link className="btn line" href={address(lang, 'guides')}>{Icons.guide}{w.how}</Link>
+              <a className="btn line" href="#setup">{Icons.guide}{w.how}</a>
             </div>
             <ul className="trust">{w.trust.map((t, i) => <li key={t}>{trustIcons[i]}{t}</li>)}</ul>
           </div>
@@ -154,25 +176,10 @@ export function Landing({ lang }: { lang: Lang }) {
           </ol>
         </section>
 
-        <section className="band ways">
+        <section className="band ways" id="setup">
           <h2>{w.waysH}</h2>
           <p className="sub">{w.waysSub}</p>
-          <div className="cards">
-            {w.ways.map((way, i) => (
-              <article key={way.pkg} className="way">
-                <div className="way-h"><span className="ic">{wayIcons[i]}</span><code>{way.pkg}</code></div>
-                <h3>{way.name}</h3>
-                <p>{way.what}</p>
-                <div className="links">
-                  <Link href={address(lang, way.page)}>{Icons.steps}{w.steps2}</Link>
-                  {way.guides.map(([label, kind]) => {
-                    const g = guide(kind);
-                    return g.inside ? <Link key={kind} href={g.href}>{Icons.guide}{label}</Link> : <a key={kind} href={g.href}>{Icons.guide}{label}</a>;
-                  })}
-                </div>
-              </article>
-            ))}
-          </div>
+          <SetupPicker lang={lang} zips={zips} hrefs={hrefs} />
         </section>
 
         <section className="band dl" id="download">
@@ -231,7 +238,7 @@ export function Landing({ lang }: { lang: Lang }) {
           <p className="sub">{w.endSub}</p>
           <div className="ctas">
             <a className="btn gold dlb" href="#download">{Icons.download}{w.download(v)}</a>
-            <Link className="btn line" href={address(lang, 'guides')}>{Icons.guide}{w.how}</Link>
+            <a className="btn line" href="#setup">{Icons.guide}{w.how}</a>
           </div>
         </section>
       </main>

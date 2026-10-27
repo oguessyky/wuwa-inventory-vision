@@ -48,6 +48,7 @@ import secrets
 import shutil
 import socket
 import sqlite3
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -630,6 +631,60 @@ def write_home(data_dir: Path, url: str | None, key: str | None = None) -> None:
     data_dir.mkdir(parents=True, exist_ok=True)
     said = {"url": check_address(url), "key": key}
     path.write_text(json.dumps(said, indent=1) + "\n", encoding="utf-8")
+
+
+def downloads_folder() -> Path:
+    """Where this user's browser saves a download (D220): Windows' own Downloads folder, wherever
+    it was moved to; ~/Downloads elsewhere, and when Windows will not say."""
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            import uuid
+            from ctypes import wintypes
+
+            downloads = uuid.UUID("{374DE290-123F-4565-9164-39C4925E467B}")    # FOLDERID_Downloads
+
+            class _Guid(ctypes.Structure):
+                _fields_ = [("data", ctypes.c_ubyte * 16)]
+
+            path = ctypes.c_wchar_p()
+            got = ctypes.windll.shell32.SHGetKnownFolderPath(
+                ctypes.byref(_Guid((ctypes.c_ubyte * 16).from_buffer_copy(downloads.bytes_le))),
+                0, None, ctypes.byref(path))
+            if got == 0 and path.value:
+                folder = Path(path.value)
+                ctypes.windll.ole32.CoTaskMemFree(ctypes.cast(path, wintypes.LPVOID))
+                return folder
+        except (OSError, AttributeError, ValueError):
+            pass
+    return Path.home() / "Downloads"
+
+
+def find_key(said: str | None) -> tuple[str | None, Path | None]:
+    """The home's key from what was typed at the key question (D220): the key itself; a path to
+    a key file (one dragged into the window); or nothing, which takes the newest home*.key in
+    Downloads -- a browser names a second download `home (1).key`. Returns (key, the file it
+    came from), or (None, None) when there is none."""
+    said = (said or "").strip().strip('"').strip("'")
+    if said:
+        given = Path(said)
+        try:
+            if given.is_file():
+                return given.read_text(encoding="utf-8").strip() or None, given
+        except (OSError, ValueError):
+            pass
+        return said, None
+    folder = downloads_folder()
+    found = sorted((p for p in folder.glob("home*.key") if p.is_file()),
+                   key=lambda p: p.stat().st_mtime, reverse=True)
+    for path in found:
+        try:
+            key = path.read_text(encoding="utf-8").strip()
+        except (OSError, ValueError):
+            continue
+        if key:
+            return key, path
+    return None, None
 
 
 # ------------------------------------------------------------- how far it has got

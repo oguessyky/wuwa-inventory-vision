@@ -112,7 +112,9 @@ On the PC, once — the line `setup.sh` printed:
 uv run python -m wuwa_vision home set http://<the NAS's tailnet name>:4000 <the key>
 ```
 
-(The key is the one line in `home.key` in the home's data folder, if you need it again.)
+(The key is the one line in `home.key` in the home's data folder, if you need it again. Leave
+the key out and `home set` takes the newest `home*.key` in Downloads; give a path and it reads
+that file.)
 It checks the address and the key before saving them. From then on:
 
 ```bash

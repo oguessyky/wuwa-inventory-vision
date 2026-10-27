@@ -11,6 +11,8 @@ const config: NextConfig = {
   images: { unoptimized: true },
   env: { NEXT_PUBLIC_BASE_PATH: base },
   reactStrictMode: true,
+  // one page for an address that is not there, now that each language is its own root (D222)
+  experimental: { globalNotFound: true },
 };
 
 export default config;

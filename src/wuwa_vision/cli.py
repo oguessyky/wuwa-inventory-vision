@@ -896,18 +896,29 @@ def _cmd_home(args: argparse.Namespace) -> int:
         print("this machine is on its own again: scans stay here")
         return 0
     if args.action == "set":
-        if not args.url or not args.key:
-            print("usage: wuwa home set <address> <key>")
+        if not args.url:
+            print("usage: wuwa home set <address> [key]")
             print("  the address: wuwa-home, wuwa-home.<tailnet>.ts.net, or 100.x (D189)")
-            print("  the key is the one line in data/home.key on the home")
+            print("  the key: the one line in data/home.key on the home, the path to that file,")
+            print("  or nothing: home.key is then taken from your Downloads folder (D220)")
             return 2
+        # Enter at the key question: the home.key downloaded from the NAS (D220)
+        key, came_from = sync.find_key(args.key)
+        if not key:
+            print(f"no key: home.key is not in {sync.downloads_folder()}")
+            print("  download data/home.key from the home's folder on the NAS,"
+                  " then run this again,")
+            print("  or paste the key itself (the one line in that file)")
+            return 2
+        if came_from:
+            print(f"key: from {came_from}")
         try:
-            home = sync.Home(args.url, args.key)
+            home = sync.Home(args.url, key)
             said = home.check()
         except sync.SyncError as exc:
             print(f"not set: {exc}")
             return 1
-        sync.write_home(data, home.url, args.key)
+        sync.write_home(data, home.url, key)
         # This copy joins the home as it is: what it holds is offered, not thrown
         # away. Only a wipe of the home from now on makes it start over.
         store = Store(args.db)
@@ -1169,7 +1180,9 @@ def main(argv: list[str] | None = None) -> int:
         "home", help="send this machine's scans to an always-on copy of the app on your tailnet")
     p_home.add_argument("action", nargs="?", choices=["show", "set", "forget"], default="show")
     p_home.add_argument("url", nargs="?", help="the home's tailnet address")
-    p_home.add_argument("key", nargs="?", help="the one line in data/home.key on the home")
+    p_home.add_argument("key", nargs="?",
+                        help="the one line in data/home.key on the home, the path to that file,"
+                             " or left out: home.key is then taken from Downloads (D220)")
     p_home.set_defaults(func=_cmd_home)
     sub.add_parser("push", help="send finished scans to the home now").set_defaults(func=_cmd_push)
     sub.add_parser(

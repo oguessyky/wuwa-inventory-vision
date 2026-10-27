@@ -13,13 +13,15 @@ if (!existsSync(from)) throw new Error(`no guides at ${from}`);
 const version = /^version\s*=\s*"([^"]+)"/m.exec(readFileSync(join(root, 'pyproject.toml'), 'utf-8'))?.[1];
 if (!version) throw new Error('no version in pyproject.toml');
 
-const back = '<a href="../guides/" style="display:inline-block;margin:0 0 8px;color:#e8c15b;font-size:14px;'
-  + 'text-decoration:none">‹ 全部指南 · All guides</a>';
+// back to the page that shows this guide's steps (D219): full on the install page, the rest on the home's
+const page = { full: 'install' };
+const back = name => `<a href="../${page[name.replace(/\.html$/, '')] ?? 'home'}/" style="display:inline-block;`
+  + 'margin:0 0 8px;color:#e8c15b;font-size:14px;text-decoration:none">‹ 返回帮助网站 · Back to the help site</a>';
 rmSync(to, { recursive: true, force: true });
 mkdirSync(to, { recursive: true });
 for (const name of readdirSync(from).filter(n => n.endsWith('.html'))) {
   const page = readFileSync(join(from, name), 'utf-8').replaceAll('{version}', version)
-    .replace(/<main>/, `<main>${back}`);
+    .replace(/<main>/, `<main>${back(name)}`);
   writeFileSync(join(to, name), page);
 }
 console.log(`guides: ${from} -> ${to} (v${version})`);

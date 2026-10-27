@@ -48,8 +48,10 @@ to take every default without being asked. On macOS: `./setup.sh --scanner`.
 
 ## 2. Give it its home (once)
 
-**Double-click `2 连接主机 Connect home`**: it asks for the home's address and its key (the one
-line of `home.key` in the home's data folder). For the address, Enter alone takes `wuwa-home`, the
+First download `home.key` from the home's data folder (the NAS's file manager) -- it lands in
+Downloads. **Double-click `2 连接主机 Connect home`**: it asks for the home's address and its key.
+For the key, Enter alone takes the newest `home*.key` in Downloads (pasting its one line, or the
+file's path, works too). For the address, Enter alone takes `wuwa-home`, the
 home's name on Tailscale; the name Tailscale shows (`wuwa-home.your-tailnet.ts.net`) or its
 `100.x` address do too -- `http://` and port `4000` are put in. It is the same as running:
 

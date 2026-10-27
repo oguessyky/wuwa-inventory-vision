@@ -1,36 +1,23 @@
 # Updating
 
-There are two things to update: the **catalogue** (the new items and characters of each game update) and **the program itself**.
+Two things update: the **catalogue** (the game's new items and resonators) and the **program**.
 
 ## After a game update: the catalogue
 
-On **Update → Catalogue**, press **Update from the wiki**. It downloads what is new from Kuro's official wiki: items, pictures, recipes and characters, only the new ones. The page shows which step it is on and about how long is left.
+**Update → Catalogue → Update from the wiki**. Only what is new is fetched; the page shows how far it is and how long is left. With a home, update it there only: a scanner takes it from the home before each scan.
 
-With a home, update it on the home only: scanners take the newest catalogue from the home before every scan.
+## The program
 
-The first download (a new home) takes a while; after that only what is new is fetched, which is much quicker.
+| You use | How to update |
+|---|---|
+| A home (NAS) | **Update** on the project in the Docker app; the data stays |
+| A scanner | When the dashboard says so, double-click **`4 更新 Update`** |
+| One PC (full) | Unzip the new version to a new folder, move the old `data` over, double-click **`1 安装 Setup`** |
 
-## Updating the program
+Not every version changes the scanner: some change only the home. A scanner asks the home before each scan, and **Update → Data → Versions** lists which side each version changed.
 
-### The home (NAS)
+`4 更新 Update` does something only when the home is newer and has a change for the scanner: it downloads the home's version from this project's GitHub, checks its checksums, and leaves `data` alone.
 
-In the NAS's Docker app, press **Update** on the `wuwa-inventory-vision` project: the newest image is pulled, and the data stays.
+## The two sides disagree?
 
-### A scanner
-
-Not every version needs a new scanner: some change only the home. Before each scan the scanner asks the home and tells you either:
-
-- "the home is newer, but nothing changed on the scanner's side: no need to update"; or
-- "update the scanner", and what it is missing.
-
-When it should, double-click **`4 更新 Update`** in the scanner's folder. It acts only when the home is newer and changed the scanner's side: it downloads **the home's version** from this project's GitHub releases, checks it against the release's checksums, puts it over the same folder (your `data` stays), and sets it up again.
-
-The home's **Update → Data → Versions** lists what each version changed on which side, and the **Overview** says when a scanner should update.
-
-### One PC only (full)
-
-Download the new version, unzip it into a new folder, move the `data` folder across from the old one (your scans, names and settings are all in it), and double-click **`1 安装 Setup`** in the new folder.
-
-## The two versions do not match?
-
-A scanner and a home refuse to sync only when what they send each other changed between the two versions, and then they say the versions differ. Update both to the same version. Otherwise, different versions sync as usual.
+Only when the format they sync in changed do they refuse, saying the versions differ. Update both to the same version.

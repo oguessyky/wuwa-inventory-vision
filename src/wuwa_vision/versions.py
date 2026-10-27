@@ -24,6 +24,11 @@ ROOT = Path(__file__).resolve().parents[2]
 #: Newest first. Every release has its entry (tests/test_versions.py), and a release that
 #: changed nothing on a side says so with an empty list: that side need not be updated.
 RELEASES: tuple[dict, ...] = (
+    {"version": "1.1.4", "date": "2026-10-28",
+     "scanner": [{"zh": "连接主机时钥匙那一步直接按回车：从「下载」文件夹里拿最新的 home.key（NAS 打不开 .key 文件也没关系）",
+                  "en": "Connect home takes the key from Downloads when you press Enter: the newest "
+                        "home.key there (for a NAS that cannot open .key files)"}],
+     "home": []},
     {"version": "1.1.3", "date": "2026-10-27",
      "scanner": [],
      "home": [{"zh": "主机的网络由一个更新永远不会换掉的小容器拿着，NAS 的「更新」不再报 No such container（要先粘贴新的配置文件一次）",

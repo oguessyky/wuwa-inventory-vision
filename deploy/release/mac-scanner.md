@@ -23,8 +23,9 @@ runs `./setup.sh --scanner`.
 
 ## 2. Give it its home (once)
 
-**Double-click `2 连接主机 Connect home`**: it asks for the home's address (Enter alone takes
-`wuwa-home`) and its key (the one line of `home.key` in the home's data folder).
+First download `home.key` from the home's data folder -- it lands in Downloads. Then
+**double-click `2 连接主机 Connect home`** and press Enter at both questions: Enter takes
+`wuwa-home` for the address and the newest `home*.key` in Downloads for the key.
 
 ## 3. Scan
 

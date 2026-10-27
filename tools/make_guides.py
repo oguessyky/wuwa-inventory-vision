@@ -213,15 +213,15 @@ def pic_setup(scanner: bool) -> str:
 
 
 def pic_connect() -> str:
-    return svg(window(20, 16, 250, 150, "data/ (主机 · the home)")
-               + files(44, 70, [("home.key", "1 行"), ("wuwa.sqlite", ""), ("icons/", "")],
+    return svg(window(20, 16, 250, 150, "Downloads (下载 · from the NAS)")
+               + files(44, 70, [("home.key", "下载 · downloaded"), ("…", ""), ("", "")],
                        ("home.key",)).replace('x="314"', 'x="9999"')
                + arrow(280, 90, 330, 90)
                + console(340, 16, 280, 200, "2 连接主机 Connect home", [
                    ("Home address [wuwa-home]:", MUTED), ("(Enter)", ACCENT),
-                   ("Home key (home.key):", MUTED),
-                   ("3f9c…(paste)", ACCENT), ("home: saved", OK)]),
-               640, 232, "the key from home.key, pasted into Connect home")
+                   ("Home key [Enter = Downloads]:", MUTED),
+                   ("(Enter)", ACCENT), ("home: saved", OK)]),
+               640, 232, "home.key downloaded from the NAS, then Enter in Connect home")
 
 
 def pic_scan() -> str:
@@ -262,7 +262,8 @@ def pic_project() -> str:
     side = "".join(t(40, 84 + k * 30, w, 13, ACCENT if w == "Project" else MUTED,
                      700 if w == "Project" else 400)
                    for k, w in enumerate(("Overview", "Project", "Container", "Image")))
-    yaml = [("services:", MUTED), ("  tailscale:", MUTED),
+    yaml = [("services:", MUTED), ("  net:", MUTED), ("    image: registry.k8s.io/pause:3.10", MUTED),
+            ("  tailscale:", MUTED),
             ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-tailscale…", MUTED), ("    environment:", MUTED),
             ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
             ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}", MUTED), ("  wuwa:", MUTED),
@@ -271,9 +272,9 @@ def pic_project() -> str:
     for k, (line, colour) in enumerate(yaml):
         editor += t(170, 196 + k * 17, line, 11, colour, 600 if colour == ACCENT else 400,
                     mono=True)
-    lit = 196 + 4 * 17
-    return svg(window(20, 16, 600, 390, "Docker")
-               + f'<path d="M140 44v362" stroke="{LINE}"/>' + side
+    lit = 196 + 6 * 17                 # the key's line (D215 put net: above it)
+    return svg(window(20, 16, 600, 430, "Docker")
+               + f'<path d="M140 44v402" stroke="{LINE}"/>' + side
                + t(160, 72, "Create project · 创建项目", 15, INK, 700)
                + t(160, 98, "Name", 12, MUTED) + box(160, 104, 300, 24, PANEL, LINE, 6)
                + t(170, 121, "wuwa-inventory-vision", 13, INK, mono=True)
@@ -281,10 +282,10 @@ def pic_project() -> str:
                + box(160, 154, 440, 18, PANEL, LINE, 6)
                + t(170, 167, "/volume1/docker/wuwa-inventory-vision", 11, INK, mono=True)
                + editor + ring(164, lit - 14, 432, 20)
-               + t(160, 352, "Compose configuration：粘贴整个文件，把 PUT-YOURS-HERE 换成你的钥匙", 12, ACCENT)
-               + t(160, 370, "paste the whole file; put your key over PUT-YOURS-HERE", 11, MUTED)
-               + button(500, 360, 100, "Deploy"),
-               640, 422, "the NAS's Docker app: name, an empty folder, the compose file pasted, deploy")
+               + t(160, 396, "Compose configuration：粘贴整个文件，把 PUT-YOURS-HERE 换成你的钥匙", 12, ACCENT)
+               + t(160, 414, "paste the whole file; put your key over PUT-YOURS-HERE", 11, MUTED)
+               + button(500, 400, 100, "Deploy"),
+               640, 462, "the NAS's Docker app: name, an empty folder, the compose file pasted, deploy")
 
 
 def pic_open() -> str:
@@ -425,11 +426,11 @@ def guide_home() -> str:
              "A <code>wuwa-home</code> appears on Tailscale's machines page: … → Disable key "
              "expiry, or it asks to log in again in six months (key expiry).", pic_expiry()),
         step(6, "连接扫描器", "Connect a scanner",
-             "扫描器要的钥匙是存储路径里 <code>data/home.key</code> 那一行（NAS 的文件管理器能打开）。"
-             "在装了扫描器的电脑上双击 <b>2 连接主机 Connect home</b>：地址直接按回车就是 <code>wuwa-home</code>，再贴上钥匙。",
-             "The key a scanner needs is the one line of <code>data/home.key</code> in the storage "
-             "path (the NAS's file manager opens it). On the PC with the scanner, double-click "
-             "<b>2 连接主机 Connect home</b>: Enter alone takes <code>wuwa-home</code> for the address; then paste the key.", pic_connect()),
+             "在 NAS 的文件管理器里，把存储路径里的 <code>data/home.key</code> 下载到装了扫描器的电脑（放在「下载」文件夹）。"
+             "然后双击 <b>2 连接主机 Connect home</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。",
+             "In the NAS's file manager, download <code>data/home.key</code> from the storage path "
+             "to the PC with the scanner (it lands in Downloads). Then double-click "
+             "<b>2 连接主机 Connect home</b> and press Enter at both questions: the key is taken from Downloads.", pic_connect()),
         step(7, "更新", "Updating",
              "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
@@ -490,10 +491,11 @@ def guide_scanner() -> str:
              "PyTorch for your GPU and the recognition model. The catalogue comes from the home.",
              pic_setup(True)),
         step(3, "双击 2 连接主机 Connect home", "Double-click 2 连接主机 Connect home",
-             "地址直接按回车就是 <code>wuwa-home</code>（也可以写 Tailscale 显示的名字或 100.x 地址），再贴上钥匙（主机 <code>data/home.key</code> 里那一行）。只要做一次。",
-             "For the address, Enter alone takes <code>wuwa-home</code> (the name Tailscale shows, "
-             "or its 100.x address, do too); then paste the key -- the one line of "
-             "<code>data/home.key</code> on the home. Once.", pic_connect()),
+             "先从 NAS 下载主机的 <code>data/home.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-home</code>，"
+             "钥匙也直接按回车：会从「下载」里自己找。也可以贴上钥匙那一行。只要做一次。",
+             "First download the home's <code>data/home.key</code> from the NAS (it lands in Downloads). "
+             "For the address, Enter alone takes <code>wuwa-home</code>; for the key, Enter alone takes "
+             "home.key from Downloads (pasting its one line works too). Once.", pic_connect()),
         step(4, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到主机。",

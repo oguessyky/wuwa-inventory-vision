@@ -80,7 +80,7 @@ Key expiry is on for that device: turn it off for `wuwa-home` in the Tailscale a
 
 ### Connecting to the home says the key is wrong
 
-The key is the one line of `data/home.key` in the home's storage path.
+The key is `data/home.key` in the home's storage path. Download it with the NAS's file manager (it lands in Downloads), double-click **`2 连接主机 Connect home`** and press Enter at the key: it takes the newest `home*.key` in Downloads, so downloading it more than once is fine.
 
 ### The home will not start after an update: "joining network namespace of container: No such container"
 
