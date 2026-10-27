@@ -1,6 +1,6 @@
 # Install on Windows
 
-This page is about the **full** package: the scanner and the pages on the same Windows PC. To look from your phone anytime, see [A home on a NAS](/home).
+This page is about the **full** package: the scanner and the pages on the same Windows PC. To look from your phone anytime, see [A home on a NAS](/home). The package's picture guide is [here too](/guides#full), to read first.
 
 ## 1. Download
 

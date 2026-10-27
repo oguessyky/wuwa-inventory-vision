@@ -1,6 +1,7 @@
-import { Doc, docMetadata } from '@/components/Doc';
+import { docMetadata } from '@/components/Doc';
+import { Landing } from '@/components/Landing';
 
 export const metadata = docMetadata('zh', 'index');
 export default function Page() {
-  return <Doc lang="zh" slug="index" />;
+  return <Landing lang="zh" />;
 }

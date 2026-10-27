@@ -26,3 +26,39 @@ export function address(lang: Lang, slug: string): string {
 export function title(text: string): string {
   return /^# (.*)$/m.exec(text)?.[1] ?? '';
 }
+
+export interface Package { kind: string; zh: string; en: string; for_zh: string; for_en: string; guide: string }
+
+/** The packages and each one's own guide (D214): site/content/packages.json. */
+export function packages(): Package[] {
+  return JSON.parse(readFileSync(join(CONTENT, 'packages.json'), 'utf-8')).packages;
+}
+
+const ROOT = join(process.cwd(), '..');
+const REPO_FILE = 'https://github.com/oguessyky/wuwa-inventory-vision/blob/main/';
+
+/** The release's version, as the packages carry it. */
+export function version(): string {
+  return /^version\s*=\s*"([^"]+)"/m.exec(readFileSync(join(ROOT, 'pyproject.toml'), 'utf-8'))?.[1] ?? '';
+}
+
+/** A Mac package's guide (deploy/release/mac-*.md), as its zip has it: the version filled in, and
+ * a link to a file beside it in the zip (PRIVACY.md) sent to that file in the repository. */
+export function guideWords(file: string): string {
+  return readFileSync(join(ROOT, 'deploy', 'release', file), 'utf-8')
+    .replaceAll('{version}', `v${version()}`)
+    .replace(/\]\(((?!https?:|\/|#)[^)]+)\)/g, (_, rel: string) => `](${REPO_FILE}${rel})`);
+}
+
+export interface Download { kind: string; file: string; url: string }
+
+/** Each package's zip itself (D214): the site is built with every release, so this version's files.
+ * Named as tools/make_release.py names them; the releases page is for anyone who wants more. */
+export function downloads(): Record<string, Download> {
+  const v = version();
+  const repo = 'https://github.com/oguessyky/wuwa-inventory-vision';
+  return Object.fromEntries(packages().map(({ kind }) => {
+    const file = `wuwa-inventory-vision-${v}-${kind}.zip`;
+    return [kind, { kind, file, url: `${repo}/releases/download/v${v}/${file}` }];
+  }));
+}

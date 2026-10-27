@@ -4,7 +4,7 @@ import type { Lang } from '@/lib/content';
 import { Copy } from './Copy';
 
 // Just enough Markdown for the site's own pages (D210), as the app's (D162) with what a guide
-// needs besides: links, pictures, numbered steps and blocks of commands. Built as React nodes,
+// needs besides: links, pictures, numbered steps, blocks of commands and tables (a package's guide, D214). Built as React nodes,
 // never as HTML, so nothing in a file can put markup into the page.
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -69,6 +69,20 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
       for (i++; i < lines.length && !lines[i].startsWith('```'); i++) code.push(lines[i]);
       const k = `c${blocks.length}`;
       blocks.push(<div className="cmd" key={k}><pre><code>{code.join('\n')}</code></pre><Copy text={code.join('\n')} lang={lang} /></div>);
+      continue;
+    }
+    if (line.startsWith('|')) {                       // a table: | a | b |, then |---|---|
+      flush();
+      const rows: string[][] = [];
+      for (; i < lines.length && lines[i].trimEnd().startsWith('|'); i++)
+        rows.push(lines[i].trim().replace(/^\||\|$/g, '').split('|').map(cell => cell.trim()));
+      i--;
+      const [head, , ...body] = rows;
+      const k = `t${blocks.length}`;
+      blocks.push(<div className="tbl" key={k}><table>
+        {head.some(Boolean) ? <thead><tr>{head.map((c, j) => <th key={j}>{inline(c, `${k}h${j}`, lang)}</th>)}</tr></thead> : null}
+        <tbody>{body.map((row, r) => <tr key={r}>{row.map((c, j) =>
+          <td key={j}>{inline(c, `${k}-${r}-${j}`, lang)}</td>)}</tr>)}</tbody></table></div>);
       continue;
     }
     if (!line.trim()) { flush(); continue; }

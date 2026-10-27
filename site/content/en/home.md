@@ -2,7 +2,7 @@
 
 A "home" is a box that is always on (a NAS, a mini PC, a small server). It keeps the data and shows the pages. The PC with the game does the scanning, and sends each finished tab to the home. Your phone and laptop can then open the results anytime, even with the gaming PC off.
 
-The home is **ready-made**: the program is a published image, and Tailscale comes beside it in the same project. Nothing is built on the NAS and nothing is typed there: you paste one file into the NAS's Docker app.
+The home is **ready-made**: the program is a published image, and Tailscale comes beside it in the same project. Nothing is built on the NAS and nothing is typed there: you paste one file into the NAS's Docker app. The home's and the scanner's picture guides are in [Package guides](/guides#home).
 
 ## What you need
 

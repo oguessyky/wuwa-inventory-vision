@@ -86,6 +86,16 @@ uv run python -m wuwa_vision platform
 
 两边传送的数据格式变了：把扫描端和主机都更新到同一个版本，见[更新](/update)。
 
+### 主机更新后启动不了：「joining network namespace of container: No such container」
+
+主机的程序住在 Tailscale 容器的网络里。更新时换了一个新的 Tailscale 容器，旧的程序容器还指着已经删掉的那个，所以起不来。在 NAS 的 Docker 应用里先**停止**这个项目，再**重新部署**（重建，不是直接启动）；或者只删掉 `…-wuwa-1` 这个容器，再启动项目。数据都在项目的 `data` 文件夹里，不会受影响。
+
+从 v1.1.3 起，配置文件里多了一个很小的 `net` 容器专门拿着网络，更新永远不会换掉它，所以不会再这样。v1.1.3 之前装的主机，把新的配置文件粘贴进项目一次，再部署。
+
+### 启动时说「cannot join network namespace of a non running container」
+
+项目里的容器启动顺序乱了：再按一次「启动」就好。
+
 ### 第一次下载图鉴很久
 
 第一次要下载一千多个条目，主要时间花在等 Wiki 的服务器回应，不是网速。页面会显示进度和剩余时间；失败的条目会自动重试。以后每次只下载新增的。

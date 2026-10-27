@@ -77,9 +77,12 @@ maintain these sources, and to wuwatracker for a pull history that can be export
 
 ## 4. Interface icons
 
-The thirteen page icons in the navigation and the phone's drawer (`web/src/components/pages.svg`) and the five
-weapon-type icons (长刃, 迅刀, 佩枪, 臂铠, 音感仪; `src/wuwa_vision/web/static/icons/`) were made
-for this project and are under its Apache licence. So is the four-pointed star beside 星声 on
+The thirteen page icons in the navigation and the phone's drawer, each with a solid twin for the
+page you are on (`web/src/components/pages.svg`), the help site's icons (`site/src/components/icons.svg`:
+those page icons, a PC, a home server, a laptop, a phone, a crossed-out ID card and the download
+button's tray, arrow and check) and the five weapon-type icons (长刃, 迅刀, 佩枪, 臂铠, 音感仪;
+`src/wuwa_vision/web/static/icons/`) were made for this project and are under its Apache licence:
+drawn with Google Gemini to the project's prompts, then traced here. So is the four-pointed star beside 星声 on
 总览.
 
 The six markers of a kind of shop (a basket, a bowl, a medicine bottle, a hammer on an anvil,
@@ -146,6 +149,13 @@ whose it is: unchanged -- no package added, nothing rebuilt -- with only the hom
 settings and defaults put in. Tailscale is © Tailscale Inc. & contributors, under the
 BSD-3-Clause licence; its text is in `deploy/tailscale-image/TAILSCALE-LICENSE` and inside
 the image at `/usr/share/licenses/tailscale/LICENSE`.
+
+**Kubernetes' pause image (in the home's compose file)**
+
+The home's compose file (D215) runs `registry.k8s.io/pause:3.10`, unchanged, to hold the
+network the app and its Tailscale share, so an update of either leaves the other in place. It is
+pulled by Docker from the Kubernetes project's own registry; nothing of it is in this repository.
+It is part of Kubernetes, © The Kubernetes Authors, under the Apache License 2.0.
 
 **Python itself (in the release packages for Windows)**
 

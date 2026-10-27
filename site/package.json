@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "description": "The help site (PLAN.md D210): what it is, installing, troubleshooting. Next.js, exported as plain files for GitHub Pages.",
   "scripts": {
-    "dev": "node scripts/screens.mjs && next dev --port 3100",
-    "build": "node scripts/screens.mjs && next build",
+    "dev": "node scripts/screens.mjs && node scripts/guides.mjs && next dev --port 3100",
+    "build": "node scripts/screens.mjs && node scripts/guides.mjs && next build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 # 在 Mac 上安装
 
-Mac 用的是库洛官方的 Mac 客户端。程序和 Windows 版一样，只是双击的文件是 `.command`，而且不带 Windows 用的 Python。在 Mac 上它**只读不点**：不会替你按任何键。
+Mac 用的是库洛官方的 Mac 客户端。程序和 Windows 版一样，只是双击的文件是 `.command`，而且不带 Windows 用的 Python。在 Mac 上它**只读不点**：不会替你按任何键。两个 Mac 包各自的指南见[安装指南](/guides#mac-full)。
 
 ## 1. 先装好 Python
 

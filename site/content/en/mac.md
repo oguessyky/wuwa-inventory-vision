@@ -1,6 +1,6 @@
 # Install on a Mac
 
-A Mac uses Kuro's own Mac client. The program is the same as on Windows; only the files you double-click are `.command` files, and the Windows Python is not included. On a Mac it **only reads**: it never presses anything for you.
+A Mac uses Kuro's own Mac client. The program is the same as on Windows; only the files you double-click are `.command` files, and the Windows Python is not included. On a Mac it **only reads**: it never presses anything for you. Each Mac package's own guide is in [Package guides](/guides#mac-full).
 
 ## 1. Install Python first
 

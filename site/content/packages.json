@@ -1,0 +1,15 @@
+{
+ "about": "The packages, as make_release.TOPS names them, and the guide each carries as START-HERE (PLAN.md D214). An .html guide is copied into the site as it is; a .md one is a page of the site.",
+ "packages": [
+  {"kind": "full", "zh": "完整版", "en": "Full", "guide": "guides/full.html",
+   "for_zh": "一台 Windows 电脑装下全部：扫描和页面", "for_en": "Everything on one Windows PC: the scanner and the pages"},
+  {"kind": "scanner", "zh": "扫描端", "en": "Scanner", "guide": "guides/scanner.html",
+   "for_zh": "玩游戏的 Windows 电脑，把每次扫描发给主机", "for_en": "The Windows PC with the game, sending each scan to a home"},
+  {"kind": "home", "zh": "主机", "en": "Home", "guide": "guides/home.html",
+   "for_zh": "NAS 或一直开着的机器，手机随时能打开", "for_en": "A NAS or always-on box, open from your phone anytime"},
+  {"kind": "mac-full", "zh": "Mac 完整版", "en": "Mac full", "guide": "mac-full.md",
+   "for_zh": "一台 Mac 装下全部", "for_en": "Everything on one Mac"},
+  {"kind": "mac-scanner", "zh": "Mac 扫描端", "en": "Mac scanner", "guide": "mac-scanner.md",
+   "for_zh": "玩游戏的 Mac，把每次扫描发给主机", "for_en": "The Mac with the game, sending each scan to a home"}
+ ]
+}

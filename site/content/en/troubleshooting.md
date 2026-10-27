@@ -82,6 +82,16 @@ Key expiry is on for that device: turn it off for `wuwa-home` in the Tailscale a
 
 The key is the one line of `data/home.key` in the home's storage path.
 
+### The home will not start after an update: "joining network namespace of container: No such container"
+
+The home's app lives in the Tailscale container's network. The update made a new Tailscale container, and the old app container still points at the one that was removed. In the NAS's Docker app, **stop** the project and **deploy** it again (rebuild, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched.
+
+From v1.1.3 the compose file has a tiny third container, `net`, that holds the network and that no update replaces, so this does not happen again. A home set up before v1.1.3: paste the new compose file into the project once, then deploy.
+
+### It says "cannot join network namespace of a non running container"
+
+The project's containers were started out of order: press start once more.
+
 ### A scan says the versions differ
 
 What the two send each other changed: update the scanner and the home to the same version, see [Updating](/update).

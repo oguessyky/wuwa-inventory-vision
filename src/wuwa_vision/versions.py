@@ -1,6 +1,7 @@
 # Copyright 2026 oguessyky
 # SPDX-License-Identifier: Apache-2.0
 # Part of WuWa Inventory Vision (https://github.com/oguessyky). Keep this notice: see NOTICE.
+# ruff: noqa: E501 -- each release's words, Chinese and English, read better unbroken
 """Which release changed what, on which side: the scanner, the home (PLAN.md D197).
 
 The home updates with one button in a NAS's Docker app; the scanner is a zip. The two drift
@@ -23,6 +24,17 @@ ROOT = Path(__file__).resolve().parents[2]
 #: Newest first. Every release has its entry (tests/test_versions.py), and a release that
 #: changed nothing on a side says so with an empty list: that side need not be updated.
 RELEASES: tuple[dict, ...] = (
+    {"version": "1.1.3", "date": "2026-10-27",
+     "scanner": [],
+     "home": [{"zh": "主机的网络由一个更新永远不会换掉的小容器拿着，NAS 的「更新」不再报 No such container（要先粘贴新的配置文件一次）",
+               "en": "the home's network is held by a tiny container no update replaces, so the NAS app's "
+                     "update no longer fails with No such container (paste the new compose file once)"},
+              {"zh": "图标统一成一套：所在的页显示实心图标，鼠标停上去各有动画；总览换成指南针",
+               "en": "one family of icons: the page you are on shows its icon solid, each moves on hover; "
+                     "Overview is a compass"},
+              {"zh": "手机上商店的价格和底数是格子自己的底栏；版本列表分开写扫描端和主机改了什么",
+               "en": "on a phone a shop tile's price and base are its own foot; the version list shows "
+                     "what each side changed, and what to update"}]},
     {"version": "1.1.2", "date": "2026-10-27",
      "scanner": [],
      "home": [{"zh": "折叠屏和 300 像素宽的手机上，帮助、商店、我的共鸣者、版本列表和「这是谁」都排得整齐",
