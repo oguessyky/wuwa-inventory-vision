@@ -1,6 +1,7 @@
 # The help site (PLAN.md D210): site/, built and published to GitHub Pages at
-# https://oguessyky.github.io/wuwa-inventory-vision/ whenever its words or the pictures change,
-# and on a release. Plain files: what to install, how to scan, what to do when it does not work.
+# https://oguessyky.github.io/wuwa-inventory-vision/ whenever its words or the pictures change.
+# Plain files: what to install, how to scan, what to do when it does not work. Not when a release
+# is published: github-pages deploys only from main, and the release's push to main rebuilt it.
 #
 # Kept in the private repository too, where it does nothing (the `if` below).
 name: help site
@@ -9,8 +10,6 @@ on:
   push:
     branches: [main]
     paths: ["site/**", "docs/screens/**", ".github/workflows/pages.yml"]
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:

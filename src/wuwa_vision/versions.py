@@ -23,15 +23,39 @@ ROOT = Path(__file__).resolve().parents[2]
 #: Newest first. Every release has its entry (tests/test_versions.py), and a release that
 #: changed nothing on a side says so with an empty list: that side need not be updated.
 RELEASES: tuple[dict, ...] = (
+    {"version": "1.1.2", "date": "2026-10-27",
+     "scanner": [],
+     "home": [{"zh": "折叠屏和 300 像素宽的手机上，帮助、商店、我的共鸣者、版本列表和「这是谁」都排得整齐",
+               "en": "on a folded phone and screens 300 px wide, Help, Shops, My resonators, the "
+                     "version list and \"Who is this?\" read right"},
+              {"zh": "下拉列表不会被会滚动的列表挡住；逐个命名悬停时不再变暗；数据页两个方块之间有间距",
+               "en": "a dropdown is never cut off by a list that scrolls; Name them one by one no "
+                     "longer dims under the pointer; the Data page's two boxes have a gap"}]},
     {"version": "1.1.1", "date": "2026-10-27",
      "scanner": [{"zh": "连接主机时比较两边的版本，说哪边该更新、缺什么",
-                  "en": "compares versions with the home, and says which side to update and why"}],
+                  "en": "compares versions with the home, and says which side to update and why"},
+                 {"zh": "主机比较新时，双击「4 更新 Update」自己更新",
+                  "en": "updates itself with 4 更新 Update when the home is newer"},
+                 {"zh": "Mac 版程序包（mac-full、mac-scanner）",
+                  "en": "packages for a Mac (mac-full, mac-scanner)"},
+                 {"zh": "认得超级豹风雪；奇幻变奏不再没有名字；一模一样的物品不再拿来学习",
+                  "en": "超级豹风雪 is named; 奇幻变奏 is no longer left unnamed; items drawn "
+                        "exactly alike are not learned"}],
      "home": [{"zh": "总览说最新的扫描是哪个版本的扫描端做的；更新页列出每个版本改了哪边",
                "en": "Overview says which scanner version made the newest scans; Update lists "
                      "what each version changed on which side"},
               {"zh": "待确认的物品说它可能是哪几样，而不是说它们长得一模一样",
                "en": "an item waiting to be confirmed says what it could be, not that the "
-                     "candidates look identical"}]},
+                     "candidates look identical"},
+              {"zh": "第一次下载图鉴快了几倍；钱包每种货币取各自最新的读数",
+               "en": "the first catalogue download is several times faster; each wallet amount "
+                     "is its own newest reading"},
+              {"zh": "快速连点共鸣者进度会合起来保存；共鸣者和武器默认显示已拥有",
+               "en": "quick clicks on a resonator's progress are saved together; Resonators and "
+                     "Weapons open on Owned"},
+              {"zh": "识别不列一模一样的物品，说明也改清楚了",
+               "en": "Recognition leaves out items drawn exactly alike, and says better what "
+                     "it is"}]},
     {"version": "1.1.0", "date": "2026-10-26",
      "scanner": [{"zh": "特殊料理不再认成原料理（青蔬蛋饼）",
                   "en": "special dishes are told from their base dish (青蔬蛋饼)"},
