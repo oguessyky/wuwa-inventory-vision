@@ -50,6 +50,8 @@ import zipfile
 from html.parser import HTMLParser
 from pathlib import Path
 
+import fetch_pool
+
 API = "https://api.kurobbs.com/wiki/core/catalogue/item/getPage"
 OUT = Path("data/catalogue")
 INDEX = OUT / "index.json"
@@ -241,20 +243,29 @@ def main() -> int:
             }
         time.sleep(DELAY_SECONDS)
 
-    for i, entry in enumerate(entries.values(), 1):
+    todo = []
+    for entry in entries.values():
         dest = OUT / entry["file"]
         if dest.exists() and dest.stat().st_size > 0:
             skipped += 1
-            continue
-        try:
-            dest.write_bytes(_request(entry["url"]))
+        else:
+            todo.append(entry)
+
+    def download(entry: dict) -> None:
+        (OUT / entry["file"]).write_bytes(_request(entry["url"]))
+
+    # a few at a time (D202): the time went on waiting for each answer, not on the bytes
+    for done, (entry, _answer, error) in enumerate(
+            fetch_pool.each(todo, download, pause=DELAY_SECONDS), skipped + 1):
+        if error is None:
             fetched += 1
-        except NETWORK_ERRORS as exc:
-            print(f"  FAILED {entry['name']}: {exc}")
+        elif isinstance(error, NETWORK_ERRORS):
+            print(f"  FAILED {entry['name']}: {error}")
             failed += 1
-        time.sleep(DELAY_SECONDS)
-        if i % 100 == 0:
-            print(f"  {i}/{len(entries)} ...")
+        else:
+            raise error
+        if done % 100 == 0:
+            print(f"  {done}/{len(entries)} ...", flush=True)
 
     # Keep entries only the zip had (the wiki may have dropped them): merge, not replace.
     previous = json.loads(INDEX.read_text(encoding="utf-8")) if INDEX.exists() else []

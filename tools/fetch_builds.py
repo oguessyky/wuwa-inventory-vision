@@ -43,6 +43,7 @@ import urllib.request
 from html import unescape
 from pathlib import Path
 
+import fetch_pool
 from fetch_recipes import UA, _entries, _InfoTable, _post
 
 OUT = Path("data/catalogue/builds.json")
@@ -293,19 +294,28 @@ def main() -> int:
         time.sleep(DELAY_SECONDS)
         todo = [(n, e) for n, e in entries if not complete(kind, known[kind].get(n) or {})]
         print(f"{kind}: {len(entries)} on the wiki, {len(todo)} to fetch", flush=True)
-        for name, entry_id in todo:
-            try:
-                card = listed.get(name, {}).get("contentUrl")
-                entry = resonator(entry_id, card) if kind == "resonators" else weapon(entry_id)
-                star = str(listed.get(name, {}).get("star") or "")
-                entry.update(entry_id=entry_id, rarity=int(star) if star.isdigit() else 0)
-                known[kind][name] = entry
+        def one(job: tuple[str, str], kind: str = kind, listed: dict = listed) -> dict:
+            name, entry_id = job
+            card = listed.get(name, {}).get("contentUrl")
+            entry = resonator(entry_id, card) if kind == "resonators" else weapon(entry_id)
+            star = str(listed.get(name, {}).get("star") or "")
+            entry.update(entry_id=entry_id, rarity=int(star) if star.isdigit() else 0)
+            return entry
+
+        # a few at a time (D202); one bad page does not stop the rest. Kept in the wiki's
+        # order, as before, whatever order the answers came in.
+        got: dict[str, dict] = {}
+        for (name, _entry_id), entry, error in fetch_pool.each(todo, one, pause=DELAY_SECONDS):
+            if error is None:
+                got[name] = entry
                 fetched += 1
                 print(f"  + {name}", flush=True)
-            except Exception as exc:  # noqa: BLE001 -- one bad page must not stop the rest
-                print(f"  FAILED {name}: {exc}", flush=True)
+            else:
+                print(f"  FAILED {name}: {error}", flush=True)
                 failed += 1
-            time.sleep(DELAY_SECONDS)
+        for name, _entry_id in todo:
+            if name in got:
+                known[kind][name] = got[name]
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(known, ensure_ascii=False, indent=1), encoding="utf-8")

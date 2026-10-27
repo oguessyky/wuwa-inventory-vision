@@ -1,0 +1,54 @@
+# The help site (PLAN.md D210): site/, built and published to GitHub Pages at
+# https://oguessyky.github.io/wuwa-inventory-vision/ whenever its words or the pictures change,
+# and on a release. Plain files: what to install, how to scan, what to do when it does not work.
+#
+# Kept in the private repository too, where it does nothing (the `if` below).
+name: help site
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "docs/screens/**", ".github/workflows/pages.yml"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.repository == 'oguessyky/wuwa-inventory-vision'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+        env:
+          NEXT_BASE_PATH: /wuwa-inventory-vision
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

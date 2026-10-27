@@ -56,7 +56,9 @@ CREATE TABLE IF NOT EXISTS scan (
     -- there. `synced_at`: on a scanner, when the home took it; on the home, when
     -- it arrived. NULL on a scan that has never crossed.
     uid          TEXT,
-    synced_at    TEXT
+    synced_at    TEXT,
+    -- D197: which version of the app made this scan; NULL from scanners before 1.1.1
+    app_version  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS observation (
@@ -358,6 +360,26 @@ class Store:
             self.conn.commit()
 
         self._give_scans_names()
+        self._version_scans()
+
+    def _version_scans(self) -> None:
+        """`scan.app_version` (D197). Several requests may open the database at once after
+        an update (see `_give_scans_names`): the column is added under a write lock, once."""
+        def has() -> bool:
+            columns = self.conn.execute("PRAGMA table_info(scan)")
+            return "app_version" in {r["name"] for r in columns}
+
+        if has():
+            return
+        self.conn.commit()
+        self.conn.execute("BEGIN IMMEDIATE")
+        try:
+            if not has():
+                self.conn.execute("ALTER TABLE scan ADD COLUMN app_version TEXT")
+            self.conn.commit()
+        except BaseException:
+            self.conn.rollback()
+            raise
 
     def _give_scans_names(self) -> None:
         """v13: `scan.uid` and `scan.synced_at`, a name for every scan made before, and
@@ -423,10 +445,13 @@ class Store:
         self.conn.close()
 
     def begin_scan(self, source: str, tab_label: str | None, header_total: int | None) -> int:
+        from ..versions import this_version
+
         cur = self.conn.execute(
-            "INSERT INTO scan(started_at, source, tab_label, header_total, uid) VALUES (?,?,?,?,?)",
+            "INSERT INTO scan(started_at, source, tab_label, header_total, uid, app_version) "
+            "VALUES (?,?,?,?,?,?)",
             (datetime.now(UTC).isoformat(timespec="seconds"), source, tab_label, header_total,
-             uuid.uuid4().hex),
+             uuid.uuid4().hex, this_version()),
         )
         self.conn.commit()
         return int(cur.lastrowid)
@@ -717,11 +742,25 @@ class Store:
             )
 
     def wallet(self) -> dict | None:
-        """The newest reading: {shells, astrite, read_at, confidence} or None."""
+        """The newest reading: {shells, astrite, read_at, confidence} or None.
+
+        Each amount is its own newest reading (D198): a view that read 贝币 and missed 星声
+        does not make 星声 nothing -- 总览 said 0 where the reading before said 79.
+        `astrite_read_at` / `shells_read_at` say when an amount older than the reading was read."""
         row = self.conn.execute(
             "SELECT read_at, shells, astrite, confidence FROM wallet ORDER BY id DESC LIMIT 1"
         ).fetchone()
-        return dict(row) if row else None
+        if row is None:
+            return None
+        said = dict(row)
+        for amount in ("shells", "astrite"):
+            if said[amount] is None:
+                older = self.conn.execute(
+                    f"SELECT {amount}, read_at FROM wallet WHERE {amount} IS NOT NULL "  # noqa: S608
+                    "ORDER BY id DESC LIMIT 1").fetchone()
+                if older is not None:
+                    said[amount], said[f"{amount}_read_at"] = older[0], older[1]
+        return said
 
     # --------------------------------------------------- resonator state (D50)
 

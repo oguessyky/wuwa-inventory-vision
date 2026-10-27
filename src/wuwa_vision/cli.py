@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import functools
 import shutil
 import subprocess
 import sys
@@ -78,10 +79,12 @@ def _open_gallery(store: Store):  # noqa: ANN202 -- recognize.gallery.Gallery (l
     imported = ensure_reference(store, gallery.encoder.info.key())
     if imported:
         print(f"imported the shipped gallery pack: {imported} reference items")
-    from .catalogue import Catalogue
+    from .catalogue import Catalogue, read_item_fixes
     from .roster import dish_variants
 
+    gallery.fix_rarities(read_item_fixes())  # 超级豹风雪 is 4-star, whatever the wiki says (D199)
     gallery.set_variants(dish_variants(Catalogue.load()))  # 蛋饼 / 青蔬蛋饼 (D193)
+    gallery.set_reference_looks(_reference_look)          # 奇幻变奏 / 今州守望 (D201)
     return gallery
 
 
@@ -182,6 +185,22 @@ def _reference_icons() -> list:  # list[ReferenceIcon]
         return load_reference_icons()
     except FileNotFoundError:
         return []
+
+
+@functools.lru_cache(maxsize=512)
+def _reference_look(name: str):  # noqa: ANN202 -- numpy array or None
+    """`describe` of a catalogue picture, as the gallery compares tiles with it (D201)."""
+    from PIL import Image
+
+    from .recognize.appearance import describe
+    from .recognize.reference import composite, name_to_file, reference_dir
+
+    file = name_to_file().get(name)
+    path = reference_dir() / file if file else None
+    if path is None or not path.is_file():
+        return None
+    with Image.open(path) as im:
+        return describe(composite(im)).astype("float32")
 
 
 def _gallery_for_scan(args: argparse.Namespace, store: Store, say=print):  # noqa: ANN001, ANN202
@@ -720,11 +739,29 @@ def _sync_before(db: Path | str, home, say=print) -> None:  # noqa: ANN001 -- sy
         learned = {k: v for k, v in took.items() if v and k != "set_aside"}
         say("  home: up to date" if not learned else
             "  home: fetched " + ", ".join(f"{v} {k}" for k, v in learned.items()))
+        _say_versions(home.hello(), say)
     except sync.SyncError as exc:
         say(f"  ! home: {exc}")
         say("    scanning on this machine's copy; the scan is kept and sent next time")
     finally:
         store.close()
+
+
+def _say_versions(hello: dict, say=print) -> None:
+    """Which side should update, by what each release changed (D197). The home's list is
+    used with this copy's: whichever is newer knows releases the other does not."""
+    from . import versions
+
+    mine = versions.this_version()
+    said = versions.compare(mine, versions.plain(hello.get("version")), "scanner",
+                            versions.merged(versions.RELEASES, hello.get("releases")))
+    from .selfupdate import hint
+
+    line = versions.say(said)
+    if line:
+        say(("  ! " if said["update"] == "mine" else "  ") + "home: " + line)
+    if hint(said):
+        say("    " + hint(said))
 
 
 def _sync_after(db: Path | str, home, say=print) -> None:  # noqa: ANN001 -- sync.Home
@@ -880,6 +917,7 @@ def _cmd_home(args: argparse.Namespace) -> int:
         print(f"home: {home.url}")
         print(f"  every scan from now on is sent there; {waiting} scan(s) here go with the next "
               "one, or now with: wuwa push")
+        _say_versions(said)
         return 0
     said = sync.read_home(data)
     if not said:
@@ -911,6 +949,41 @@ def _cmd_push(args: argparse.Namespace) -> int:
         store.close()
     print(f"sent {sent.get('scans', 0)} scan(s) to {home.url}"
           + (f" ({sent['known']} it already had)" if sent.get("known") else ""))
+    return 0
+
+
+#: `wuwa update` found nothing to do: the update file skips the setup (D203).
+NOTHING_TO_UPDATE = 3
+
+
+def _cmd_update(args: argparse.Namespace) -> int:
+    """Update this copy to its home's version, only when the home says it is behind (D203)."""
+    from . import selfupdate, sync, versions
+
+    home = _home(args.db)
+    if home is None:
+        print("没有主机：只有主机比这个扫描端新时才会更新（wuwa home set …）。")
+        return 1
+    try:
+        hello = home.hello()
+    except sync.SyncError as exc:
+        print(f"问不到主机：{exc}")
+        return 1
+    plan = selfupdate.plan(versions.this_version(), hello, selfupdate.kind_of(versions.ROOT),
+                           sys.platform)
+    if plan is None:
+        print(f"不用更新：这个扫描端 v{versions.this_version()}，主机 {hello.get('version')}。")
+        return NOTHING_TO_UPDATE
+    print(f"更新到主机的版本 v{plan.version}：")
+    for change in plan.missing:
+        print(f"  · {change['zh']}")
+    print(f"  从 GitHub 下载 {plan.zip_name} …")
+    try:
+        said = selfupdate.install(plan, versions.ROOT)
+    except (selfupdate.UpdateError, OSError) as exc:
+        print(f"没有更新：{exc}")
+        return 1
+    print(f"已换上 v{said['version']}（{said['files']} 个文件），数据没动。接着重新安装一遍。")
     return 0
 
 
@@ -1099,6 +1172,9 @@ def main(argv: list[str] | None = None) -> int:
     p_home.add_argument("key", nargs="?", help="the one line in data/home.key on the home")
     p_home.set_defaults(func=_cmd_home)
     sub.add_parser("push", help="send finished scans to the home now").set_defaults(func=_cmd_push)
+    sub.add_parser(
+        "update", help="update to the home's version, when the home says this one is behind"
+    ).set_defaults(func=_cmd_update)
     sub.add_parser(
         "pull", help="fetch what the home has learned, and its catalogue, now"
     ).set_defaults(func=_cmd_pull)

@@ -15,3 +15,6 @@ deploy/tailscale-image/** text eol=lf
 
 # The double-click files of a release (D184): run by cmd.exe, which wants CRLF
 *.cmd text eol=crlf
+
+# Double-clicked on a Mac (D204): a carriage return in one stops it starting
+*.command text eol=lf

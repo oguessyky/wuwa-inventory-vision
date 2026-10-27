@@ -53,6 +53,10 @@ up, on your own home server -- section 3). None of it is sent to the author.
   catalogue from it and sends each finished scan to it: the rows that were read and the item
   pictures, never a full picture of the screen. The home must be on your own Tailscale network or
   on the same computer.
+- **Updating a scanner.** When a scanner's home is newer and you run `4 更新 Update` (`wuwa update`),
+  it downloads that version's package and checksums from this project's releases on GitHub
+  (`github.com`, and the file host GitHub sends it to). It sends nothing of yours. Without a home,
+  or with one that is not newer, it downloads nothing.
 - **Export.** Anything you export is written to a file you choose.
 
 Nothing else leaves your computer: no telemetry, no crash reports, no advertising, no downloads in

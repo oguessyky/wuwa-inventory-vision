@@ -175,8 +175,10 @@ would bring it all back.
   anything (D179), so that scan already knows them. The "also rebuild the recognition gallery" switch is not shown on the
   home: it has no recogniser to rebuild with.
 - **A new version of the app**: `git pull` on the PC, run step 1 again without `--seed`, then
-  rebuild on the NAS -- `sh setup.sh` again, or from the NAS's own Docker app (below). Update the scanner and the home together — they
-  refuse to talk across versions that changed what is sent.
+  rebuild on the NAS -- `sh setup.sh` again, or from the NAS's own Docker app (below). A release often changes only one
+  side: the home's 更新 › 数据 › 版本 lists what each changed on which side, 总览 says when a
+  scanner (or the home) is missing changes of its own, and the scanner says it before each scan
+  (D197). They refuse to talk only across versions that changed what is sent.
 
 ## Rebuilding from the NAS's own Docker app
 

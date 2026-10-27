@@ -97,6 +97,11 @@ SAME_TILE = 0.98
 #: dish drawn differently (雾茗 / 喜凌茶) differs in colour everywhere, and the picture
 #: model tells those apart already; colour renamed 40 of them on this PC's scans.
 DRAWN_ALIKE = 0.90
+#: Two catalogue pictures tied (within MIN_MARGIN): the tile's `describe` must be at least this
+#: much nearer one of them to name it (D201). 奇幻变奏 / 今州守望 tied at 0.83 / 0.82 on the
+#: picture model and were 0.2 apart on the look; on this PC's scans the rule named 78 tiles
+#: the panel had named, all right, and left the closest pairs (锅盔 / 糖心锅盔) as they were.
+LOOK_GAP = 0.10
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,6 +165,7 @@ class Gallery:
         self._has_look: np.ndarray = np.zeros(0, dtype=bool)
         self._look_cache: dict[str, np.ndarray | None] = {}
         self._variants: dict[str, frozenset[str]] = {}
+        self._reference_look = None   # name -> `describe` of its catalogue picture (D201)
         self._ref_colour: dict[str, np.ndarray] = {}
         self._ref_vector: dict[str, np.ndarray] = {}
 
@@ -253,6 +259,21 @@ class Gallery:
             groups.setdefault(root(name), []).append(name)
         return {name: tuple(sorted(g)) for g in groups.values() if len(g) > 1 for name in g}
 
+    def fix_rarities(self, fixes: dict[str, dict[str, int]]) -> int:
+        """Catalogue pictures embedded at a rarity Kuro's wiki has wrong take the game's (D199).
+
+        A scanner seeded before a fix keeps each vector; only the rarity moves, and only where
+        it is still the one fixed. Crops from the screen carry the rarity read off their bar,
+        and are left alone. Returns how many entries changed."""
+        changed = 0
+        for name, fix in fixes.items():
+            changed += self.store.conn.execute(
+                "UPDATE gallery SET rarity = ? WHERE tab = 'reference' AND item_name = ? "
+                "AND rarity = ?", (fix["now"], name, fix["was"])).rowcount
+        if changed:
+            self.store.conn.commit()
+        return changed
+
     def set_variants(self, pairs) -> None:  # noqa: ANN001 -- Iterable[tuple[str, str]]
         """A dish and its special version, from the catalogue (D193): told apart by colour.
 
@@ -264,6 +285,18 @@ class Gallery:
             variants.setdefault(one, set()).add(two)
             variants.setdefault(two, set()).add(one)
         self._variants = {name: frozenset(v) for name, v in variants.items()}
+
+    def set_reference_looks(self, look_of) -> None:  # noqa: ANN001 -- Callable[[str], ndarray | None]
+        """How each catalogue picture looks (`describe`), for telling two tied ones apart (D201)."""
+        self._reference_look = look_of
+
+    def _by_look(self, query: np.ndarray, one: str, two: str) -> str | None:
+        """Which of two tied catalogue pictures the tile looks like, if it plainly does."""
+        a, b = self._reference_look(one), self._reference_look(two)
+        if a is None or b is None:
+            return None
+        lead = float(query @ a) - float(query @ b)
+        return one if lead >= LOOK_GAP else two if -lead >= LOOK_GAP else None
 
     def _by_colour(self, name: str | None, query: np.ndarray) -> str | None:
         """The special version (or the plain dish) `query` is by colour, else None."""
@@ -444,7 +477,12 @@ class Gallery:
         return added, len(gone)
 
     def name_item(self, icon_hash: str, item_name: str) -> None:
-        """Attach a real item name, harvested from the detail panel during bootstrap."""
+        """Attach a real item name, harvested from the detail panel during bootstrap.
+
+        Not a name drawn the same as another's (D57, D200): such a picture never names a
+        tile, so learning it only fills 识别 with pictures that cannot help."""
+        if item_name in self._twins:
+            return
         self.store.conn.execute(
             "UPDATE gallery SET item_name = ? WHERE icon_hash = ?", (item_name, icon_hash)
         )
@@ -463,9 +501,10 @@ class Gallery:
         these already carrying `item_name` -- the one the panel just named, at
         least. "Every crop of the item" trusted the stitcher's idea of the item,
         and one mis-stitched slot handed a spear's name to a blade's 29 crops.
-        With no such anchor nothing is named: a name is never spread blind.
+        With no such anchor nothing is named: a name is never spread blind. Nor is a name
+        drawn the same as another's (D200, see `name_item`).
         """
-        if not icon_hashes:
+        if not icon_hashes or item_name in self._twins:
             return 0
         rows = {
             r["icon_hash"]: r for r in self.store.conn.execute(
@@ -614,6 +653,21 @@ class Gallery:
                             runner_up=self._names[best],
                         )
                     )
+                    continue
+
+            tied = next((int(idx[j]) for j in order[1:]
+                         if self._names[int(idx[j])] != self._names[best]), None)
+            if (looks is not None and self._reference_look is not None and tied is not None
+                    and top - second < MIN_MARGIN
+                    and self._tabs[best] == "reference" and self._tabs[tied] == "reference"
+                    and float(self._matrix[best] @ self._matrix[tied]) < SAME_ART):
+                # Two catalogue pictures tied on the picture model: the look decides (D201).
+                picked = self._by_look(looks[i], self._names[best] or "", self._names[tied] or "")
+                if picked is not None:
+                    other = self._names[tied] if picked == self._names[best] else self._names[best]
+                    results.append(Match(icon_hash=self._hashes[best], item_name=picked,
+                                         rarity=int(self._rarities[best]), score=top,
+                                         margin=MIN_MARGIN, runner_up=other))
                     continue
 
             rivals: tuple[str, ...] = ()

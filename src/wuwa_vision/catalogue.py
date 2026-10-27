@@ -20,6 +20,7 @@ Headless: the main app's pages only render what this returns.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -41,6 +42,8 @@ PULL_NAMES = Path(__file__).resolve().parents[2] / "assets" / "pull_names.json"
 BUILD_FIXES = Path(__file__).resolve().parents[2] / "assets" / "build_fixes.json"
 #: Ingredients of a dish that Kuro's wiki has wrong, and what the game asks for (D155).
 RECIPE_FIXES = Path(__file__).resolve().parents[2] / "assets" / "recipe_fixes.json"
+#: An item's rarity that Kuro's wiki has wrong, and what the game shows (D199).
+ITEM_FIXES = Path(__file__).resolve().parents[2] / "assets" / "item_fixes.json"
 
 
 def read_build_fixes(path: Path | None = None) -> dict[str, dict[str, list[dict]]]:
@@ -91,6 +94,26 @@ def apply_build_fixes(builds: dict, fixes: dict) -> int:
                         del total[item]
                 changed += 1
     return changed
+
+
+def read_item_fixes(path: Path | None = None) -> dict[str, dict[str, int]]:
+    """{name: {"was": wiki's rarity, "now": the game's}}; empty without the file (D199)."""
+    path = Path(path or ITEM_FIXES)
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    return {str(name): {"was": int(fix["was"]), "now": int(fix["now"])}
+            for name, fix in (data.get("rarity") or {}).items()
+            if isinstance(fix, dict) and {"was", "now"} <= set(fix)}
+
+
+def _item_fixes_stamp() -> str:
+    """Which item fixes are in force: a list worked out from rarities is redone when they change."""
+    return str(ITEM_FIXES.stat().st_mtime_ns) if ITEM_FIXES.exists() else "-"
+
+
+def fixed_rarity(name: str, rarity: int, fixes: dict[str, dict[str, int]] | None = None) -> int:
+    """The game's rarity for `name`, where the wiki still says what was fixed (D199)."""
+    fix = (read_item_fixes() if fixes is None else fixes).get(name)
+    return fix["now"] if fix and rarity == fix["was"] else rarity
 
 
 def read_recipe_fixes(path: Path | None = None) -> dict[str, list[dict]]:
@@ -192,7 +215,10 @@ class Catalogue:
         catalogue = cls(Path(directory or CATALOGUE_DIR))
         index = catalogue.directory / "index.json"
         if index.exists():
+            fixes = read_item_fixes()
             for entry in json.loads(index.read_text(encoding="utf-8")):
+                if entry.get("rarity") is not None:
+                    entry["rarity"] = fixed_rarity(entry["name"], int(entry["rarity"]), fixes)
                 catalogue._index[entry["name"]] = entry
         else:
             from .recognize.pack import PACK_PATH, read_pack
@@ -212,6 +238,44 @@ class Catalogue:
     @cached_property
     def overrides(self) -> dict:
         return read_overrides(self.directory)
+
+    @cached_property
+    def drawn_identically(self) -> frozenset[str]:
+        """Items whose picture is another's, pixel for pixel, at the same rarity (D200): the
+        four 溶剂, 撞金合剂 / 划音合剂, 醋 / 糖醋汁 ... Only the panel tells them apart, so a
+        picture is never learned for them. Worked out once per catalogue, and kept beside it."""
+        index = self.directory / "index.json"
+        if not index.exists():
+            return frozenset()
+        stamp = f"{index.stat().st_mtime_ns}:{index.stat().st_size}:{_item_fixes_stamp()}"
+        kept = self.directory / "drawn-identically.json"
+        try:
+            said = json.loads(kept.read_text(encoding="utf-8"))
+            if said.get("stamp") == stamp:
+                return frozenset(said["names"])
+        except (OSError, ValueError, KeyError):
+            pass
+        import hashlib
+
+        from PIL import Image
+
+        groups: dict[tuple[int, str], list[str]] = {}
+        for entry in self._index.values():
+            path = self.directory / str(entry.get("file") or "")
+            if not entry.get("file") or not path.is_file():
+                continue
+            try:
+                with Image.open(path) as im:
+                    pixels = im.convert("RGBA").resize((32, 32)).tobytes()
+            except OSError:
+                continue
+            key = (int(entry.get("rarity") or 0), hashlib.sha256(pixels).hexdigest())
+            groups.setdefault(key, []).append(entry["name"])
+        names = sorted(n for group in groups.values() if len(group) > 1 for n in group)
+        with contextlib.suppress(OSError):      # worked out again next time: nothing lost
+            kept.write_text(json.dumps({"stamp": stamp, "names": names}, ensure_ascii=False),
+                            encoding="utf-8")
+        return frozenset(names)
 
     @cached_property
     def _recipe_data(self) -> dict:

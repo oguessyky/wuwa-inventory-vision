@@ -1,0 +1,14 @@
+{
+ "about": "The help site's pages, in the order of its menu (PLAN.md D210). Each has site/content/zh/<slug>.md and site/content/en/<slug>.md.",
+ "pages": [
+  {"slug": "index", "zh": "这是什么", "en": "What it is"},
+  {"slug": "install", "zh": "在 Windows 上安装", "en": "Install on Windows"},
+  {"slug": "home", "zh": "用 NAS 当主机", "en": "A home on a NAS"},
+  {"slug": "mac", "zh": "在 Mac 上安装", "en": "Install on a Mac"},
+  {"slug": "scan", "zh": "怎么扫描", "en": "How to scan"},
+  {"slug": "pages", "zh": "各个页面", "en": "The pages"},
+  {"slug": "update", "zh": "更新", "en": "Updating"},
+  {"slug": "troubleshooting", "zh": "出了问题怎么办", "en": "Troubleshooting"},
+  {"slug": "safety", "zh": "安全与隐私", "en": "Safety and privacy"}
+ ]
+}

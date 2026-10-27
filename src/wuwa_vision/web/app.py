@@ -38,7 +38,7 @@ from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddle
 from pydantic import BaseModel, Field
 
 from .. import dashboard as dashboard_mod
-from .. import demo, exp, guess, planner, roster
+from .. import demo, exp, guess, planner, roster, versions
 from .. import shops as shops_mod
 from .. import weapons as weapons_mod
 from ..catalogue import Catalogue, read_overrides, write_overrides
@@ -350,6 +350,27 @@ def _version() -> str | None:
     return path.read_text(encoding="utf-8").strip() or None if path.is_file() else None
 
 
+def _scanner_versions(st: Store, home: bool) -> dict:
+    """This copy's version, and -- on a home -- the scanner versions that made the newest
+    scan of each tab: whether they, or this home, should update (D197). Oldest first.
+
+    Only a home: anywhere else the scans are this machine's own, made before it was
+    updated, and there is no scanner to update. (A scanner marks its scans synced too, when
+    the home takes them, so `synced_at` cannot tell the two apart.)"""
+    this = versions.this_version()
+    made: dict[str | None, list[str]] = {}
+    for r in st.latest_scans_by_tab() if home else ():
+        made.setdefault(r["app_version"], []).append(r["tab_label"])
+    scanners = []
+    for version, tabs in made.items():
+        said = versions.compare(this, version, "home")
+        scanners.append({"version": said["theirs"], "known": version is not None,
+                         "tabs": tabs, "update": said["update"], "newer": said["newer"],
+                         "missing": said["missing"]})
+    scanners.sort(key=lambda x: versions.parse(x["version"]) or (0, 0, 0))
+    return {"this": this, "home": home, "scanners": scanners}
+
+
 def _page(name: str) -> HTMLResponse:
     """A page of the main app. Revalidated on every load, so a rebuilt page is
     picked up at once; the scripts and styles it names are hashed and can be kept."""
@@ -655,9 +676,11 @@ def _sync_routes(app: FastAPI, db_path: Path, home_key: str | None) -> None:
     def hello() -> dict:
         st = Store(db_path)
         try:
-            # version: so a redeploy can be checked from outside (D164)
+            # version: so a redeploy can be checked from outside (D164); releases: what
+            # each changed on which side, so an older scanner learns what it lacks (D197)
             return {"app": "wuwa-vision", "home": home_key is not None,
-                    "protocol": sync.PROTOCOL, "epoch": st.sync_epoch(), "version": _version()}
+                    "protocol": sync.PROTOCOL, "epoch": st.sync_epoch(), "version": _version(),
+                    "releases": list(versions.RELEASES)}
         finally:
             st.close()
 
@@ -1286,8 +1309,11 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         finally:
             st.close()
         by_name: dict[str, list] = {}
+        # only the panel tells these apart: nothing to learn (D200)
+        identical = cat.drawn_identically
         for crop in crops:
-            by_name.setdefault(crop.name, []).append(crop)
+            if crop.name not in identical:
+                by_name.setdefault(crop.name, []).append(crop)
         rows = []
         for name, mine in by_name.items():
             # flagged first, then the ones a person said are right (D167), so a decision just
@@ -1307,7 +1333,7 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                            if c.doubt else None, "confirmed": c.confirmed} for c in mine],
             })
         rows.sort(key=lambda r: (-r["doubtful"], r["name"]))
-        return {"rows": rows, "counts": {"names": len(rows), "crops": len(crops),
+        return {"rows": rows, "counts": {"names": len(rows), "crops": sum(r["count"] for r in rows),
                                          "doubtful": sum(r["doubtful"] for r in rows)}}
 
     def _crop_fix(fix: CropName, name: str | None) -> dict:
@@ -1476,6 +1502,8 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                     planner.view(cat, inventory, plans, done_tabs(st)),
                     [g.as_dict() for g in material_groups(st, cat, inventory)]),
                 "trust": dashboard_mod.trust(tab_summary(st), inventory, unsent),
+                # which scanner made the newest scans, and whether either side is behind (D197)
+                "versions": _scanner_versions(st, home_key is not None),
                 # whether the shop table was ever fetched: "nothing to buy" means
                 # something else without it
                 "has_shops": bool(cat.shops),
@@ -2335,6 +2363,17 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                          if (keys := search.keys(name, cat.english(name) or ""))},
                 "english": {name: english
                             for name, (english, _) in sorted(cat.english_names.items()) if english}}
+
+    @app.get("/api/versions")
+    def versions_now() -> dict:
+        """This home's version, what every release changed on which side, and which scanner
+        versions made the newest scan of each tab -- with whether they should update (D197)."""
+        st = Store(db())
+        try:
+            return {**_scanner_versions(st, home_key is not None),
+                    "releases": list(versions.RELEASES)}
+        finally:
+            st.close()
 
     @app.get("/api/tabs")
     def tabs() -> list[dict]:

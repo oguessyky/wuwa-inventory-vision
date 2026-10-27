@@ -1,0 +1,65 @@
+/* The help site (D210): the app's own colours (web/src/styles/app.css), so the two look like one thing. */
+:root{
+  color-scheme:dark;
+  --bg:#0b0c10; --panel:#14161c; --panel-2:#1a1d25; --line:#262a34; --line-2:#323744;
+  --ink:#eceef2; --muted:#8b93a3; --faint:#5d6574; --accent:#e8c95a; --ok:#5fd08f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.7 ui-sans-serif,system-ui,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif}
+::selection{background:rgba(232,201,90,.34);color:#fff}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;padding:12px 24px;
+  background:rgba(11,12,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:700;font-size:17px}
+.acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+.acts a{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;
+  border:1px solid var(--line-2);color:var(--ink);text-decoration:none;font-size:14px}
+.acts a:hover{border-color:var(--accent);color:var(--accent)}
+.acts .dl{background:var(--accent);border-color:var(--accent);color:#0b0c10;font-weight:700}
+.acts .dl:hover{filter:brightness(1.08);color:#0b0c10}
+
+.body{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;max-width:1180px;margin:0 auto;padding:28px 24px 48px}
+.menu{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px}
+.menu a{padding:8px 12px;border-radius:9px;color:var(--muted);text-decoration:none;font-size:15px}
+.menu a:hover{color:var(--ink);background:var(--panel)}
+.menu a.on{color:var(--ink);background:var(--panel-2);box-shadow:inset 3px 0 0 var(--accent)}
+
+.doc{max-width:760px;min-width:0}
+.doc h1{font-size:32px;line-height:1.25;margin:4px 0 18px}
+.doc h2{font-size:22px;margin:40px 0 10px;padding-top:6px;scroll-margin-top:80px}
+.doc h3{font-size:17px;margin:26px 0 6px;scroll-margin-top:80px}
+.doc p,.doc li{color:#d5d9e1}
+.doc b{color:var(--ink)}
+.doc ul,.doc ol{padding-left:22px}
+.doc li{margin:4px 0}
+.doc code{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.88em;
+  font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+.doc figure{margin:22px 0}
+.doc figure img{display:block;max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
+.doc figcaption{color:var(--muted);font-size:13px;margin-top:6px}
+.cmd{position:relative;margin:14px 0}
+.cmd pre{margin:0;padding:14px 84px 14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  overflow-x:auto;font-size:14px;line-height:1.6}
+.cmd pre code{background:none;border:0;padding:0}
+.copy{position:absolute;top:8px;right:8px;min-height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line-2);
+  background:var(--panel-2);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--accent)}
+.turn{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:18px;border-top:1px solid var(--line)}
+.turn a{text-decoration:none;font-size:15px}
+
+.foot{border-top:1px solid var(--line);padding:22px 24px 36px;text-align:center;color:var(--faint);font-size:13px}
+.foot p{margin:4px 0}
+
+@media (max-width:860px){
+  .body{grid-template-columns:minmax(0,1fr);gap:16px;padding:16px 16px 40px}
+  .menu{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:6px;scrollbar-width:none}
+  .menu a{flex:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+  .menu a.on{box-shadow:none;border-color:var(--accent)}
+  .top{padding:10px 16px;gap:10px}
+  .brand span{display:none}
+  .doc h1{font-size:26px}
+}
+@media (max-width:420px){.acts .gh{display:none}}

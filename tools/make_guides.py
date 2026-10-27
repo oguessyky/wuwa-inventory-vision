@@ -30,6 +30,7 @@ CSS = f"""
 :root{{color-scheme:dark}}
 *{{box-sizing:border-box}}
 body{{margin:0;background:{BG};color:{INK};font:15px/1.65 {FONT}}}
+::selection{{background:rgba(232,201,90,.34);color:#fff}}
 main{{max-width:880px;margin:0 auto;padding:32px 16px 64px}}
 header h1{{font-size:26px;margin:0 0 4px}}
 header .v{{color:{ACCENT};font-weight:600}}

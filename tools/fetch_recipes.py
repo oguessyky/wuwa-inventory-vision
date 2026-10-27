@@ -38,6 +38,8 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
+import fetch_pool
+
 API = "https://api.kurobbs.com/wiki/core/catalogue/item/"
 OUT = Path("data/catalogue/recipes.json")
 CRAFTABLE, BLUEPRINTS = 1264, 1265
@@ -203,15 +205,20 @@ def main() -> int:
         crafted = set(known["items"]) if kind == "details" else set()
         todo = [(n, e) for n, e in entries if e not in known[kind] and e not in crafted]
         print(f"{kind}: {len(entries)} on the wiki, {len(todo)} to fetch")
-        for name, entry_id in todo:
-            try:
-                fields = _detail(entry_id)
-                known[kind][entry_id] = {"name": name, "entry_id": entry_id, **fields}
+        # a few at a time (D202); one bad page does not stop the rest. Kept in the wiki's
+        # order, as before, whatever order the answers came in.
+        got: dict[str, dict] = {}
+        for (name, entry_id), fields, error in fetch_pool.each(
+                todo, lambda job: _detail(job[1]), pause=DELAY_SECONDS):
+            if error is None:
+                got[entry_id] = {"name": name, "entry_id": entry_id, **fields}
                 fetched += 1
-            except Exception as exc:  # noqa: BLE001 -- one bad page must not stop the rest
-                print(f"  FAILED {name}: {exc}")
+            else:
+                print(f"  FAILED {name}: {error}", flush=True)
                 failed += 1
-            time.sleep(DELAY_SECONDS)
+        for _name, entry_id in todo:
+            if entry_id in got:
+                known[kind][entry_id] = got[entry_id]
 
     for entry in known["items"].values():
         # Some pages have no 类型 row; what unlocks the item says what it is.

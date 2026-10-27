@@ -73,7 +73,9 @@ _UID = re.compile(r"^[0-9a-f]{32}$")
 _OBS = ("frame", "row", "col", "icon_hash", "rarity", "rarity_conf", "count", "count_conf",
         "item_name", "needs_review", "item_key", "rivals", "level", "holder_key")
 _SCAN = ("uid", "started_at", "source", "tab_label", "header_total", "frame_count",
-         "tile_count", "complete")
+         "tile_count", "complete", "app_version")
+#   `app_version` (D197): a home before 1.1.1 reads only the fields it knows, and a scanner
+#   before it sends none -- NULL here, "1.1.0 or older" on the pages.
 _GALLERY = ("icon_hash", "item_name", "rarity", "tab", "backbone", "embedding", "created_at",
             "colour")
 _FACE = ("key", "name", "backbone", "embedding", "created_at", "named_at", "suggestions")

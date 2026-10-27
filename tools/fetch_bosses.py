@@ -23,9 +23,9 @@ from __future__ import annotations
 import json
 import re
 import sys
-import time
 from pathlib import Path
 
+import fetch_pool
 from fetch_builds import _download
 from fetch_recipes import _post
 
@@ -68,6 +68,7 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     index: dict[str, str] = {}
     missing = []
+    jobs = []
     for drop in sorted(drops()):
         name = match(drop, enemies)
         record = enemies.get(name) if name else None
@@ -75,11 +76,15 @@ def main() -> int:
         if not url:
             missing.append(drop)
             continue
-        file = f"{record['id']}.webp"
-        fresh = not (OUT / file).exists()
-        index[drop] = _download(url, OUT / file, ICON_WIDTH)
-        if fresh:
-            time.sleep(DELAY_SECONDS)
+        jobs.append((drop, url, f"{record['id']}.webp"))
+    # a few at a time (D202), kept in the order asked, as before
+    got: dict[str, str] = {}
+    for (drop, _url, _file), saved, error in fetch_pool.each(
+            jobs, lambda job: _download(job[1], OUT / job[2], ICON_WIDTH), pause=DELAY_SECONDS):
+        if error is not None:
+            raise error
+        got[drop] = saved
+    index.update((drop, got[drop]) for drop, _url, _file in jobs)
     INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     gaps = f"; not found: {', '.join(missing)}" if missing else ""
     print(f"{len(index)} boss icons -> {OUT}{gaps}")

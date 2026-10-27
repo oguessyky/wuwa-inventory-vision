@@ -82,8 +82,8 @@ machine it runs on, and whether the game is ready (D152):
 - **macOS is passive-only.** There is no synthetic-input backend at all, so nothing can be typed
   into any window, right or wrong.
 
-> macOS: the guard, the focus check and a frame grab are checked on hardware against the native
-> client (D109, D151); a full scan is not yet. Windows is the tested path.
+> macOS: tested on hardware against the native client and it works (D109, D151, D196), as Windows
+> does.
 
 ## 4. Check it works — no game needed
 

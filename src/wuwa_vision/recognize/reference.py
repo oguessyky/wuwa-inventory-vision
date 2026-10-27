@@ -119,6 +119,9 @@ def load_reference_icons(
             f"{index_path} not found -- run: uv run python tools/fetch_catalogue.py"
         )
 
+    from ..catalogue import fixed_rarity, read_item_fixes
+
+    fixes = read_item_fixes()
     icons: list[ReferenceIcon] = []
     for entry in json.loads(index_path.read_text(encoding="utf-8")):
         path = directory / entry["file"]
@@ -128,7 +131,7 @@ def load_reference_icons(
             image = composite(im, background)
         name = entry["name"]
         # The catalogue states rarity (its `star`); the English set implies it.
-        rarity = int(entry.get("rarity") or 0) or tier_rarity(name)
+        rarity = fixed_rarity(name, int(entry.get("rarity") or 0) or tier_rarity(name), fixes)
         icons.append(ReferenceIcon(name=name, rarity=rarity, image=image))
     return icons
 

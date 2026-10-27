@@ -48,6 +48,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
+import fetch_pool
 from fetch_builds import _download, _fetch
 from fetch_recipes import _post
 
@@ -175,16 +176,22 @@ def main() -> int:
         url = coin["content"]["contentUrl"]
         jobs.append((url, OUT / "coin.webp", ICON_WIDTH, ("currency", COIN)))
     fetched = failed = 0
-    for url, dest, width, (table, name) in jobs:
-        try:
-            had = dest.exists() and dest.stat().st_size > 0
-            index[table][name] = _download(url, dest, width)
-            if not had:
-                fetched += 1
-                time.sleep(DELAY_SECONDS)
-        except OSError as exc:
-            print(f"  FAILED {name}: {exc}", flush=True)
+    had = {dest for _url, dest, _width, _key in jobs if dest.exists() and dest.stat().st_size > 0}
+    got: dict[tuple[str, str], str] = {}
+    # a few at a time (D202); a file already here is not asked for again
+    for (_url, dest, _width, key), file, error in fetch_pool.each(
+            jobs, lambda job: _download(job[0], job[1], job[2]), pause=DELAY_SECONDS):
+        if error is None:
+            got[key] = file
+            fetched += dest not in had
+        elif isinstance(error, OSError):
+            print(f"  FAILED {key[1]}: {error}", flush=True)
             failed += 1
+        else:
+            raise error
+    for _url, _dest, _width, (table, name) in jobs:        # in the order asked, as before
+        if (table, name) in got:
+            index[table][name] = got[(table, name)]
     INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     removed = 0
     if failed == 0:

@@ -1,0 +1,6 @@
+{
+ "about": "An item's rarity that Kuro's wiki has wrong, and what the game shows (PLAN.md D199). Per item: 'was' is the rarity the wiki gives, and the fix holds only while it still says that; 'now' is the game's, checked in the game's own panel (the colour of the name and the bar). Applied when the catalogue and its pictures are read, and to a gallery that was seeded before the fix.",
+ "rarity": {
+  "超级豹风雪": {"was": 3, "now": 4}
+ }
+}
