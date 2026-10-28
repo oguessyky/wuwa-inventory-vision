@@ -585,7 +585,7 @@ def _resolve(host: str) -> str | None:
         return None
 
 
-def check_address(url: str, resolve: Callable[[str], str | None] = _resolve) -> str:
+def check_address(url: str, resolve: Callable[[str], str | None] | None = None) -> str:
     """A home's address, tidied -- or SyncError if it is not on the tailnet.
 
     A scanner sends its scans where the user said and nowhere else, and where the
@@ -597,6 +597,7 @@ def check_address(url: str, resolve: Callable[[str], str | None] = _resolve) -> 
     (`wuwa-home`) -- taken only when it resolves into 100.64.0.0/10. With no scheme
     given, http:// and port 4000 are put in.
     """
+    resolve = resolve or _resolve        # looked up now, not when the module loaded
     said = url.strip()
     bare = bool(said) and "://" not in said
     parts = urllib.parse.urlsplit(f"http://{said}" if bare else said)

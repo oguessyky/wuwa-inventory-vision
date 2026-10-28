@@ -2,6 +2,21 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.2.1",
+   "date": "2026-10-28",
+   "scanner": [
+    {
+     "zh": "修复：扫描开始前出现 database is locked，wuwa live 无法扫描",
+     "en": "fixed: wuwa live stopped before scanning with \"database is locked\""
+    },
+    {
+     "zh": "修复：保存的 wuwa-home 改名成 wuwa-server 后扫描器无法开始；现在会自动跟上新名字，找不到服务器时就先在本机扫描，下次再发送",
+     "en": "fixed: a saved wuwa-home renamed to wuwa-server stopped the scanner; it now follows the new name, and with no server found it scans on its own and sends the scans next time"
+    }
+   ],
+   "home": []
+  },
+  {
    "version": "1.2.0",
    "date": "2026-10-28",
    "scanner": [

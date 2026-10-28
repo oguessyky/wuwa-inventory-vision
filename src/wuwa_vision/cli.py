@@ -11,6 +11,7 @@ import functools
 import shutil
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 from .capture.windows import set_dpi_awareness
@@ -715,7 +716,32 @@ def _home(db: Path | str):  # noqa: ANN202 -- sync.Home | None
     from . import sync
 
     said = sync.read_home(Path(db).parent)
-    return sync.Home(said["url"], said["key"]) if said else None
+    if not said:
+        return None
+    try:
+        return sync.Home(said["url"], said["key"])
+    except sync.SyncError as exc:
+        first = exc
+    # The saved name may be the server's from before 1.2.0: `wuwa-home`, which a server given
+    # the new compose file answers as `wuwa-server`. Same key; kept if it answers (D225).
+    old = urllib.parse.urlsplit(said["url"])
+    if (old.hostname or "") in sync.DEFAULT_SERVERS:
+        for name in sync.DEFAULT_SERVERS:
+            if name == old.hostname:
+                continue
+            try:
+                renamed = old._replace(netloc=old.netloc.replace(old.hostname, name))
+                home = sync.Home(renamed.geturl(), said["key"])
+            except sync.SyncError:
+                continue
+            sync.write_home(Path(db).parent, home.url, said["key"])
+            print(f"server: {old.hostname} is now {name} -- {home.url}, remembered")
+            return home
+    # A server that cannot be found never stops a scan (D145): this one runs on its own, keeps
+    # what it reads, and sends it when the server is found again.
+    print(f"server: {said['url']} cannot be found ({first}) -- scanning on its own; the scans "
+          "stay here and go to the server next time")
+    return None
 
 
 def _sync_before(db: Path | str, home, say=print) -> None:  # noqa: ANN001 -- sync.Home

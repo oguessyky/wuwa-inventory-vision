@@ -266,12 +266,13 @@ class Gallery:
         it is still the one fixed. Crops from the screen carry the rarity read off their bar,
         and are left alone. Returns how many entries changed."""
         changed = 0
-        for name, fix in fixes.items():
-            changed += self.store.conn.execute(
-                "UPDATE gallery SET rarity = ? WHERE tab = 'reference' AND item_name = ? "
-                "AND rarity = ?", (fix["now"], name, fix["was"])).rowcount
-        if changed:
-            self.store.conn.commit()
+        # Committed even when nothing matched: an UPDATE opens a transaction either way, and one
+        # left open kept the write lock -- the scan's next connection was "database is locked".
+        with self.store.conn:
+            for name, fix in fixes.items():
+                changed += self.store.conn.execute(
+                    "UPDATE gallery SET rarity = ? WHERE tab = 'reference' AND item_name = ? "
+                    "AND rarity = ?", (fix["now"], name, fix["was"])).rowcount
         return changed
 
     def set_variants(self, pairs) -> None:  # noqa: ANN001 -- Iterable[tuple[str, str]]
