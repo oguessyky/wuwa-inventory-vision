@@ -128,16 +128,26 @@ export function guideSteps(kind: string, lang: Lang): GuideStep[] {
       title,
       text: paras.filter(p => !p[1]).map(p => p[3]),
       tips: paras.filter(p => p[1]).map(p => p[3]),
-      picture: /<svg[\s\S]*?<\/svg>/.exec(body)?.[0] ?? '',
+      picture: (body.match(/<svg[\s\S]*?<\/svg>/g) ?? []).join(''),     // a step may have two (a Mac's)
     });
   }
   return steps;
 }
 
-/** The home's compose file as it ships (D219), for the step that pastes it into the NAS's Docker
- * app: read from deploy/home/ at build, so the page never holds a copy that drifts. Its opening
+/** The server's compose file as it ships (D219), for the step that pastes it into the NAS's Docker
+ * app: read from deploy/server/ at build, so the page never holds a copy that drifts. Its opening
  * notes say what the page around it says, so it starts at `services:`. */
 export function compose(): string {
-  const file = readFileSync(join(ROOT, 'deploy', 'home', 'docker-compose.yaml'), 'utf-8').replace(/\r\n/g, '\n');
+  const file = readFileSync(join(ROOT, 'deploy', 'server', 'docker-compose.yaml'), 'utf-8').replace(/\r\n/g, '\n');
   return file.slice(file.indexOf('services:'));
+}
+
+/** A page that is no more, and the page it became (D225, D228): its old address forwards there. */
+export const MOVED: Record<string, string> = { home: 'server' };
+
+export interface Release { version: string; date: string; scanner: { zh: string; en: string }[]; home: { zh: string; en: string }[] }
+
+/** Every release and what it changed on each side (D227): the app's own list, read at build. */
+export function releases(): Release[] {
+  return JSON.parse(readFileSync(join(ROOT, 'src', 'wuwa_vision', 'releases.json'), 'utf-8')).releases;
 }

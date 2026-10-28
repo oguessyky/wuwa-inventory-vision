@@ -1,8 +1,7 @@
 # Copyright 2026 oguessyky
 # SPDX-License-Identifier: Apache-2.0
 # Part of WuWa Inventory Vision (https://github.com/oguessyky). Keep this notice: see NOTICE.
-# ruff: noqa: E501 -- each release's words, Chinese and English, read better unbroken
-"""Which release changed what, on which side: the scanner, the home (PLAN.md D197).
+"""Which release changed what, on which side: the scanner, the server (PLAN.md D197; D225).
 
 The home updates with one button in a NAS's Docker app; the scanner is a zip. The two drift
 apart, and a release often changes only one of them. So each release lists its changes per
@@ -15,92 +14,19 @@ only advice. Headless: the terminal, the scan's page and the home's pages word i
 
 from __future__ import annotations
 
+import json
 import re
 from importlib import metadata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-#: Newest first. Every release has its entry (tests/test_versions.py), and a release that
-#: changed nothing on a side says so with an empty list: that side need not be updated.
-RELEASES: tuple[dict, ...] = (
-    {"version": "1.1.4", "date": "2026-10-28",
-     "scanner": [{"zh": "连接主机时钥匙那一步直接按回车：从「下载」文件夹里拿最新的 home.key（NAS 打不开 .key 文件也没关系）",
-                  "en": "Connect home takes the key from Downloads when you press Enter: the newest "
-                        "home.key there (for a NAS that cannot open .key files)"}],
-     "home": []},
-    {"version": "1.1.3", "date": "2026-10-27",
-     "scanner": [],
-     "home": [{"zh": "主机的网络由一个更新永远不会换掉的小容器拿着，NAS 的「更新」不再报 No such container（要先粘贴新的配置文件一次）",
-               "en": "the home's network is held by a tiny container no update replaces, so the NAS app's "
-                     "update no longer fails with No such container (paste the new compose file once)"},
-              {"zh": "图标统一成一套：所在的页显示实心图标，鼠标停上去各有动画；总览换成指南针",
-               "en": "one family of icons: the page you are on shows its icon solid, each moves on hover; "
-                     "Overview is a compass"},
-              {"zh": "手机上商店的价格和底数是格子自己的底栏；版本列表分开写扫描端和主机改了什么",
-               "en": "on a phone a shop tile's price and base are its own foot; the version list shows "
-                     "what each side changed, and what to update"}]},
-    {"version": "1.1.2", "date": "2026-10-27",
-     "scanner": [],
-     "home": [{"zh": "折叠屏和 300 像素宽的手机上，帮助、商店、我的共鸣者、版本列表和「这是谁」都排得整齐",
-               "en": "on a folded phone and screens 300 px wide, Help, Shops, My resonators, the "
-                     "version list and \"Who is this?\" read right"},
-              {"zh": "下拉列表不会被会滚动的列表挡住；逐个命名悬停时不再变暗；数据页两个方块之间有间距",
-               "en": "a dropdown is never cut off by a list that scrolls; Name them one by one no "
-                     "longer dims under the pointer; the Data page's two boxes have a gap"}]},
-    {"version": "1.1.1", "date": "2026-10-27",
-     "scanner": [{"zh": "连接主机时比较两边的版本，说哪边该更新、缺什么",
-                  "en": "compares versions with the home, and says which side to update and why"},
-                 {"zh": "主机比较新时，双击「4 更新 Update」自己更新",
-                  "en": "updates itself with 4 更新 Update when the home is newer"},
-                 {"zh": "Mac 版程序包（mac-full、mac-scanner）",
-                  "en": "packages for a Mac (mac-full, mac-scanner)"},
-                 {"zh": "认得超级豹风雪；奇幻变奏不再没有名字；一模一样的物品不再拿来学习",
-                  "en": "超级豹风雪 is named; 奇幻变奏 is no longer left unnamed; items drawn "
-                        "exactly alike are not learned"}],
-     "home": [{"zh": "总览说最新的扫描是哪个版本的扫描端做的；更新页列出每个版本改了哪边",
-               "en": "Overview says which scanner version made the newest scans; Update lists "
-                     "what each version changed on which side"},
-              {"zh": "待确认的物品说它可能是哪几样，而不是说它们长得一模一样",
-               "en": "an item waiting to be confirmed says what it could be, not that the "
-                     "candidates look identical"},
-              {"zh": "第一次下载图鉴快了几倍；钱包每种货币取各自最新的读数",
-               "en": "the first catalogue download is several times faster; each wallet amount "
-                     "is its own newest reading"},
-              {"zh": "快速连点共鸣者进度会合起来保存；共鸣者和武器默认显示已拥有",
-               "en": "quick clicks on a resonator's progress are saved together; Resonators and "
-                     "Weapons open on Owned"},
-              {"zh": "识别不列一模一样的物品，说明也改清楚了",
-               "en": "Recognition leaves out items drawn exactly alike, and says better what "
-                     "it is"}]},
-    {"version": "1.1.0", "date": "2026-10-26",
-     "scanner": [{"zh": "特殊料理不再认成原料理（青蔬蛋饼）",
-                  "en": "special dishes are told from their base dish (青蔬蛋饼)"},
-                 {"zh": "颜色挡掉了正确的图时改为待确认（千古洑流、气动阻抗喷雾）",
-                  "en": "a tile whose right picture was shut out on colour waits for a click "
-                        "(千古洑流, 气动阻抗喷雾)"},
-                 {"zh": "数量相同的两个标签页不再合并；新物品第一次扫描就认识",
-                  "en": "two tabs with the same count are kept apart; new items are known on "
-                        "the first scan"},
-                 {"zh": "扫描页显示还没扫描的标签；连接主机只要 wuwa-home",
-                  "en": "the scan page shows the tabs not scanned yet; connecting takes just "
-                        "wuwa-home"}],
-     "home": [{"zh": "现成的 Docker 镜像；新主机在引导最后下载图鉴，"
-                     "显示进度和剩余时间，失败自动重试",
-               "en": "a ready-made Docker image; a new home downloads its catalogue at the end "
-                     "of the guide, with progress, time left and retries"},
-              {"zh": "批量标记已练满一次完成，进行中有提示",
-               "en": "marking many resonators is one quick save that says it is working"}]},
-    {"version": "1.0.3", "date": "2026-10-25",
-     "scanner": [{"zh": "维基更新后的新物品第一次扫描就认识",
-                  "en": "new items from a wiki update are known on the first scan"}],
-     "home": [{"zh": "总览显示商店位置和低于目标的材料；待确认一键找到；规划成为日常页",
-               "en": "Overview shows where shops are and materials below target; items to "
-                     "confirm are found in one click; Planner is a daily page"}]},
-    {"version": "1.0.2", "date": "2026-10-20",
-     "scanner": [{"zh": "第一个公开版本", "en": "the first public release"}],
-     "home": [{"zh": "第一个公开版本", "en": "the first public release"}]},
-)
+#: Newest first, read from releases.json -- which the help site reads too, for its page of every
+#: version (D227). Every release has its entry (tests/test_versions.py), and a release that
+#: changed nothing on a side says so with an empty list: that side need not be updated. The
+#: server's side is keyed "home", its name before 1.2.0, which every scanner since 1.1.1 reads.
+RELEASES: tuple[dict, ...] = tuple(
+    json.loads((Path(__file__).with_name("releases.json")).read_text("utf-8"))["releases"])
 
 #: Scanners up to this one sent no version: a scan the home holds without one came from
 #: this release or an older one.
@@ -179,7 +105,7 @@ def compare(mine: str | None, theirs: str | None, side: str,
 
 def say(said: dict) -> str:
     """One line for the terminal and the scan's page; "" when there is nothing to say."""
-    me, them = ("扫描端", "主机") if said["side"] == "scanner" else ("主机", "扫描端")
+    me, them = ("扫描端", "服务器") if said["side"] == "scanner" else ("服务器", "扫描端")
     if said["newer"] is None:
         return ""
     what = "；".join(c["zh"] for c in said["missing"][:3])

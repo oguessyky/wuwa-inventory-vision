@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective 16 October 2026.
+Effective 28 October 2026.
 
 This Privacy Policy is provided in English and may be translated into other languages for your
 convenience. In the event of any conflict or discrepancy between the English version and a
@@ -19,7 +19,7 @@ else -- each of them something you start.
 ## 2. What the app keeps, and where
 
 Everything below is kept in the app's data folder on the computer that runs it (and, if you set one
-up, on your own home server -- section 3). None of it is sent to the author.
+up, on your own server -- section 3). None of it is sent to the author.
 
 - **Pictures of the game's bag while you scan.** The app captures only the game's own window. The
   player UID shown in the game (特征码) is blacked out before any picture is saved or shown. Names of
@@ -35,6 +35,9 @@ up, on your own home server -- section 3). None of it is sent to the author.
 - **Settings in your browser.** The pages remember small things in your browser's local storage:
   filters and sort orders, whether the navigation is folded, whether you have finished the
   first-time guide. These stay in that browser. The app sets no cookies and does no tracking.
+- **Shortcuts, if you ask for them.** When setup asks and you say yes, or you run `wuwa shortcuts`,
+  the app puts shortcuts on your Desktop and in your Start menu. They hold only where the app's own
+  files are. `wuwa shortcuts --remove` takes them away again.
 
 ## 3. What leaves your computer, and only when you start it
 
@@ -49,14 +52,16 @@ up, on your own home server -- section 3). None of it is sent to the author.
 - **Sharing with your own devices.** `serve` (unless `--local`) and `wuwa live --share` make the
   pages reachable from devices on your own Tailscale network, through Tailscale. The app's server
   itself listens only on this computer. Tailscale's own privacy policy covers its service.
-- **A home server.** If you give a scanner a home (`wuwa home set`), the scanner fetches the
-  catalogue from it and sends each finished scan to it: the rows that were read and the item
-  pictures, never a full picture of the screen. The home must be on your own Tailscale network or
-  on the same computer.
-- **Updating a scanner.** When a scanner's home is newer and you run `4 更新 Update` (`wuwa update`),
+- **Your own server.** If you connect a scanner to a server (`wuwa server set`), the scanner fetches
+  the catalogue from it and sends each finished scan to it: the rows that were read and the item
+  pictures, never a full picture of the screen. The server must be on your own Tailscale network or
+  on the same computer. To connect, the scanner needs the server's key: when you press Enter at the
+  key, it reads the newest `server.key` you downloaded into your Downloads folder, on that computer,
+  and keeps the key in its own data folder. It looks at nothing else in Downloads.
+- **Updating a scanner.** When a scanner's server is newer and you run `4 更新 Update` (`wuwa update`),
   it downloads that version's package and checksums from this project's releases on GitHub
-  (`github.com`, and the file host GitHub sends it to). It sends nothing of yours. Without a home,
-  or with one that is not newer, it downloads nothing.
+  (`github.com`, and the file host GitHub sends it to). It sends nothing of yours. Without a
+  server, or with one that is not newer, it downloads nothing.
 - **Export.** Anything you export is written to a file you choose.
 
 Nothing else leaves your computer: no telemetry, no crash reports, no advertising, no downloads in
@@ -70,8 +75,8 @@ sends none to the author.
 ## 5. Your control
 
 - To see what is kept, open the data folder.
-- To delete it, delete the data folder (backups are in `data/backups`). On a home server, delete
-  its data folder there.
+- To delete it, delete the data folder (backups are in `data/backups`). On a server, delete its
+  data folder there. Take the shortcuts away with `wuwa shortcuts --remove`.
 - To clear what a browser remembers, clear that site's data in the browser.
 
 ## 6. Children

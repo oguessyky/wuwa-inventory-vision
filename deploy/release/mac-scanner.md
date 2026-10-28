@@ -21,11 +21,11 @@ Unzip this folder somewhere it can stay, then **double-click `1 安装 Setup`**.
 macOS may say it cannot check the file: right-click it, choose **Open**, then **Open** again. It
 runs `./setup.sh --scanner`.
 
-## 2. Give it its home (once)
+## 2. Give it its server (once)
 
-First download `home.key` from the home's data folder -- it lands in Downloads. Then
-**double-click `2 连接主机 Connect home`** and press Enter at both questions: Enter takes
-`wuwa-home` for the address and the newest `home*.key` in Downloads for the key.
+First download `server.key` from the server's data folder -- it lands in Downloads. Then
+**double-click `2 连接服务器 Connect server`** and press Enter at both questions: Enter takes
+`wuwa-server` for the address and the newest `server*.key` in Downloads for the key.
 
 ## 3. Scan
 
@@ -39,8 +39,8 @@ has what differs on a Mac (Screen Recording, the focus click).
 
 ## Later
 
-- **Updating**: when this Mac scans for a home and the home is newer, **double-click
-  `4 更新 Update`**: it downloads the home's version from this project's GitHub releases, checks
+- **Updating**: when this Mac scans for a server and the server is newer, **double-click
+  `4 更新 Update`**: it downloads the server's version from this project's GitHub releases, checks
   it, puts it over this folder (your `data` stays) and runs the setup again.
 - **Something wrong**: [docs/setup.md](docs/setup.md) ends with troubleshooting.
 

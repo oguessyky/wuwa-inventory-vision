@@ -38,8 +38,8 @@ has what differs on a Mac (Screen Recording, the focus click).
 
 ## Later
 
-- **Updating**: when this Mac scans for a home and the home is newer, **double-click
-  `4 更新 Update`**: it downloads the home's version from this project's GitHub releases, checks
+- **Updating**: when this Mac scans for a server and the server is newer, **double-click
+  `4 更新 Update`**: it downloads the server's version from this project's GitHub releases, checks
   it, puts it over this folder (your `data` stays) and runs the setup again.
 - **Something wrong**: [docs/setup.md](docs/setup.md) ends with troubleshooting.
 

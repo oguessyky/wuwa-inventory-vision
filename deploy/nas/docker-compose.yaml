@@ -1,4 +1,4 @@
-# The home on a NAS (docs/nas.md). Built here, from app/ beside this file.
+# The server on a NAS (docs/nas.md). Built here, from app/ beside this file.
 #
 #   sh setup.sh          the first time: sets the network, builds, starts, and serves it
 #                        to your tailnet
@@ -24,7 +24,7 @@ services:
     build: ./app
     # built from app/ every time the project is brought up (quick when nothing changed)
     pull_policy: build
-    image: ${WUWA_IMAGE:-wuwa-vision-home}
+    image: ${WUWA_IMAGE:-wuwa-vision-server}
     container_name: ${WUWA_CONTAINER:-wuwa-vision}
     restart: unless-stopped
     network_mode: ${WUWA_NETWORK:-host}

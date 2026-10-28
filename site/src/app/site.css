@@ -11,6 +11,19 @@ html,body{margin:0;background:var(--bg);color:var(--ink);
 a{color:var(--accent)}
 a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 
+/* the app's own scrollbars (D55, D120), the same rules (D229): a rounded thumb in the line
+   colour that turns gold under the pointer; tests/test_site.py keeps the two the same */
+@supports not selector(::-webkit-scrollbar){
+  *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:999px;border:3px solid transparent;-webkit-background-clip: padding-box; background-clip:padding-box;
+  min-height:38px}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--accent) 70%,var(--line-2));-webkit-background-clip: padding-box; background-clip:padding-box}
+::-webkit-scrollbar-thumb:active{background:var(--accent);-webkit-background-clip: padding-box; background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+
 .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:22px;height:62px;padding:0 24px;
   background:rgba(11,12,16,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:700;font-size:17px;flex:none}
@@ -271,23 +284,6 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .safe li b{display:block;margin:12px 0 4px;font-size:15.5px}
 .safe li p{margin:0;color:var(--muted);font-size:14px}
 
-/* every package's zip, straight from here (D214); GitHub's page one link away */
-.dl{scroll-margin-top:60px}
-.zips{list-style:none;padding:0;margin:0;display:grid;gap:10px}
-.zips li{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;
-  padding:14px 14px 14px 18px;transition:border-color .15s}
-.zips li:hover{border-color:rgba(232,201,90,.45)}
-.z-t{flex:1;min-width:0}
-.z-t b{font-size:16.5px;margin-right:8px}
-.z-t code{font-size:12px;color:var(--gold);background:rgba(232,201,90,.08);border:1px solid rgba(232,201,90,.25);border-radius:6px;
-  padding:1px 7px;font-family:ui-monospace,Consolas,monospace}
-.z-t p{margin:4px 0 0;color:var(--muted);font-size:14px}
-.z-a{flex:none;display:flex;align-items:center;gap:14px}
-.z-g{text-decoration:none;font-weight:600;font-size:14.5px}
-.z-d{min-height:42px;padding:0 18px;font-size:15px}
-.z-d small{font-weight:600;opacity:.65;margin-left:2px}
-.z-more{display:flex;flex-wrap:wrap;gap:6px 20px;margin:14px 0 0;color:var(--muted);font-size:13.5px}
-.z-more a{text-decoration:none}
 .pkg-a{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
 .pkg-a .zip{font-weight:700;text-decoration:none}
 .pkg-a .zip code{font-size:12px;margin-left:4px}
@@ -319,6 +315,7 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   .z-d{flex:1}
 }
 @media (prefers-reduced-motion:reduce){
+  .link i{animation:none;opacity:0}
   .bag i,.bag .scanline,.desk .sweep{animation:none}
   .bag .scanline{top:46%}
   .desk .sweep{display:none}
@@ -329,42 +326,76 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   .dlb.done .dli-check{animation:none;opacity:1;transform:none}
 }
 
-/* Which package (D219): two questions, a tap each, and the answer drawn -- the machines it takes,
-   the zips, and the page with the steps. Nothing on the help site moves but the download icon. */
-.picker{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:stretch}
-.questions{display:grid;gap:18px;align-content:start}
-.picker .q{margin:0 0 10px;font-weight:700;font-size:16px}
+/* Which package (D219, D228): two questions, a tap each, and the answer drawn -- the machines,
+   data moving between them, and each package as a card with its download, guide and steps.
+   Nothing on the help site moves but the download icon and that data. */
+.ways .anchor{display:block;position:relative;top:-80px;visibility:hidden}
+.picker{display:grid;gap:18px}
+.questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.picker .q{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-weight:700;font-size:16px}
+.q-n{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-size:13px;font-weight:800;
+  color:#0b0c10;background:var(--gold)}
 .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.choice{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:96px;padding:14px;text-align:left;
-  font:inherit;font-size:14.5px;line-height:1.35;color:var(--muted);cursor:pointer;border-radius:14px;
+.choice{display:flex;align-items:center;gap:12px;min-height:76px;padding:12px 14px;text-align:left;
+  font:inherit;line-height:1.35;color:var(--muted);cursor:pointer;border-radius:14px;
   background:var(--panel);border:1px solid var(--line);transition:border-color .15s,background .15s,color .15s}
-.choice .i{width:30px;height:30px;color:var(--faint)}
+.choice .i{flex:none;width:30px;height:30px;color:var(--faint)}
+.choice-t{display:flex;flex-direction:column;min-width:0}
+.choice-t b{font-size:15px;color:inherit}
+.choice-t small{font-size:12.5px;color:var(--faint)}
 .choice:hover{border-color:var(--line-2);color:var(--ink)}
 .choice.on{border-color:var(--gold);color:var(--ink);background:linear-gradient(180deg,rgba(232,201,90,.12),rgba(232,201,90,.03))}
 .choice.on .i{color:var(--gold)}
+.choice.on .choice-t small{color:var(--muted)}
 .choice:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.answer{display:flex;flex-direction:column;gap:18px;padding:22px;border-radius:18px;border:1px solid var(--line-2);
-  background:radial-gradient(120% 90% at 50% 0%,rgba(232,201,90,.07),transparent 60%),var(--panel)}
-.diagram{display:flex;align-items:center;justify-content:center;gap:0;min-height:150px}
-.node{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;width:150px;flex:none}
-.node .i{width:46px;height:46px;padding:14px;box-sizing:content-box;border-radius:18px;color:var(--muted);
+.answer{display:flex;flex-direction:column;gap:18px;padding:26px;border-radius:20px;border:1px solid var(--line-2);
+  background:radial-gradient(90% 70% at 50% 0%,rgba(232,201,90,.08),transparent 65%),var(--panel)}
+.diagram{display:flex;align-items:center;justify-content:center;min-height:150px;padding:4px 0 6px}
+.node{margin:0;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;width:160px;flex:none}
+.node-ic{display:grid;place-items:center;width:76px;height:76px;border-radius:22px;color:var(--muted);
   background:var(--panel-2);border:1px solid var(--line-2)}
-.node.main .i{color:var(--gold);border-color:rgba(232,201,90,.55);background:rgba(232,201,90,.08)}
-.node b{margin-top:6px;font-size:14.5px}
+.node-ic .i{width:44px;height:44px}
+.node.main .node-ic{color:var(--gold);border-color:rgba(232,201,90,.6);background:rgba(232,201,90,.08);
+  box-shadow:0 0 0 6px rgba(232,201,90,.05),0 14px 40px rgba(232,201,90,.10)}
+.node b{margin-top:8px;font-size:15px}
 .node small{color:var(--muted);font-size:12.5px;line-height:1.3}
-.link{flex:1;min-width:24px;max-width:80px;height:0;border-top:2px dashed rgba(232,201,90,.55);margin-bottom:58px;position:relative}
-.link::after{content:"";position:absolute;right:-2px;top:-6px;border:5px solid transparent;border-left:7px solid rgba(232,201,90,.8)}
-.link.back::after{right:auto;left:-2px;border-left-color:transparent;border-right:7px solid rgba(232,201,90,.8)}
-.need{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
-.need-h{color:var(--muted);font-size:13.5px;margin-right:4px}
-.need-k{display:inline-flex;align-items:center;gap:10px}
-.need-k i{font-style:normal;color:var(--faint);font-weight:700}
-.need .btn{padding:10px 16px}
-.need .btn code{font-family:ui-monospace,Consolas,monospace;font-size:14px;background:none;border:0;padding:0;color:inherit}
+/* the data on its way: three dots along each link, scanner to server to phone */
+.link{position:relative;flex:1;min-width:40px;max-width:120px;height:2px;margin-bottom:60px;
+  background:repeating-linear-gradient(90deg,rgba(232,201,90,.45) 0 6px,transparent 6px 11px)}
+.link::after{content:"";position:absolute;right:-3px;top:-5px;border:6px solid transparent;border-left:8px solid rgba(232,201,90,.85)}
+.link i{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 10px rgba(232,201,90,.8);opacity:0;animation:flow 2.4s linear infinite}
+.link i:nth-child(2){animation-delay:.8s}
+.link i:nth-child(3){animation-delay:1.6s}
+@keyframes flow{0%{left:0;opacity:0}12%{opacity:1}85%{opacity:1}100%{left:calc(100% - 8px);opacity:0}}
+.need-h{margin:4px 0 -4px;text-align:center;color:var(--muted);font-size:13.5px;letter-spacing:.04em}
+.packs{list-style:none;padding:0;margin:0;display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.packs.n1{grid-template-columns:minmax(0,560px);justify-content:center}
+.pack{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:16px;background:var(--panel-2);border:1px solid var(--line-2)}
+.pack-h{display:flex;align-items:center;gap:12px}
+.pack-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;color:var(--gold);background:rgba(232,201,90,.1)}
+.pack-ic .i{width:26px;height:26px}
+.pack-t{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.pack-t b{font-size:18px}
+.pack-t code{font:12px ui-monospace,Consolas,monospace;color:var(--gold);background:rgba(232,201,90,.08);
+  border:1px solid rgba(232,201,90,.25);border-radius:6px;padding:1px 7px}
+.pack-for{margin:0;color:var(--muted);font-size:14px}
+.pack-steps{list-style:none;padding:0;margin:4px 0 2px;display:grid;gap:6px;counter-reset:none}
+.pack-steps li{display:flex;align-items:center;gap:10px;font-size:14px;color:#cfd3db}
+.pack-steps li span{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:800;
+  color:var(--gold);border:1px solid rgba(232,201,90,.5)}
+.pack-a{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:auto;padding-top:6px}
+.pack-a .btn{min-height:44px;padding:0 20px}
+.pack-a .btn small{font-weight:600;opacity:.65;margin-left:2px}
+.pack-g{display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:600;text-decoration:none}
+.pack-g .i{width:17px;height:17px}
 .go{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.answer-foot{border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13.5px;text-align:center}
+.answer-foot p{margin:4px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 20px}
+.answer-foot a{text-decoration:none}
 
 /* The install pages' steps (D219): the package guide's own cards, a drawing each */
-.gpart{margin:28px 0 0}
+.gpart{margin:36px 0 0;max-width:880px}
 .gpart-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 16px}
 .gpart-h h2{margin:0;padding:0;border:0;font-size:21px}
 .gpart-a{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
@@ -373,20 +404,22 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .nw{white-space:nowrap}
 .gpart-g{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;text-decoration:none}
 .gpart-g .i{width:17px;height:17px}
-.doc .gcards{list-style:none;padding:0;margin:0;display:grid;gap:14px}
-.doc .gcards > li{padding-left:0;margin:0;min-height:0}
+.doc .gcards{list-style:none;padding:0;margin:0;display:grid;gap:18px}
+.doc .gcards > li{margin:0;min-height:0}      /* the doc's list indent off; the card keeps its own padding */
 .doc .gcards > li::before{content:none}
-.gcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:18px;align-items:center;
-  padding:18px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+.doc .gcard{display:block;min-width:0;padding:22px 24px 20px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+/* a step reads as the guide's does (D228): its number and title, its words, then its drawing at full width */
 .gcard-t{display:flex;gap:14px;align-items:flex-start;min-width:0}
 .gcard-t > div{flex:1;min-width:0;overflow-wrap:anywhere}
 .gnum{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-weight:800;
   color:#0b0c10;background:var(--accent)}
-.gcard h3{margin:4px 0 8px;font-size:17px}
-.gcard p{margin:0 0 6px;color:var(--muted);font-size:14.5px}
+.gcard h3{margin:3px 0 10px;font-size:19px;line-height:1.35}
+.gcard p{margin:0 0 8px;color:#c9ced8;font-size:15px;line-height:1.7;max-width:720px}
 .gcard .gtip{padding:8px 10px;border-radius:8px;background:rgba(232,201,90,.07);border-left:3px solid var(--accent);color:var(--ink);font-size:13.5px}
+.gpic{margin-top:16px}
 .gpic svg{display:block;width:100%;height:auto;border-radius:10px}
-.yaml{grid-column:1/-1;margin-top:10px}
+.gpic svg + svg{margin-top:12px}
+.yaml{margin-top:16px}
 .yaml-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0;color:var(--muted);font-size:13.5px}
 .yaml-f{font:600 13px ui-monospace,Consolas,monospace;color:var(--ink);padding:3px 10px;border-radius:7px;background:var(--panel-2);border:1px solid var(--line-2)}
 .yaml .code{margin:12px 0 0}
@@ -402,23 +435,23 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .faq details > :not(summary){color:var(--muted)}
 
 @media (max-width:960px){
-  .picker{grid-template-columns:minmax(0,1fr)}
-  .gcard{grid-template-columns:minmax(0,1fr)}
+  .questions,.packs{grid-template-columns:minmax(0,1fr)}
 }
+@keyframes flow-down{0%{top:0;opacity:0}12%{opacity:1}85%{opacity:1}100%{top:calc(100% - 8px);opacity:0}}
 @media (max-width:600px){
   .answer{padding:16px}
-  .diagram.home{flex-direction:column}
-  .diagram.home .node{flex-direction:row;width:100%;text-align:left;gap:12px}
-  .diagram.home .node .i{width:30px;height:30px;padding:10px;border-radius:14px}
-  .diagram.home .node b{margin:0}
-  .diagram.home .node small{margin-left:auto;text-align:right}
-  .link{flex:none;width:0;height:22px;min-width:0;border-top:0;border-left:2px dashed rgba(232,201,90,.55);margin:2px 0 2px 24px;align-self:flex-start}
-  .link::after{right:auto;left:-6px;top:auto;bottom:-4px;border:5px solid transparent;border-top:7px solid rgba(232,201,90,.8)}
-  .link.back::after{left:-6px;bottom:auto;top:-4px;border:5px solid transparent;border-bottom:7px solid rgba(232,201,90,.8)}
-  .choice{min-height:84px;padding:12px}
-  .need-k{flex:1 1 100%;justify-content:center}
-  .need-k .btn{flex:1}
-  .gcard{padding:14px}
+  .diagram.server{flex-direction:column;align-items:stretch}
+  .diagram.server .node{flex-direction:row;width:100%;text-align:left;gap:12px}
+  .diagram.server .node-ic{width:52px;height:52px;border-radius:16px}
+  .diagram.server .node-ic .i{width:30px;height:30px}
+  .diagram.server .node b{margin:0}
+  .diagram.server .node small{margin-left:auto;text-align:right}
+  .diagram.server .link{flex:none;width:2px;height:30px;min-width:0;max-width:none;margin:4px 0 4px 25px;
+    background:repeating-linear-gradient(180deg,rgba(232,201,90,.45) 0 6px,transparent 6px 11px)}
+  .diagram.server .link::after{right:auto;left:-5px;top:auto;bottom:-4px;border:6px solid transparent;border-top:8px solid rgba(232,201,90,.85)}
+  .diagram.server .link i{left:-3px;top:0;animation-name:flow-down}
+  .choice{min-height:70px;padding:10px 12px}
+  .doc .gcard{padding:16px}
 }
 
 /* the page for an address that is not there (D222) */
@@ -436,3 +469,24 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .legal-text{margin:0;max-width:780px;padding:20px 22px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
   white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 ui-monospace,"Cascadia Mono",Consolas,monospace;color:#cfd3db}
 .doc a,.doc :not(pre) > code{overflow-wrap:anywhere}
+
+/* every version (D227): each release, its two sides */
+.doc .releases{list-style:none;padding:0;margin:24px 0;display:grid;gap:16px;max-width:880px}
+.doc .releases > li{padding:18px 20px;margin:0;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.doc .releases > li::before{content:none}
+.releases .rel-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:12px}
+.releases .rel-h b{font-size:18px}
+.releases .rel-h small{color:var(--faint)}
+.releases .rel-tag{font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid rgba(232,201,90,.5);color:var(--accent)}
+.releases .sides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.releases .side{padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2)}
+.releases .side.none{border-style:dashed;background:none}
+.releases .side-n{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 10px;border-radius:999px;margin-bottom:8px}
+.releases .by-scanner .side-n{color:#8ec5ff;border:1px solid rgba(142,197,255,.5)}
+.releases .by-home .side-n{color:var(--accent);border:1px solid rgba(232,201,90,.5)}
+.doc .releases .side ul{margin:0}
+.doc .releases li li{position:relative;padding-left:16px;margin:4px 0;min-height:0;font-size:14.5px;color:#c9ced8}
+.doc .releases li li::before{content:"";position:absolute;left:3px;top:.68em;width:5px;height:5px;border-radius:50%;
+  background:var(--faint);transform:none;opacity:1}
+.releases .nothing{margin:0;color:var(--faint);font-size:14px}
+@media (max-width:600px){.releases .sides{grid-template-columns:minmax(0,1fr)}}

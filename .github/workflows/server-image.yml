@@ -1,10 +1,11 @@
-# The home's images (PLAN.md D183, D191): built on each release of the public repository, for amd64
+# The server's images (PLAN.md D183, D191; the home until 1.2.0, D225): built on each release of
+# the public repository, for amd64
 # and arm64, and published to its packages. What is built is exactly what a NAS builds from
 # source: the app/ folder tools/make_nas_bundle.py lays out -- code, the built pages and the
 # names that ship; never data, never a game picture.
 #
 # Kept in the private repository too, where it does nothing (the `if` below).
-name: home image
+name: server image
 
 on:
   release:
@@ -39,7 +40,7 @@ jobs:
           tag=${RELEASED#v}
           echo "version=${tag:-${ASKED:-$v}}" >> "$GITHUB_OUTPUT"
       - name: lay out what is built (app/)
-        run: python tools/make_nas_bundle.py "$RUNNER_TEMP/home"
+        run: python tools/make_nas_bundle.py "$RUNNER_TEMP/server"
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -49,13 +50,17 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v6
         with:
-          context: ${{ runner.temp }}/home/app
+          context: ${{ runner.temp }}/server/app
           platforms: linux/amd64,linux/arm64
           push: true
+          # the same image under its name before 1.2.0 too, so a NAS whose compose file names
+          # wuwa-inventory-vision-home keeps getting each update (D225)
           tags: |
+            ghcr.io/oguessyky/wuwa-inventory-vision-server:${{ steps.version.outputs.version }}
+            ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-server:latest' || '' }}
             ghcr.io/oguessyky/wuwa-inventory-vision-home:${{ steps.version.outputs.version }}
             ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-home:latest' || '' }}
-      - name: the home's Tailscale, under this app's name (D191)
+      - name: the server's Tailscale, under this app's name (D191)
         uses: docker/build-push-action@v6
         with:
           context: deploy/tailscale-image

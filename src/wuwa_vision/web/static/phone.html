@@ -162,7 +162,7 @@
 <main>
   <section class="card sync" id="sync" role="status" hidden>
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
-    <div class="meter" role="progressbar" aria-label="Sync with home" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+    <div class="meter" role="progressbar" aria-label="Sync with the server" aria-valuemin="0" aria-valuemax="100"><i></i></div>
   </section>
   <section class="card view-card">
     <div class="view" id="view"><div class="none">Waiting for the first view.<br>Open the bag in game and hold still for a moment.</div></div>
@@ -357,7 +357,7 @@ function renderSync(s){
   el.hidden = !s;
   if(!s) return;
   el.dataset.way = s.way; el.dataset.step = s.step;
-  el.querySelector('b').textContent = s.way === 'up' ? 'Sending to home' : 'Fetching from home';
+  el.querySelector('b').textContent = s.way === 'up' ? 'Sending to the server' : 'Fetching from the server';
   el.querySelector('.what').textContent = (SYNC[s.step] ?? (() => s.step))(s);
   el.querySelector('.left').textContent =
     s.bytes ? `${size(Math.max(s.bytes - s.bytes_done, 0))} left of ${size(s.bytes)}` : '';

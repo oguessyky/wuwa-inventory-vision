@@ -13,9 +13,9 @@ if (!existsSync(from)) throw new Error(`no guides at ${from}`);
 const version = /^version\s*=\s*"([^"]+)"/m.exec(readFileSync(join(root, 'pyproject.toml'), 'utf-8'))?.[1];
 if (!version) throw new Error('no version in pyproject.toml');
 
-// back to the page that shows this guide's steps (D219): full on the install page, the rest on the home's
-const page = { full: 'install' };
-const back = name => `<a href="../${page[name.replace(/\.html$/, '')] ?? 'home'}/" style="display:inline-block;`
+// back to the page that shows this guide's steps (D219): full on the install page, the rest on the server's
+const page = { full: 'install', 'mac-full': 'mac', 'mac-scanner': 'mac' };
+const back = name => `<a href="../${page[name.replace(/\.html$/, '')] ?? 'server'}/" style="display:inline-block;`
   + 'margin:0 0 8px;color:#e8c15b;font-size:14px;text-decoration:none">‹ 返回帮助网站 · Back to the help site</a>';
 rmSync(to, { recursive: true, force: true });
 mkdirSync(to, { recursive: true });

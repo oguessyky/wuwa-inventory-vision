@@ -4,7 +4,7 @@
 # ruff: noqa: E501 -- the pages' words, Chinese and English, read better unbroken
 """The guides with pictures, one per release package (PLAN.md D185).
 
-    uv run python tools/make_guides.py        writes deploy/release/guides/{full,scanner,home}.html
+    uv run python tools/make_guides.py        writes deploy/release/guides/{full,scanner,server}.html
 
 Each is one page that opens in any browser with nothing else: no script, nothing fetched, the
 pictures drawn in it (SVG). A step is a number, what to do in Chinese and in English, and a
@@ -197,15 +197,19 @@ def pic_unzip(folder: str, rows: list[tuple[str, str]], lit: tuple[str, ...]) ->
                + files(46, 72, rows, lit), 640, 76 + len(rows) * 26, f"the folder {folder}")
 
 
-def pic_setup(scanner: bool) -> str:
-    lines = [("machine   : Windows AMD64", MUTED), ("  gpu     : NVIDIA GeForce RTX ...", MUTED),
-             ("torch     : cuda", MUTED), ("install the dependencies? [Y/n] _", ACCENT),
-             ("download the DINOv2 weights (~346 MB)? [Y/n]", MUTED)]
+def pic_setup(scanner: bool, mac: bool = False) -> str:
+    machine = ([("machine   : macOS arm64", MUTED), ("  gpu     : Apple Silicon", MUTED),
+                ("torch     : mps", MUTED)] if mac else
+               [("machine   : Windows AMD64", MUTED), ("  gpu     : NVIDIA GeForce RTX ...", MUTED),
+                ("torch     : cuda", MUTED)])
+    lines = machine + [("install the dependencies? [Y/n] _", ACCENT),
+                       ("download the DINOv2 weights (~346 MB)? [Y/n]", MUTED)]
     if scanner:
-        lines.append(("catalogue : the home sends it before each scan", OK))
+        lines.append(("catalogue : the server sends it before each scan", OK))
     else:
         lines.append(("download the catalogue now? [Y/n]", MUTED))
-    return svg(files(24, 40, [("1 安装 Setup.cmd", "双击 · double-click")], ("1 安装 Setup.cmd",))
+    name = "1 安装 Setup.command" if mac else "1 安装 Setup.cmd"
+    return svg(files(24, 40, [(name, "双击 · double-click")], (name,))
                + arrow(150, 62, 150, 92)
                + console(24, 100, 592, 64 + len(lines) * 20, "1 安装 Setup", lines)
                + t(612, 92, "按 Enter = 是 · Enter = yes", 12, ACCENT, anchor="end"),
@@ -214,20 +218,20 @@ def pic_setup(scanner: bool) -> str:
 
 def pic_connect() -> str:
     return svg(window(20, 16, 250, 150, "Downloads (下载 · from the NAS)")
-               + files(44, 70, [("home.key", "下载 · downloaded"), ("…", ""), ("", "")],
-                       ("home.key",)).replace('x="314"', 'x="9999"')
+               + files(44, 70, [("server.key", "下载 · downloaded"), ("…", ""), ("", "")],
+                       ("server.key",)).replace('x="314"', 'x="9999"')
                + arrow(280, 90, 330, 90)
-               + console(340, 16, 280, 200, "2 连接主机 Connect home", [
-                   ("Home address [wuwa-home]:", MUTED), ("(Enter)", ACCENT),
-                   ("Home key [Enter = Downloads]:", MUTED),
-                   ("(Enter)", ACCENT), ("home: saved", OK)]),
-               640, 232, "home.key downloaded from the NAS, then Enter in Connect home")
+               + console(340, 16, 280, 200, "2 连接服务器 Connect server", [
+                   ("Server address [Enter = wuwa-server]:", MUTED), ("(Enter)", ACCENT),
+                   ("Server key [Enter = Downloads]:", MUTED),
+                   ("(Enter)", ACCENT), ("server: saved", OK)]),
+               640, 232, "server.key downloaded from the NAS, then Enter in Connect server")
 
 
-def pic_scan() -> str:
+def pic_scan(launcher: str = "3 扫描 Scan") -> str:
     grid = "".join(box(330 + (i % 5) * 44, 70 + (i // 5) * 44, 38, 38, PANEL,
                        ACCENT if i == 7 else LINE, 6, 2 if i == 7 else 1) for i in range(15))
-    return svg(console(20, 16, 280, 150, "3 扫描 Scan", [
+    return svg(console(20, 16, 280, 150, launcher, [
                    ("waiting for the game ...", MUTED), ("alt-tab into it", ACCENT),
                    ("[素材] view 3: +12 new", OK), ("selected: 面粉 拥有 440", OK)])
                + box(320, 16, 300, 220, PANEL2, LINE, 10) + t(334, 42, "背包 · the bag", 13, MUTED)
@@ -266,8 +270,8 @@ def pic_project() -> str:
             ("  tailscale:", MUTED),
             ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-tailscale…", MUTED), ("    environment:", MUTED),
             ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
-            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}", MUTED), ("  wuwa:", MUTED),
-            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-home…", MUTED)]
+            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}", MUTED), ("  wuwa:", MUTED),
+            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-server…", MUTED)]
     editor = box(160, 176, 440, 30 + len(yaml) * 17, "#07090b", LINE, 6)
     for k, (line, colour) in enumerate(yaml):
         editor += t(170, 196 + k * 17, line, 11, colour, 600 if colour == ACCENT else 400,
@@ -289,20 +293,20 @@ def pic_project() -> str:
 
 
 def pic_open() -> str:
-    return svg(phone(40, 6, "wuwa-home.….ts.net:4000")
+    return svg(phone(40, 6, "wuwa-server.….ts.net:4000")
                + t(230, 60, "手机或电脑，登录同一个 Tailscale：", 14, INK)
                + t(230, 84, "phone or PC, signed in to the same tailnet:", 13, MUTED)
                + box(230, 104, 380, 34, PANEL, ACCENT, 8, 2)
-               + t(244, 126, "http://wuwa-home.your-tailnet.ts.net:4000", 13, ACCENT, mono=True)
+               + t(244, 126, "http://wuwa-server.your-tailnet.ts.net:4000", 13, ACCENT, mono=True)
                + t(230, 168, "用名字（…ts.net），不是 100.x 地址。", 13, MUTED)
                + t(230, 190, "Use the name (…ts.net), not the 100.x address.", 12, MUTED),
-               640, 264, "the home's address opened on a phone")
+               640, 264, "the server's address opened on a phone")
 
 
 def pic_catalogue() -> str:
     side = "".join(t(40, 84 + i * 30, w, 13, ACCENT if w == "更新" else MUTED, 700 if w == "更新" else 400)
                    for i, w in enumerate(("总览", "规划", "料理", "库存", "更新")))
-    return svg(window(20, 16, 600, 210, "http://wuwa-home.….ts.net:4000/update")
+    return svg(window(20, 16, 600, 210, "http://wuwa-server.….ts.net:4000/update")
                + f'<path d="M110 44v182" stroke="{LINE}"/>' + side
                + t(130, 76, "更新", 20, INK, 700)
                + box(130, 92, 470, 116, PANEL, LINE, 10)
@@ -310,7 +314,7 @@ def pic_catalogue() -> str:
                + t(148, 144, "只有点这个按钮时才会联网（wiki.kurobbs.com）", 12, MUTED)
                + button(148, 160, 120, "从 Wiki 更新") + ring(142, 154, 132, 42)
                + t(290, 180, "● 运行中…  物品与图标 3/7", 12, OK),
-               640, 242, "the home's update page: fetch the catalogue from the wiki")
+               640, 242, "the server's update page: fetch the catalogue from the wiki")
 
 
 def pic_expiry() -> str:
@@ -320,10 +324,10 @@ def pic_expiry() -> str:
     return svg(window(20, 16, 600, 200, "login.tailscale.com/admin/machines")
                + t(44, 72, "Machines", 18, INK, 700)
                + box(44, 86, 552, 30, PANEL, LINE, 6)
-               + t(56, 106, "wuwa-home", 13, INK, 700, mono=True)
+               + t(56, 106, "wuwa-server", 13, INK, 700, mono=True)
                + t(200, 106, "100.x.y.z", 12, MUTED, mono=True) + t(320, 106, "● Connected", 12, OK)
                + t(574, 106, "…", 16, ACCENT, 700) + menu, 640, 232,
-               "Tailscale's machines page: disable key expiry for the home")
+               "Tailscale's machines page: disable key expiry for the server")
 
 
 def pic_update() -> str:
@@ -337,26 +341,26 @@ def pic_update() -> str:
 def pic_beside() -> str:
     rows = ""
     for k, (name, host, note) in enumerate((
-            ("wuwa-inventory-vision", "wuwa-home", "你现在用的 · the one you use"),
-            ("wuwa-inventory-vision-test", "wuwa-home-test", "试新版 · trying a version"))):
+            ("wuwa-inventory-vision", "wuwa-server", "你现在用的 · the one you use"),
+            ("wuwa-inventory-vision-test", "wuwa-server-test", "试新版 · trying a version"))):
         y = 58 + k * 48
         rows += (box(44, y, 552, 40, PANEL, ACCENT if k else LINE, 8, 2 if k else 1)
                  + t(60, y + 25, name, 13, INK, 700, mono=True)
                  + t(300, y + 25, host, 12, ACCENT, mono=True) + t(420, y + 25, note, 11, MUTED))
     return svg(window(20, 16, 600, 160, "Docker · Project") + rows, 640, 192,
-               "two homes side by side, each its own project and its own device")
+               "two servers side by side, each its own project and its own device")
 
 
 def pic_move() -> str:
-    return svg(window(20, 16, 280, 170, "旧的 · the old home's data")
+    return svg(window(20, 16, 280, 170, "旧的 · the old server's data")
                + files(44, 70, [("…/wuwa_inventory_vision/", ""), ("  wuwa.sqlite", ""),
-                                ("  icons/", ""), ("  home.key", "")]).replace('x="314"', 'x="9999"')
+                                ("  icons/", ""), ("  server.key", "")]).replace('x="314"', 'x="9999"')
                + arrow(306, 100, 346, 100)
                + t(326, 88, "复制", 12, ACCENT, anchor="middle")
                + window(352, 16, 268, 170, "新的 · its storage path")
                + files(374, 70, [("seed-data/", ""), ("data/", ""), ("tailscale-state/", "")],
                        ("seed-data/",)).replace('x="644"', 'x="9999"'),
-               640, 200, "the old home's data folder copied into seed-data in the new project's folder")
+               640, 200, "the old server's data folder copied into seed-data in the new project's folder")
 
 
 #: Said in the first step on a PC (D184): a zip from a browser marks every file in it.
@@ -371,23 +375,23 @@ UNBLOCK = ('<p class="tip" lang="zh-CN">解压之前：右键下载的压缩包 
 
 # --- the three guides -----------------------------------------------------------------------
 
-def guide_home() -> str:
+def guide_server() -> str:
     hero = ('<figure class="hero">' + svg(
         box(20, 40, 150, 90, PANEL2, LINE, 10) + t(95, 72, "电脑 · PC", 14, INK, 700, anchor="middle")
         + t(95, 96, "扫描器 scanner", 12, MUTED, anchor="middle")
         + arrow(178, 85, 238, 85) + t(208, 74, "Tailscale", 11, ACCENT, anchor="middle")
         + box(246, 20, 200, 130, PANEL2, ACCENT, 12, 2)
-        + t(346, 46, "主机 · the home", 14, INK, 700, anchor="middle")
-        + box(262, 60, 168, 32, PANEL, LINE, 7) + t(346, 81, "Tailscale (wuwa-home)", 12, INK,
+        + t(346, 46, "服务器 · the server", 14, INK, 700, anchor="middle")
+        + box(262, 60, 168, 32, PANEL, LINE, 7) + t(346, 81, "Tailscale (wuwa-server)", 12, INK,
                                                     anchor="middle")
         + box(262, 102, 168, 32, PANEL, LINE, 7) + t(346, 123, "app · 127.0.0.1:4000", 12, INK,
                                                      anchor="middle")
         + arrow(454, 85, 514, 85) + t(484, 74, "Tailscale", 11, ACCENT, anchor="middle")
         + box(522, 40, 100, 90, PANEL2, LINE, 10) + t(572, 72, "手机", 14, INK, 700, anchor="middle")
         + t(572, 96, "phone · PC", 12, MUTED, anchor="middle"),
-        640, 170, "the scanner sends to the home; phones and PCs of the tailnet open it")
-        + '<figcaption lang="zh-CN">主机只在你自己的 Tailscale 网里能打开：不开端口，不上公网。</figcaption>'
-        '<figcaption lang="en">The home opens only inside your own tailnet: no port, never the '
+        640, 170, "the scanner sends to the server; phones and PCs of the tailnet open it")
+        + '<figcaption lang="zh-CN">服务器只在你自己的 Tailscale 网里能打开：不开端口，不上公网。</figcaption>'
+        '<figcaption lang="en">The server opens only inside your own tailnet: no port, never the '
         "internet.</figcaption></figure>")
     steps = [
         step(1, "拿一把 Tailscale 钥匙", "Get a Tailscale auth key",
@@ -409,65 +413,65 @@ def guide_home() -> str:
              "the key may go in a <code>.env</code> instead.", pic_project()),
         step(3, "打开它", "Open it",
              "在登录了同一个 Tailscale 的手机或电脑上打开 "
-             "<code>http://wuwa-home.&lt;你的 tailnet&gt;.ts.net:4000</code>。",
+             "<code>http://wuwa-server.&lt;你的 tailnet&gt;.ts.net:4000</code>。",
              "On a phone or PC signed in to the same tailnet, open "
-             "<code>http://wuwa-home.&lt;your tailnet&gt;.ts.net:4000</code>.", pic_open()),
+             "<code>http://wuwa-server.&lt;your tailnet&gt;.ts.net:4000</code>.", pic_open()),
         step(4, "第一次：拉取图鉴", "The first time: fetch the catalogue",
-             "全新的主机还没有图鉴：没有物品名、图、食谱和养成表。打开它的 <b>更新</b> 页，按 "
-             "<b>从 Wiki 更新</b>，从库洛官方 Wiki 下载（几分钟，页面会显示进度）。扫描器每次扫描前从主机拿图鉴，"
+             "全新的服务器还没有图鉴：没有物品名、图、食谱和养成表。打开它的 <b>更新</b> 页，按 "
+             "<b>从 Wiki 更新</b>，从库洛官方 Wiki 下载（几分钟，页面会显示进度）。扫描器每次扫描前从服务器拿图鉴，"
              "所以要在第一次扫描之前做。",
-             "A home started from nothing has no catalogue yet: no item names, pictures, recipes or "
+             "A server started from nothing has no catalogue yet: no item names, pictures, recipes or "
              "builds. Open its <b>更新</b> page and press <b>从 Wiki 更新</b>; it downloads Kuro's "
              "official catalogue (a few minutes, the page shows how far). Scanners take it from the "
-             "home before each scan, so do it before the first scan.", pic_catalogue()),
+             "server before each scan, so do it before the first scan.", pic_catalogue()),
         step(5, "关掉钥匙过期", "Turn off key expiry",
-             "Tailscale 的 Machines 页里会多一台 <code>wuwa-home</code>：点 … → Disable key expiry，"
+             "Tailscale 的 Machines 页里会多一台 <code>wuwa-server</code>：点 … → Disable key expiry，"
              "否则半年后要重新登录。",
-             "A <code>wuwa-home</code> appears on Tailscale's machines page: … → Disable key "
+             "A <code>wuwa-server</code> appears on Tailscale's machines page: … → Disable key "
              "expiry, or it asks to log in again in six months (key expiry).", pic_expiry()),
         step(6, "连接扫描器", "Connect a scanner",
-             "在 NAS 的文件管理器里，把存储路径里的 <code>data/home.key</code> 下载到装了扫描器的电脑（放在「下载」文件夹）。"
-             "然后双击 <b>2 连接主机 Connect home</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。",
-             "In the NAS's file manager, download <code>data/home.key</code> from the storage path "
+             "在 NAS 的文件管理器里，把存储路径里的 <code>data/server.key</code> 下载到装了扫描器的电脑（放在「下载」文件夹）。"
+             "然后双击 <b>2 连接服务器 Connect server</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。",
+             "In the NAS's file manager, download <code>data/server.key</code> from the storage path "
              "to the PC with the scanner (it lands in Downloads). Then double-click "
-             "<b>2 连接主机 Connect home</b> and press Enter at both questions: the key is taken from Downloads.", pic_connect()),
+             "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads.", pic_connect()),
         step(7, "更新", "Updating",
              "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
              "the data stays. Update the scanner to the same version.", pic_update()),
         step(8, "在旁边试新版", "Try a version beside the one you have",
              "再建一个项目，名称 <code>wuwa-inventory-vision-test</code>、另一个空文件夹，粘贴同一个文件，"
-             "只改一个词：<code>TS_HOSTNAME</code> 那行的 <code>wuwa-home</code> 改成 <code>wuwa-home-test</code>。"
+             "只改一个词：<code>TS_HOSTNAME</code> 那行的 <code>wuwa-server</code> 改成 <code>wuwa-server-test</code>。"
              "它是 Tailscale 里另一台设备、另一份数据，不影响原来的。",
              "A second project, <code>wuwa-inventory-vision-test</code>, in another empty folder, "
-             "with the same file and one word changed: <code>wuwa-home</code> in the "
-             "<code>TS_HOSTNAME</code> line, to <code>wuwa-home-test</code>. Another device on the "
+             "with the same file and one word changed: <code>wuwa-server</code> in the "
+             "<code>TS_HOSTNAME</code> line, to <code>wuwa-server-test</code>. Another device on the "
              "tailnet with its own data; the first is untouched.", pic_beside()),
-        step(9, "从旧的主机搬过来", "Moving from the old home",
-             "旧的主机（自己编译的那种）的数据都在它的数据文件夹里：扫描、改过的名字、目标、底数、规划、"
-             "抽卡记录和 <code>home.key</code>。按下面的顺序搬，什么都不会丢。",
-             "Everything the old home (the one built from source) has is in its data folder: "
+        step(9, "从旧的服务器搬过来", "Moving from the old server",
+             "旧的服务器（自己编译的那种）的数据都在它的数据文件夹里：扫描、改过的名字、目标、底数、规划、"
+             "抽卡记录和 <code>server.key</code>。按下面的顺序搬，什么都不会丢。",
+             "Everything the old server (the one built from source) has is in its data folder: "
              "scans, names, targets, base amounts, plans, the pull history and "
-             "<code>home.key</code>. Move it in this order and nothing is lost.", pic_move(),
+             "<code>server.key</code>. Move it in this order and nothing is lost.", pic_move(),
              '<ol lang="zh-CN"><li>在 Docker 应用里<b>停掉</b>旧项目——先别删。</li>'
              "<li>在新项目要用的空文件夹里建 <code>seed-data/</code>，把旧的数据文件夹（旧项目 <code>.env</code> 里的 "
              "<code>WUWA_DATA</code>）里的东西整个复制进去。</li>"
              "<li>按上面 1–3、5 建新项目：第一次启动会把 seed-data 收进来，图鉴也在里面，第 4 步不用做。</li>"
-             "<li>打开新地址，确认数据都在。<code>home.key</code> 也搬过来了，钥匙不变：扫描器只要用 "
-             "<b>2 连接主机</b> 换成新地址。</li><li>都没问题了，再删掉旧项目。</li></ol>"
+             "<li>打开新地址，确认数据都在。<code>server.key</code> 也搬过来了，钥匙不变：扫描器只要用 "
+             "<b>2 连接服务器</b> 换成新地址。</li><li>都没问题了，再删掉旧项目。</li></ol>"
              '<ol lang="en"><li><b>Stop</b> the old project in the Docker app -- do not delete it '
              "yet.</li><li>In the empty folder the new project will use, make <code>seed-data/</code> "
              "and copy into it everything in the old data folder (<code>WUWA_DATA</code> in the old "
              "project's <code>.env</code>).</li><li>Create the new project (1–3 and 5 above): its "
              "first start takes seed-data in, the catalogue with it, so step 4 is not needed.</li>"
-             "<li>Open the new address and check your data is there. <code>home.key</code> came "
-             "along, so the key is the same: a scanner only needs the new address (<b>2 连接主机</b>)."
+             "<li>Open the new address and check your data is there. <code>server.key</code> came "
+             "along, so the key is the same: a scanner only needs the new address (<b>2 连接服务器</b>)."
              "</li><li>When all is well, delete the old project.</li></ol>"
              '<p class="warn" lang="zh-CN">没复制数据就删旧项目，扫描以外的东西（改过的名字、目标、规划）都会没有。</p>'
              '<p class="warn" lang="en">Delete the old project without copying its data and what '
              "only it held -- names given on a phone, targets, plans -- is gone.</p>"),
     ]
-    return page("WuWa Inventory Vision · 主机 home",
+    return page("WuWa Inventory Vision · 服务器 server",
                 "家里一直开着的机器上的总览：用现成的镜像，在 NAS 的 Docker 应用里粘贴一个文件就部署，不用编译、不用 SSH、不用下载压缩包。",
                 "The dashboard on a box that is always on: a ready-made image, deployed from the "
                 "NAS's Docker app from one pasted file -- nothing to build, no SSH, no zip.", "".join(steps), hero)
@@ -480,36 +484,37 @@ def guide_scanner() -> str:
              "Such as <code>C:\\wuwa-scanner</code>. The setup builds on the Python inside it, so a "
              "folder moved later means setting up again.",
              pic_unzip("C:\\wuwa-scanner", [
-                 ("1 安装 Setup.cmd", ""), ("2 连接主机 Connect home.cmd", ""),
+                 ("1 安装 Setup.cmd", ""), ("2 连接服务器 Connect server.cmd", ""),
                  ("3 扫描 Scan.cmd", ""), ("python/", "已带 Python · Python included"),
                  ("START-HERE.html", "这一页 · this page")],
-                 ("1 安装 Setup.cmd", "2 连接主机 Connect home.cmd", "3 扫描 Scan.cmd")), UNBLOCK),
+                 ("1 安装 Setup.cmd", "2 连接服务器 Connect server.cmd", "3 扫描 Scan.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）。装依赖、显卡对应的 PyTorch 和识别模型；"
-             "图鉴由主机发过来，这里不用下。",
+             "图鉴由服务器发过来，这里不用下。最后问要不要在桌面和开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
-             "PyTorch for your GPU and the recognition model. The catalogue comes from the home.",
+             "PyTorch for your GPU and the recognition model. The catalogue comes from the server. "
+             "Last, it offers shortcuts on the Desktop and in the Start menu.",
              pic_setup(True)),
-        step(3, "双击 2 连接主机 Connect home", "Double-click 2 连接主机 Connect home",
-             "先从 NAS 下载主机的 <code>data/home.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-home</code>，"
+        step(3, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
+             "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-server</code>，"
              "钥匙也直接按回车：会从「下载」里自己找。也可以贴上钥匙那一行。只要做一次。",
-             "First download the home's <code>data/home.key</code> from the NAS (it lands in Downloads). "
-             "For the address, Enter alone takes <code>wuwa-home</code>; for the key, Enter alone takes "
-             "home.key from Downloads (pasting its one line works too). Once.", pic_connect()),
+             "First download the server's <code>data/server.key</code> from the NAS (it lands in Downloads). "
+             "For the address, Enter alone takes <code>wuwa-server</code>; for the key, Enter alone takes "
+             "server.key from Downloads (pasting its one line works too). Once.", pic_connect()),
         step(4, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
-             "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到主机。",
+             "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到服务器。",
              "Then alt-tab into the game, open the bag and scroll each tab a page at a time; click "
              "an item to read its name and count. <b>F9</b> stops, and everything read is kept. "
-             "Each tab goes home as soon as it is finished.", pic_scan()),
-        step(5, "在主机上看结果", "See it on the home",
-             "在手机上打开主机的地址：总览、库存、材料……都是刚扫的。",
-             "Open the home's address on your phone: 总览, 库存, 材料… as just scanned.",
+             "Each tab goes to the server as soon as it is finished.", pic_scan()),
+        step(5, "在服务器上看结果", "See it on the server",
+             "在手机上打开服务器的地址：总览、库存、材料……都是刚扫的。",
+             "Open the server's address on your phone: 总览, 库存, 材料… as just scanned.",
              pic_open()),
     ]
     return page("WuWa Inventory Vision · 扫描器 scanner",
-                "在有游戏的电脑上读背包，发到你的主机。只读屏幕，不碰游戏文件。",
-                "Reads the bag on the PC with the game and sends it to your home. Screen pixels "
+                "在有游戏的电脑上读背包，发到你的服务器。只读屏幕，不碰游戏文件。",
+                "Reads the bag on the PC with the game and sends it to your server. Screen pixels "
                 "only; the game's files are never touched.", "".join(steps))
 
 
@@ -525,16 +530,17 @@ def guide_full() -> str:
                  ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）：依赖、显卡对应的 PyTorch、识别模型，"
-             "还有从库洛官方 Wiki 下载的图鉴（几分钟）。",
+             "还有从库洛官方 Wiki 下载的图鉴（几分钟）。最后问要不要在桌面和开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
              "PyTorch for your GPU, the recognition model, and the catalogue from Kuro's wiki (a "
-             "few minutes).", pic_setup(False)),
+             "few minutes). Last, it offers shortcuts on the Desktop and in the Start menu.",
+             pic_setup(False)),
         step(3, "双击 2 扫描 Scan", "Double-click 2 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。",
              "Then alt-tab into the game, open the bag and scroll each tab a page at a time; click "
              "an item to read its name and count. <b>F9</b> stops, and everything read is kept.",
-             pic_scan()),
+             pic_scan("2 扫描 Scan")),
         step(4, "双击 3 总览 Dashboard", "Double-click 3 总览 Dashboard",
              "在浏览器打开 <code>http://127.0.0.1:4000</code>。窗口开着页面就在；关掉窗口就停。",
              "Open <code>http://127.0.0.1:4000</code> in a browser. The pages run while its window "
@@ -546,8 +552,137 @@ def guide_full() -> str:
                 "everything stays on your own computer.", "".join(steps))
 
 
+# --- a Mac (D204; drawn for D228: the user, 2026-10-28, "for mac version guideline you didnt
+# include like the visual there") -----------------------------------------------------------
+
+def toggle(x: float, y: float, on: bool) -> str:
+    """A switch as System Settings draws one."""
+    return (box(x, y, 40, 22, ACCENT if on else PANEL, ACCENT if on else LINE, 11)
+            + f'<circle cx="{x + (29 if on else 11)}" cy="{y + 11}" r="8" fill="{"#111" if on else MUTED}"/>')
+
+
+def pic_brew() -> str:
+    return svg(console(20, 16, 600, 150, "Terminal — 终端", [
+                   ("$ brew install python@3.12", ACCENT),
+                   ("==> Downloading python@3.12 ...", MUTED),
+                   ("==> Pouring python@3.12 ...", MUTED),
+                   ("python@3.12 is installed", OK)])
+               + t(612, 190, "没有 Homebrew：先按 brew.sh 上的一行装好 · no Homebrew yet: brew.sh", 12,
+                   MUTED, anchor="end"),
+               640, 204, "Terminal: brew install python@3.12")
+
+
+def pic_open_anyway() -> str:
+    menu = box(40, 70, 190, 104, PANEL, LINE, 8) + "".join(
+        t(56, 96 + i * 26, item, 13, ACCENT if i == 0 else INK, 700 if i == 0 else 400)
+        for i, item in enumerate(("打开 · Open", "显示简介 · Get Info", "压缩 · Compress")))
+    return svg(files(24, 30, [("1 安装 Setup.command", "右键 · right-click")],
+                     ("1 安装 Setup.command",))
+               + menu + ring(44, 76, 182, 28) + arrow(240, 98, 290, 98)
+               + box(300, 30, 320, 170, PANEL2, LINE, 12)
+               + t(318, 62, "无法验证开发者 · cannot verify the developer", 13, INK, 700)
+               + t(318, 88, "确定要打开吗？ · Are you sure you want to open it?", 12, MUTED)
+               + button(318, 150, 120, "取消 Cancel", lit=False) + button(480, 150, 120, "打开 Open")
+               + ring(474, 144, 132, 42),
+               640, 216, "the first time: right-click, Open, then Open again")
+
+
+def pic_screen_recording() -> str:
+    side = "".join(t(40, 86 + i * 28, item, 13, ACCENT if i == 2 else MUTED, 700 if i == 2 else 400)
+                   for i, item in enumerate(("Wi-Fi", "通用 · General", "隐私与安全性 · Privacy",
+                                             "桌面与程序坞 · Desktop")))
+    rows = [("终端 · Terminal", True), ("Python", False), ("鸣潮 · the game", False)]
+    body = "".join(box(250, 98 + i * 40, 350, 34, PANEL, LINE, 7) + t(266, 120 + i * 40, name, 13, INK)
+                   + toggle(548, 104 + i * 40, on) for i, (name, on) in enumerate(rows))
+    return svg(window(20, 16, 600, 240, "系统设置 · System Settings")
+               + f'<path d="M230 44v212" stroke="{LINE}"/>' + side
+               + t(250, 78, "屏幕与系统录音 · Screen & System Audio Recording", 14, INK, 700)
+               + body + ring(244, 92, 362, 46)
+               + t(250, 240, "只打开「终端」，然后重开终端 · Terminal only, then reopen Terminal", 12, ACCENT),
+               640, 272, "System Settings: Screen Recording on for Terminal")
+
+
+def pic_scan_mac() -> str:
+    grid = "".join(box(330 + (i % 5) * 44, 70 + (i // 5) * 44, 38, 38, PANEL,
+                       ACCENT if i == 7 else LINE, 6, 2 if i == 7 else 1) for i in range(15))
+    return svg(console(20, 16, 280, 150, "扫描 Scan — Terminal", [
+                   ("waiting for the game ...", MUTED), ("click the game window", ACCENT),
+                   ("[素材] view 3: +12 new", OK), ("selected: 面粉 拥有 440", OK)])
+               + box(320, 16, 300, 220, PANEL2, LINE, 10) + t(334, 42, "背包 · the bag", 13, MUTED)
+               + grid + arrow(578, 80, 578, 190) + t(590, 140, "滚", 13, ACCENT)
+               + keycap(26, 186, "Ctrl") + t(80, 211, "+", 15, ACCENT) + keycap(94, 186, "C")
+               + t(150, 211, "结束 · stop", 13, INK),
+               640, 250, "the scan on a Mac: click the game, scroll, Ctrl+C in Terminal to stop")
+
+
+def guide_mac(scanner: bool) -> str:
+    rows = ([("1 安装 Setup.command", ""), ("2 连接服务器 Connect server.command", ""),
+             ("3 扫描 Scan.command", "")] if scanner else
+            [("1 安装 Setup.command", ""), ("2 扫描 Scan.command", ""), ("3 总览 Dashboard.command", "")])
+    rows.append(("START-HERE.html", "这一页 · this page"))
+    scan = "3 扫描 Scan" if scanner else "2 扫描 Scan"
+    steps = [
+        step(1, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
+             "例如个人文件夹里的 <code>wuwa-vision</code>。以后搬走文件夹就要重新安装。",
+             "Such as <code>wuwa-vision</code> in your home folder. A folder moved later means "
+             "setting up again.",
+             pic_unzip(f"~/{'wuwa-scanner' if scanner else 'wuwa-vision'}", rows,
+                       tuple(r[0] for r in rows[:3]))),
+        step(2, "装好 Python 3.12", "Install Python 3.12",
+             "打开「终端」，运行 <code>brew install python@3.12</code>。还没有 Homebrew 的话，先按 "
+             '<a href="https://brew.sh">brew.sh</a> 上的一行命令装好。',
+             "Open Terminal and run <code>brew install python@3.12</code>. No Homebrew yet? Its "
+             'one line is on <a href="https://brew.sh">brew.sh</a>.', pic_brew()),
+        step(3, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
+             "第一次 macOS 会说「无法验证开发者」：右键点它 → <b>打开</b> → 再点 <b>打开</b>。"
+             "然后它会说找到了什么，每一步都先问（按 Enter 就是“是”）"
+             + ("；图鉴由服务器发过来，这里不用下。" if scanner else "，包括从库洛官方 Wiki 下载的图鉴。"),
+             "The first time, macOS says it cannot verify the developer: right-click it → "
+             "<b>Open</b> → <b>Open</b>. Then it says what it found and asks before each step "
+             "(Enter is yes)" + ("; the catalogue comes from the server." if scanner
+                                 else ", the catalogue from Kuro's wiki among them."),
+             pic_open_anyway(), pic_setup(scanner, mac=True)),
+        step(4, "允许「屏幕录制」", "Allow Screen Recording",
+             "macOS 不让任何程序读别的窗口，除非你同意：<b>系统设置 → 隐私与安全性 → 屏幕与系统录音</b>，"
+             "打开「终端」（不是 Python，也不是游戏），然后关掉终端再打开。",
+             "macOS lets no program read another's window unless you agree: <b>System Settings → "
+             "Privacy & Security → Screen & System Audio Recording</b>, turn on Terminal (not "
+             "Python, not the game), then quit and reopen Terminal.", pic_screen_recording()),
+    ]
+    if scanner:
+        steps.append(step(5, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
+             "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址和钥匙都直接按回车。只要做一次。",
+             "First download the server's <code>data/server.key</code> from the NAS (it lands in "
+             "Downloads). Press Enter at both questions. Once.", pic_connect()))
+    steps.append(step(len(steps) + 1, f"双击 {scan}", f"Double-click {scan}",
+         "<b>点一下游戏窗口</b>：在 Mac 上只有点进去的窗口才算在最前面。打开背包，慢慢滚每个分页；"
+         "扫完回到终端按 <b>Ctrl+C</b>。在 Mac 上它只读不点，不会替你按任何键。",
+         "<b>Click the game window</b>: on a Mac only the window clicked into is in front. Open "
+         "the bag and scroll each tab slowly; when done, press <b>Ctrl+C</b> in Terminal. On a "
+         "Mac it only reads: it never presses a key for you.", pic_scan_mac()))
+    if scanner:
+        steps.append(step(len(steps) + 1, "在服务器上看结果", "See it on the server",
+             "在手机上打开服务器的地址：总览、库存、材料……都是刚扫的。",
+             "Open the server's address on your phone: 总览, 库存, 材料… as just scanned.",
+             pic_open()))
+    else:
+        steps.append(step(len(steps) + 1, "双击 3 总览 Dashboard", "Double-click 3 总览 Dashboard",
+             "在浏览器打开 <code>http://127.0.0.1:4000</code>。窗口开着页面就在；关掉窗口就停。",
+             "Open <code>http://127.0.0.1:4000</code> in a browser. The pages run while its window "
+             "is open; close it to stop them.", pic_dashboard()))
+    title = "Mac 扫描端 mac-scanner" if scanner else "Mac 完整版 mac-full"
+    return page(f"WuWa Inventory Vision · {title}",
+                ("在 Mac 上读背包，发到你的服务器。" if scanner else "一台 Mac 上全都有：扫描和页面。")
+                + "用库洛官方的 Mac 客户端；只读屏幕，不碰游戏文件。",
+                ("Reads the bag on a Mac and sends it to your server. " if scanner
+                 else "Everything on one Mac: the scanner and the pages. ")
+                + "With Kuro's own Mac client; screen pixels only, the game's files never touched.",
+                "".join(steps))
+
+
 def pages() -> dict[str, str]:
-    return {"full": guide_full(), "scanner": guide_scanner(), "home": guide_home()}
+    return {"full": guide_full(), "scanner": guide_scanner(), "server": guide_server(),
+            "mac-full": guide_mac(False), "mac-scanner": guide_mac(True)}
 
 
 def main() -> int:

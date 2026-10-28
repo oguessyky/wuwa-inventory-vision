@@ -39,6 +39,7 @@ for stream in (sys.stdout, sys.stderr):
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from wuwa_vision import shortcuts  # noqa: E402
 from wuwa_vision.setup_env import Machine, Plan, plan_for, probe  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -125,7 +126,7 @@ def catalogue(assume_yes: bool, zip_source: str | None, scanner: bool = False) -
     have = index.exists()
     print()
     if scanner:
-        print("catalogue : the home sends it before each scan -- nothing to download here")
+        print("catalogue : the server sends it before each scan -- nothing to download here")
         return
     if have and not zip_source:
         print("catalogue : already downloaded (update it any time on the 更新 page)")
@@ -159,6 +160,14 @@ def verify() -> None:
     run([uv, "run", "python", "-c", code])
 
 
+def add_shortcuts(assume_yes: bool) -> None:
+    """Shortcuts on the Desktop and in the Start menu, if this is a package on Windows (D224)."""
+    plan = shortcuts.plan(ROOT, sys.platform)
+    if (plan and ask("add shortcuts to the Desktop and the Start menu?", assume_yes)
+            and shortcuts.make(plan, ROOT)):
+        print("  the shortcuts could not be made: the double-click files still work")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--yes", action="store_true", help="take every default")
@@ -173,7 +182,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--scanner", action="store_true",
-        help="this machine scans for a home: skip the catalogue, the home sends it",
+        help="this machine scans for a server: skip the catalogue, the server sends it",
     )
     args = parser.parse_args()
 
@@ -189,8 +198,9 @@ def main() -> int:
     catalogue(args.yes, args.zip, args.scanner)
     print()
     verify()
+    add_shortcuts(args.yes)
     if args.scanner and not plan.blocked:
-        print("\nnext:  uv run python -m wuwa_vision home set <the home's address> <its key>")
+        print("\nnext:  uv run python -m wuwa_vision server set <the server's address> <its key>")
         print("       uv run python -m wuwa_vision live --identify   (scan the bag)")
         return 0
     print("\nnext:  uv run python -m wuwa_vision serve      (the pages)")

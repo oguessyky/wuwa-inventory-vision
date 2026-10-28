@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { address, downloads, guideWords, packages, pages, rootText, title, words, type Group, type Lang } from '@/lib/content';
+import { address, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
 import { Markdown } from './Markdown';
 import { GuideSteps, type Part } from './GuideSteps';
-import { DownloadLink } from './Download';
 import { Icon } from './Icons';
 import { Nav, type NavPage } from './Nav';
 import { describe, ld, pageMetadata, SITE } from '@/lib/seo';
@@ -32,8 +31,8 @@ const DESCRIPTION = {
 
 /** Each page's icon, from the app's family: the app's own drawings, and the site's five. */
 const PAGE_ICON: Record<string, string> = {
-  install: 'pc', home: 'nas', mac: 'laptop', scan: 'inventory', pages: 'dashboard',
-  update: 'update', troubleshooting: 'help', safety: 'privacy',
+  install: 'pc', server: 'nas', mac: 'laptop', scan: 'inventory', pages: 'dashboard',
+  update: 'update', versions: 'update', troubleshooting: 'help', safety: 'privacy',
   privacy: 'privacy', terms: 'about', licence: 'about', credits: 'about',
 };
 const PageIcon = ({ slug, on = false }: { slug: string; on?: boolean }) => (slug === 'index'
@@ -167,9 +166,14 @@ export function Doc({ lang, slug }: { lang: Lang; slug: string }) {
 /** The install pages' steps (D219): the package guides' own pictures, on the page. */
 const STEPS: Record<string, Part[]> = {
   install: [{ kind: 'full' }],
-  home: [
-    { kind: 'home', only: [1, 2, 3, 4, 5], yaml: 2, title: { zh: '一、主机（NAS 上）', en: '1. The home (on the NAS)' } },
+  server: [
+    { kind: 'server', only: [1, 2, 3, 4, 5], yaml: 2, title: { zh: '一、服务器（NAS 上）', en: '1. The server (on the NAS)' } },
     { kind: 'scanner', title: { zh: '二、扫描端（玩游戏的电脑上）', en: '2. The scanner (on the PC with the game)' } },
+  ],
+  // the Mac's own pictures (D228: "for mac version guideline you didnt include like the visual there")
+  mac: [
+    { kind: 'mac-full', title: { zh: 'mac-full：一台 Mac 全部搞定', en: 'mac-full: everything on one Mac' } },
+    { kind: 'mac-scanner', title: { zh: 'mac-scanner：Mac 扫描，发给服务器', en: 'mac-scanner: the Mac scans, the server keeps it' } },
   ],
 };
 
@@ -186,12 +190,12 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
       </>
     );
   }
-  if (slug === 'mac') {
-    const [before, after = ''] = text.split(/^\{\{zips\}\}$/m);
+  if (slug === 'versions') {
+    const [before, after = ''] = text.split(/^\{\{releases\}\}$/m);
     return (
       <>
         <Markdown text={before} lang={lang} />
-        <MacZips lang={lang} />
+        <Releases lang={lang} />
         <Markdown text={after} lang={lang} />
       </>
     );
@@ -240,50 +244,50 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
   return <Markdown text={text} lang={lang} />;
 }
 
-/** The two Mac packages: what each is for, its zip, and its guide as a page of the site. */
-function MacZips({ lang }: { lang: Lang }) {
-  const t = T[lang];
-  const zips = downloads();
+/** Every release, each side's changes or 没有改动 (D227): the list the app shows only the newest
+ * and in-use part of, whole. */
+function Releases({ lang }: { lang: Lang }) {
+  const said = (c: { zh: string; en: string }) => (lang === 'en' ? c.en : c.zh);
+  const sides = [['scanner', lang === 'en' ? 'Scanner' : '扫描端'], ['home', lang === 'en' ? 'Server' : '服务器']] as const;
   return (
-    <ul className="pkgs">
-      {packages().filter(p => p.kind.startsWith('mac-')).map(p => (
-        <li key={p.kind} id={p.kind}>
-          <div className="pkg-n"><Icon name={p.kind === 'mac-full' ? 'laptop' : 'nas'} /><b>{p[lang]}</b><code>{p.kind}</code></div>
-          <p>{lang === 'en' ? p.for_en : p.for_zh}</p>
-          <div className="pkg-a">
-            <DownloadLink className="btn gold" href={zips[p.kind].url}>{t.zip} <code>{zips[p.kind].file}</code></DownloadLink>
-            <Link className="go" href={`${lang === 'en' ? '/en' : ''}/guides/${p.kind}/`}>{t.guide} ›</Link>
+    <ol className="releases">
+      {releases().map((r, i) => (
+        <li key={r.version} id={`v${r.version}`}>
+          <div className="rel-h"><b>v{r.version}</b><small>{r.date}</small>
+            {i === 0 ? <span className="rel-tag">{lang === 'en' ? 'newest' : '最新'}</span> : null}</div>
+          <div className="sides">
+            {sides.map(([k, name]) => (
+              <div key={k} className={`side by-${k}${r[k].length ? '' : ' none'}`}>
+                <span className="side-n">{name}</span>
+                {r[k].length
+                  ? <ul>{r[k].map((c, j) => <li key={j}>{said(c)}</li>)}</ul>
+                  : <p className="nothing">{lang === 'en' ? 'No changes' : '没有改动'}</p>}
+              </div>
+            ))}
           </div>
         </li>
       ))}
-    </ul>
+    </ol>
   );
 }
 
-/** A Mac package's guide as a page of the site, in the frame of either language (D214). */
-export function MacGuide({ lang, kind }: { lang: Lang; kind: string }) {
-  const p = packages().find(x => x.kind === kind)!;
-  const t = T[lang];
+/** Where a page that is no more has gone (D225, D228): the home's page is the server's, and the Mac
+ * guides' pages are pictures on the Mac page. The old address forwards there, and tells search
+ * engines the new one is the page. */
+export function movedMetadata(lang: Lang, to: string): Metadata {
+  return { title: T[lang].site, robots: { index: false, follow: true },
+           alternates: { canonical: `${SITE}${address(lang, to)}` } };
+}
+
+export function Moved({ lang, to }: { lang: Lang; to: string }) {
+  const href = address(lang, to);
   return (
-    <Frame lang={lang} slug="mac" other={`${lang === 'en' ? '' : '/en'}/guides/${kind}/`}>
-      <main className="doc page">
-        <p className="crumb"><Link href={address(lang, 'mac')}>‹ {t.mac}</Link></p>
-        <article lang="en"><Markdown text={guideWords(p.guide)} lang={lang} /></article>
+    <Frame lang={lang}>
+      <meta httpEquiv="refresh" content={`0; url=${BASE}${href}`} />
+      <main className="lost">
+        <h1>{lang === 'en' ? 'This page has moved' : '这一页搬家了'}</h1>
+        <div className="lost-a"><Link className="btn gold" href={href}>{lang === 'en' ? 'Go there ›' : '去新地址 ›'}</Link></div>
       </main>
     </Frame>
   );
 }
-
-/** A Mac guide's metadata (D222). Its words are English under either frame, so both addresses
- * name the English one as the page itself, and a search engine keeps one. */
-export function macMetadata(lang: Lang, kind: string): Metadata {
-  const p = packages().find(x => x.kind === kind)!;
-  const text = guideWords(p.guide).replace(/\r\n/g, '\n');
-  const lede = text.split(/\n\s*\n/)[1] ?? p.for_en;
-  const meta = pageMetadata(lang, { zh: `/guides/${kind}/`, en: `/en/guides/${kind}/` },
-    `${title(text)} · ${T[lang].site}`, describe(lede));
-  const page = `${SITE}/en/guides/${kind}/`;     // one page, so no other language to point to
-  return { ...meta, alternates: { canonical: page }, openGraph: { ...meta.openGraph, url: page } };
-}
-
-export const macKinds = () => packages().filter(p => p.guide.endsWith('.md')).map(p => p.kind);

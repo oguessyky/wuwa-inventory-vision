@@ -1,6 +1,6 @@
 # Install on Windows
 
-The **full** package: the scanner and every page on this one Windows PC. To see it on your phone with the PC off, read [A home on a NAS](/home) instead.
+The **full** package: the scanner and every page on this one Windows PC. To see it on your phone with the PC off, read [A server on a NAS](/server) instead.
 
 **Before unzipping**: right-click the zip → **Properties** → tick **Unblock**. Unzip it to a short path (such as `C:\wuwa-vision`) and do not move it afterwards.
 
@@ -8,7 +8,7 @@ The **full** package: the scanner and every page on this one Windows PC. To see 
 
 ## On your phone?
 
-Install [Tailscale](https://tailscale.com) on the PC and the phone, signed in to the same account, and the Dashboard window prints an address the phone can open. To see it with the PC off, use a [home](/home).
+Install [Tailscale](https://tailscale.com) on the PC and the phone, signed in to the same account, and the Dashboard window prints an address the phone can open. To see it with the PC off, use a [server](/server).
 
 ## Next
 

@@ -1,31 +1,11 @@
 # Install on a Mac
 
-With Kuro's own Mac client. On a Mac it **only reads**: it never presses a key for you.
+With Kuro's own Mac client. On a Mac it **only reads**: it never presses a key for you. For everything on one Mac, take **mac-full**; for a Mac that only scans and sends to a [server](/server), take **mac-scanner**.
 
-{{zips}}
+It needs macOS with Kuro's Mac client, Python 3.12, and about 6 GB of disk (most of it PyTorch). On Apple silicon it uses the Mac's graphics (MPS).
 
-## 1. Python
+{{steps}}
 
-```
-brew install python@3.12
-```
+## Stuck?
 
-(No Homebrew yet? Its one line is on <https://brew.sh>.)
-
-## 2. Set it up
-
-Unzip it somewhere it will stay and double-click **`1 安装 Setup`**. If macOS says it cannot verify the developer: right-click it → **Open** → **Open**.
-
-## 3. Allow Screen Recording
-
-**System Settings → Privacy & Security → Screen & System Audio Recording**: turn on Terminal (not Python, not the game), then reopen Terminal.
-
-## 4. Scan
-
-With mac-scanner, first double-click **`2 连接主机 Connect home`** (see [A home on a NAS](/home)). Then double-click **Scan**, **click the game window**, and scroll each tab; when done, press **Ctrl+C** in the Terminal window.
-
-## 5. See it
-
-mac-full: double-click **`3 总览 Dashboard`** and open <http://127.0.0.1:4000>. With a home, open the home's address.
-
-Nothing captured is nearly always Screen Recording: see [Troubleshooting](/troubleshooting).
+Nothing captured is nearly always Screen Recording: off, or on without reopening Terminal. A Mac has no F9: a key that works in every program needs the Accessibility permission, which this project never asks for, so **Ctrl+C** stops a scan. More in [Troubleshooting](/troubleshooting).

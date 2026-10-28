@@ -65,7 +65,7 @@ def hint(said: dict) -> str:
     """What to do about a scanner that is behind, for the line before a scan."""
     if said.get("update") != "mine":
         return ""
-    return "双击「4 更新 Update」即可更新（只下载主机那个版本）"
+    return "双击「4 更新 Update」即可更新（只下载服务器那个版本）"
 
 
 def _get(url: str) -> bytes:

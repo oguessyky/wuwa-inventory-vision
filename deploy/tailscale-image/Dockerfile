@@ -1,5 +1,5 @@
-# The home's Tailscale, under this app's name (PLAN.md D191): Tailscale's own official image,
-# unchanged -- no package added, nothing rebuilt -- with the home's Serve settings and defaults
+# The server's Tailscale, under this app's name (PLAN.md D191): Tailscale's own official image,
+# unchanged -- no package added, nothing rebuilt -- with the server's Serve settings and defaults
 # built in, so a NAS's image list says whose it is and the compose file says only the key and
 # the name. Published by the public repository's workflow beside the app's image.
 #
@@ -9,7 +9,7 @@
 FROM tailscale/tailscale:v1.102.5
 
 LABEL org.opencontainers.image.source="https://github.com/oguessyky/wuwa-inventory-vision" \
-      org.opencontainers.image.description="WuWa Inventory Vision: the home's Tailscale (tailscale/tailscale, unchanged, with the home's Serve settings)" \
+      org.opencontainers.image.description="WuWa Inventory Vision: the server's Tailscale (tailscale/tailscale, unchanged, with the server's Serve settings)" \
       org.opencontainers.image.licenses="BSD-3-Clause"
 
 COPY serve.json /config/serve.json
@@ -21,4 +21,4 @@ ENV TS_SERVE_CONFIG=/config/serve.json \
     TS_USERSPACE=true \
     TS_AUTH_ONCE=true \
     TS_STATE_DIR=/var/lib/tailscale \
-    TS_HOSTNAME=wuwa-home
+    TS_HOSTNAME=wuwa-server

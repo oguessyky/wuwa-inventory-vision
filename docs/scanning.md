@@ -73,7 +73,7 @@ and when it last heard from it.
 - It can only be looked at. Fixing a name stays on the PC's page and in the main app.
 - It never shows a picture of the game, whatever `--preview` says: boxes and names only.
 - Only your own Tailscale devices can reach it, and only while the scan runs. Nothing is opened
-  on your home network. Without Tailscale the scan runs as usual and says it is not shared.
+  on your server network. Without Tailscale the scan runs as usual and says it is not shared.
 - Set the phone's screen timeout long enough for the scan; the page does not keep it awake.
 
 The picture is a demo replayed from saved frames, without the recognition gallery — in a real scan most
@@ -92,10 +92,10 @@ and `--all-tabs` scans everything.
 **When you are done, close the page.** After the panic key the live page stays up so the final
 tallies can be read. Close its tab and `live` ends by itself, a couple of seconds later; pressing
 Enter in the terminal does the same, and is what is left if the page was never opened. A reload is
-not a close. If the scan is still being sent to a [home](nas.md), it is sent first.
+not a close. If the scan is still being sent to a [server](nas.md), it is sent first.
 
 **Before it reads anything it learns the catalogue's new icons** (D85, D179): a patch that added
-items -- updated here, or fetched from a [home](nas.md) a moment ago -- leaves reference icons nobody
+items -- updated here, or fetched from a [server](nas.md) a moment ago -- leaves reference icons nobody
 has embedded. Only those are embedded, so it takes seconds, and the scan that follows a wiki update
 names the new weapon itself. It says how many it learned; `--no-seed` turns it off.
 

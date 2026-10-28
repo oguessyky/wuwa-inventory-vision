@@ -59,16 +59,16 @@ Each one has a `START-HERE` guide with a picture for every step.
 | Package | For |
 |---|---|
 | **full** | everything on one Windows PC: the scanner and the pages |
-| **scanner** | the PC with the game, sending each scan to a *home* |
-| **home** | the pages on a NAS or always-on box, so your phone can open them anytime |
+| **scanner** | the PC with the game, sending each scan to a *server* |
+| **server** | the pages on a NAS or always-on box, so your phone can open them anytime |
 | **mac-full** / **mac-scanner** | the first two, for a Mac |
 
 On a PC or a Mac each step is a file to double-click: set up, scan, open the pages. A scanner
-whose home is newer updates itself with `4 更新 Update`.
+whose server is newer updates itself with `4 更新 Update`.
 
 **What you need:** Windows 10/11, or macOS with Kuro's own Mac client; about 6 GB of disk. An
 NVIDIA graphics card makes recognition much faster, but it is not needed. Python is included in
-the Windows packages; on a Mac, `brew install python@3.12`. The home needs Docker and a
+the Windows packages; on a Mac, `brew install python@3.12`. The server needs Docker and a
 (free) Tailscale account.
 
 The short version, from a terminal in the project folder on Windows:

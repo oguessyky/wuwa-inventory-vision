@@ -1,5 +1,5 @@
 @echo off
-rem Update to the home's version, only when the home says this one is behind (D203).
+rem Update to the server's version, only when the server says this one is behind (D203).
 rem Runs from a copy: a batch file rewritten while it runs would go wrong.
 if not "%~1"=="--copy" (
   copy /y "%~f0" "%TEMP%\wuwa-update.cmd" >nul

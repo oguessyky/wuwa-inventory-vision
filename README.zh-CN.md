@@ -51,15 +51,15 @@
 | 程序包 | 适合 |
 |---|---|
 | **full** | 全部装在一台 Windows 电脑上：扫描和页面 |
-| **scanner** | 装在玩游戏的电脑上，把每次扫描发给「主机」 |
-| **home** | 把页面放在 NAS 或一直开着的机器上，手机随时能打开 |
+| **scanner** | 装在玩游戏的电脑上，把每次扫描发给「服务器」 |
+| **server** | 把页面放在 NAS 或一直开着的机器上，手机随时能打开 |
 | **mac-full** / **mac-scanner** | 前两个的 Mac 版 |
 
-在电脑或 Mac 上，每一步都是双击一个文件：安装、扫描、打开页面。扫描端的主机比它新时，双击
+在电脑或 Mac 上，每一步都是双击一个文件：安装、扫描、打开页面。扫描端的服务器比它新时，双击
 `4 更新 Update` 就能自己更新。
 
 **需要什么：** Windows 10/11，或装了库洛官方 Mac 客户端的 macOS；大约 6 GB 硬盘空间。有 NVIDIA 显卡识别会快很多，
-但不是必需的。Windows 的程序包里已经带了 Python；Mac 上请先 `brew install python@3.12`。主机需要 Docker 和一个
+但不是必需的。Windows 的程序包里已经带了 Python；Mac 上请先 `brew install python@3.12`。服务器需要 Docker 和一个
 （免费的）Tailscale 账号。
 
 在 Windows 上的简短做法（在项目文件夹里打开终端）：

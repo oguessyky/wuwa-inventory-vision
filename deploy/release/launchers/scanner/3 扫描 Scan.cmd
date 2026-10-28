@@ -1,5 +1,5 @@
 @echo off
-rem Scan the bag (D184): then alt-tab into the game; F9 stops. Each tab goes home when finished.
+rem Scan the bag (D184): then alt-tab into the game; F9 stops. Each tab goes server when finished.
 cd /d "%~dp0"
 where uv >nul 2>nul
 if errorlevel 1 (

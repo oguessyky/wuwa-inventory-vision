@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { address, downloads, packages, version, type Lang } from '@/lib/content';
+import { address, downloads, guideSteps, packages, version, type Lang } from '@/lib/content';
 import { BASE, Frame, REPO } from './Doc';
 import { Icons } from './Icons';
-import { DownloadLink } from './Download';
-import { SetupPicker } from './SetupPicker';
+import { SetupPicker, type Pack } from './SetupPicker';
 import { ld, NAME, SITE } from '@/lib/seo';
 
 // The help site's landing page (D214). The user, 2026-10-27: "the help site should have a good
@@ -26,7 +25,7 @@ const W = {
       ['它读出每一格', '名称、稀有度、数量；武器还有等级、谐振和装配在谁身上。游戏自己的格数告诉它扫全了没有。'],
       ['告诉你下一步', '每种材料对照每个共鸣者和武器的完整配置，合成也算进去：还缺多少、去哪刷、商店买什么。'],
     ],
-    waysH: '你该下载哪个？', waysSub: '回答两个问题，就知道要哪个包、怎么装。',
+    waysH: '你该下载哪个？', waysSub: '点两下：画出你的装法，要下载的包和装好的每一步都在下面。',
     pagesH: '每一页都在帮你算', pagesSub: '中文、拼音、首字母、英文都能搜到。每一页都适配手机。',
     shots: [
       ['inventory', '库存', '跨扫描合并的全部物品：从哪来、用在哪，数量可以直接改。'],
@@ -43,9 +42,6 @@ const W = {
       ['数据在你这里', '只在你点了按钮的时候才联网：下载图鉴、更新程序。'],
     ],
     safeMore: '安全与隐私',
-    dlH: '下载', dlSub: (v: string) => `v${v}，选你要的那个包，点一下就开始下载。每个包里都有图文指南 START-HERE。`,
-    dlZip: '下载', dlGuide: '指南', dlAll: '所有版本和更新说明', dlSums: '校验文件 SHA256SUMS',
-    dlUnblock: 'Windows：解压前右键压缩包 → 属性 → 勾选「解除锁定」。',
     endH: '现在就开始', endSub: '需要 Windows 10/11 或装了官方 Mac 客户端的 macOS，大约 6 GB 硬盘。有 NVIDIA 显卡会快很多，但不是必需的。',
   },
   en: {
@@ -62,7 +58,7 @@ const W = {
       ['It reads every tile', 'Name, rarity and count; for weapons also the level, refinement and who has it equipped. The game\'s own count says when a scan is complete.'],
       ['It tells you what is next', 'Every material against every resonator\'s and weapon\'s full build, synthesis counted: what is short, where to farm it, what to buy.'],
     ],
-    waysH: 'Which one do you need?', waysSub: 'Two questions, and you know which package and how to set it up.',
+    waysH: 'Which one do you need?', waysSub: 'Two taps: your setup drawn, with the packages to download and every step to set them up.',
     pagesH: 'Every page does the sums', pagesSub: 'Find anything by English, Chinese, pinyin or initials. Every page fits a phone.',
     shots: [
       ['inventory', 'Inventory', 'Everything you own, merged across scans: where it comes from, what uses it, counts you can fix.'],
@@ -79,9 +75,6 @@ const W = {
       ['Your data stays with you', 'It goes online only when you press the button: the catalogue, an update.'],
     ],
     safeMore: 'Safety and privacy',
-    dlH: 'Download', dlSub: (v: string) => `v${v}. Pick your package; a click starts the download. Each one carries its picture guide, START-HERE.`,
-    dlZip: 'Download', dlGuide: 'Guide', dlAll: 'Every version and its notes', dlSums: 'Checksums, SHA256SUMS',
-    dlUnblock: 'Windows: before unzipping, right-click the zip → Properties → tick Unblock.',
     endH: 'Start now', endSub: 'Windows 10/11, or macOS with Kuro\'s own Mac client, and about 6 GB of disk. An NVIDIA graphics card makes it much faster, but it is not needed.',
   },
 };
@@ -132,11 +125,17 @@ export function Landing({ lang }: { lang: Lang }) {
   const w = W[lang];
   const v = version();
   const pic = (name: string) => `${BASE}/screens/${lang === 'en' ? 'en/' : ''}${name}.png`;
-  const guide = (kind: string) => (kind.startsWith('mac-')
-    ? { href: `${lang === 'en' ? '/en' : ''}/guides/${kind}/`, inside: true }
-    : { href: `${BASE}/guides/${kind}.html`, inside: false });
-  const hrefs = { install: address(lang, 'install'), home: address(lang, 'home'), mac: address(lang, 'mac') };
+  // each package as the picker's answer shows it (D228): its zip, its guide, its guide's steps
   const zips = downloads();
+  const packs: Record<string, Pack> = Object.fromEntries(packages().map(p => [p.kind, {
+    kind: p.kind, name: p[lang], for: lang === 'en' ? p.for_en : p.for_zh,
+    url: zips[p.kind].url, file: zips[p.kind].file, guide: `${BASE}/guides/${p.kind}.html`,
+    // the setting up only: the server's guide goes on to updating, a second server, moving it --
+    // and connecting a scanner, which the scanner's card has (as the server page shows it, D219)
+    steps: guideSteps(p.kind, lang).filter(st => p.kind !== 'server' || st.n <= 5)
+      .map(st => st.title.replace(/<[^>]+>/g, '')),
+  }]));
+  const hrefs = { install: address(lang, 'install'), server: address(lang, 'server'), mac: address(lang, 'mac') };
   const icons = [Icons.bag, Icons.tiles, Icons.plan];
   const safeIcons = [Icons.pixels, Icons.shield, Icons.idWiped, Icons.home];
   const trustIcons = [Icons.pixels, Icons.home, Icons.phone];
@@ -150,7 +149,7 @@ export function Landing({ lang }: { lang: Lang }) {
             <h1>{w.title[0]}<br />{w.title[1]}<em>{w.title[2]}</em></h1>
             <p className="lede">{w.lede}</p>
             <div className="ctas">
-              <a className="btn gold dlb" href="#download">{Icons.download}{w.download(v)}</a>
+              <a className="btn gold dlb" href="#setup">{Icons.download}{w.download(v)}</a>
               <a className="btn line" href="#setup">{Icons.guide}{w.how}</a>
             </div>
             <ul className="trust">{w.trust.map((t, i) => <li key={t}>{trustIcons[i]}{t}</li>)}</ul>
@@ -177,35 +176,12 @@ export function Landing({ lang }: { lang: Lang }) {
         </section>
 
         <section className="band ways" id="setup">
+          {/* the download list was here: an old link to #download lands on the picker (D228) */}
+          <span id="download" className="anchor" aria-hidden="true" />
           <h2>{w.waysH}</h2>
           <p className="sub">{w.waysSub}</p>
-          <SetupPicker lang={lang} zips={zips} hrefs={hrefs} />
-        </section>
-
-        <section className="band dl" id="download">
-          <h2>{w.dlH}</h2>
-          <p className="sub">{w.dlSub(v)}</p>
-          <ul className="zips">
-            {packages().map(p => {
-              const z = zips[p.kind];
-              const g = guide(p.kind);
-              return (
-                <li key={p.kind}>
-                  <span className="ic">{p.kind.startsWith('mac') ? Icons.mac : p.kind === 'home' ? Icons.home : Icons.pc}</span>
-                  <div className="z-t"><b>{p[lang]}</b><code>{p.kind}</code><p>{lang === 'en' ? p.for_en : p.for_zh}</p></div>
-                  <div className="z-a">
-                    {g.inside ? <Link className="z-g" href={g.href}>{Icons.guide}{w.dlGuide}</Link> : <a className="z-g" href={g.href}>{Icons.guide}{w.dlGuide}</a>}
-                    <DownloadLink className="btn gold z-d" href={z.url}>{w.dlZip}<small>.zip</small></DownloadLink>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="z-more">{w.dlUnblock}</p>
-          <p className="z-more">
-            <a href={`${REPO}/releases/tag/v${v}`} target="_blank" rel="noopener noreferrer">{w.dlAll} ›</a>
-            <a href={`${REPO}/releases/download/v${v}/SHA256SUMS.txt`} download>{w.dlSums}</a>
-          </p>
+          <SetupPicker lang={lang} packs={packs} hrefs={hrefs}
+                       all={`${REPO}/releases/tag/v${v}`} sums={`${REPO}/releases/download/v${v}/SHA256SUMS.txt`} />
         </section>
 
         <section className="band shots">
@@ -237,7 +213,7 @@ export function Landing({ lang }: { lang: Lang }) {
           <h2>{w.endH}</h2>
           <p className="sub">{w.endSub}</p>
           <div className="ctas">
-            <a className="btn gold dlb" href="#download">{Icons.download}{w.download(v)}</a>
+            <a className="btn gold dlb" href="#setup">{Icons.download}{w.download(v)}</a>
             <a className="btn line" href="#setup">{Icons.guide}{w.how}</a>
           </div>
         </section>

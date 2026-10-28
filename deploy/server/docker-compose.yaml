@@ -1,9 +1,9 @@
-# WuWa Inventory Vision -- the home (PLAN.md D183, D186). Paste this whole file into your NAS's
+# WuWa Inventory Vision -- the server (PLAN.md D183, D186). Paste this whole file into your NAS's
 # Docker app as it is: Project -> Create project ->
 #   Name:                  wuwa-inventory-vision
 #   Storage path:          an empty folder (the data is kept there)
 #   Compose configuration: this file, with your Tailscale auth key over tskey-auth-PUT-YOURS-HERE
-# -> Deploy. Then open http://wuwa-home.<your tailnet>.ts.net:4000 and, the first time, press
+# -> Deploy. Then open http://wuwa-server.<your tailnet>.ts.net:4000 and, the first time, press
 # 从 Wiki 更新 on its 更新 page. (Anywhere else with Docker: save it as docker-compose.yaml in a
 # folder and `docker compose up -d` there. The key may then go in a .env beside it instead.)
 #
@@ -33,20 +33,22 @@ services:
     environment:
       # your key, from https://login.tailscale.com/admin/settings/keys -- used once, on the first start
       TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}
-      # this home's name on your tailnet; a second home beside it takes another (wuwa-home-test)
-      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-home}
+      # this server's name on your tailnet; a second server beside it takes another (wuwa-server-test).
+      # Set up before 1.2.0? It is called wuwa-home: write wuwa-home here to keep it, or connect
+      # your scanners again (D225)
+      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}
     volumes:
       - ./tailscale-state:/var/lib/tailscale
 
   wuwa:
-    image: ${WUWA_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-home}:${WUWA_VERSION:-latest}
+    image: ${WUWA_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-server}:${WUWA_VERSION:-latest}
     restart: unless-stopped
     network_mode: service:net
     depends_on:
       - net
       - tailscale
     volumes:
-      # the database, the scan crops, the catalogue and the upload key (home.key)
+      # the database, the scan crops, the catalogue and the upload key (server.key)
       - ${WUWA_DATA:-./data}:/app/data
-      # read once, on the very first start, if it is there (a copy of a home moved here)
+      # read once, on the very first start, if it is there (a copy of a server moved here)
       - ./seed-data:/seed:ro

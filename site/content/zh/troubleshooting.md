@@ -64,33 +64,33 @@ uv run python -m wuwa_vision live --identify --panic-key F10
 uv run python -m wuwa_vision platform
 ```
 
-## 主机和手机
+## 服务器和手机
 
 ### 手机打不开这个网站
 
-电脑（或主机）和手机都要装好 Tailscale，并登录同一个账号。只有一台电脑的话，启动页面时不要加 `--local`，然后在手机上打开它印出的网址。
+电脑（或服务器）和手机都要装好 Tailscale，并登录同一个账号。只有一台电脑的话，启动页面时不要加 `--local`，然后在手机上打开它印出的网址。
 
-### 主机的地址打不开
+### 服务器的地址打不开
 
-看 Tailscale 容器的日志有没有登录成功：`TS_AUTHKEY` 还是 `tskey-auth-PUT-YOURS-HERE`，或者密钥已经用过了，都不行。在 Tailscale 管理后台，`wuwa-home` 要显示为已连接。
+看 Tailscale 容器的日志有没有登录成功：`TS_AUTHKEY` 还是 `tskey-auth-PUT-YOURS-HERE`，或者密钥已经用过了，都不行。在 Tailscale 管理后台，`wuwa-server` 要显示为已连接。
 
-### 几个月后主机要求重新登录
+### 几个月后服务器要求重新登录
 
-这个设备开着密钥过期：在 Tailscale 管理后台把 `wuwa-home` 的 **key expiry** 关掉，再重新部署。
+这个设备开着密钥过期：在 Tailscale 管理后台把 `wuwa-server` 的 **key expiry** 关掉，再重新部署。
 
-### 连接主机时说「钥匙」不对
+### 连接服务器时说「钥匙」不对
 
-密钥是主机存储路径里的 `data/home.key`。用 NAS 的文件管理器把它下载到「下载」文件夹，再双击 **`2 连接主机 Connect home`**，钥匙那一步直接按回车：它会拿「下载」里最新的 `home*.key`。下载过好几次也没关系。
+密钥是服务器存储路径里的 `data/server.key`。用 NAS 的文件管理器把它下载到「下载」文件夹，再双击 **`2 连接服务器 Connect server`**，钥匙那一步直接按回车：它会拿「下载」里最新的 `server*.key`。下载过好几次也没关系。
 
 ### 扫描时说「两边的版本不一样」
 
-两边传送的数据格式变了：把扫描端和主机都更新到同一个版本，见[更新](/update)。
+两边传送的数据格式变了：把扫描端和服务器都更新到同一个版本，见[更新](/update)。
 
-### 主机更新后启动不了：「joining network namespace of container: No such container」
+### 服务器更新后启动不了：「joining network namespace of container: No such container」
 
-主机的程序住在 Tailscale 容器的网络里。更新时换了一个新的 Tailscale 容器，旧的程序容器还指着已经删掉的那个，所以起不来。在 NAS 的 Docker 应用里先**停止**这个项目，再**重新部署**（重建，不是直接启动）；或者只删掉 `…-wuwa-1` 这个容器，再启动项目。数据都在项目的 `data` 文件夹里，不会受影响。
+服务器的程序住在 Tailscale 容器的网络里。更新时换了一个新的 Tailscale 容器，旧的程序容器还指着已经删掉的那个，所以起不来。在 NAS 的 Docker 应用里先**停止**这个项目，再**重新部署**（重建，不是直接启动）；或者只删掉 `…-wuwa-1` 这个容器，再启动项目。数据都在项目的 `data` 文件夹里，不会受影响。
 
-从 v1.1.3 起，配置文件里多了一个很小的 `net` 容器专门拿着网络，更新永远不会换掉它，所以不会再这样。v1.1.3 之前装的主机，把新的配置文件粘贴进项目一次，再部署。
+从 v1.1.3 起，配置文件里多了一个很小的 `net` 容器专门拿着网络，更新永远不会换掉它，所以不会再这样。v1.1.3 之前装的服务器，把新的配置文件粘贴进项目一次，再部署。
 
 ### 启动时说「cannot join network namespace of a non running container」
 

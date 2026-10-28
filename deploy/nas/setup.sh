@@ -1,5 +1,5 @@
 #!/bin/sh
-# Set the home up on a NAS, and bring it up to date afterwards (docs/nas.md).
+# Set the server up on a NAS, and bring it up to date afterwards (docs/nas.md).
 #
 #   sh setup.sh
 #
@@ -56,4 +56,4 @@ host=$(ts status --self --json 2>/dev/null | sed -n 's/.*"DNSName": *"\([^"]*\)\
 echo
 echo "4. open:  http://${host:-<this NAS's tailnet name>}:4000"
 echo "   on the PC with the game, once:"
-echo "     uv run python -m wuwa_vision home set http://${host:-<name>}:4000 $(docker exec "$name" cat /app/data/home.key)"
+echo "     uv run python -m wuwa_vision server set http://${host:-<name>}:4000 $(docker exec "$name" cat /app/data/server.key)"

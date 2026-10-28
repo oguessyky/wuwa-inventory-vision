@@ -22,4 +22,4 @@ Tiles marked **to confirm** (items drawn identically, or new in a patch) want on
 
 Press **F9** (Ctrl+C in Terminal on a Mac). Everything read is kept. If F9 is taken, see [Troubleshooting](/troubleshooting).
 
-With a home, each tab is sent as it is done; if the home cannot be reached it scans anyway and sends it next time.
+With a server, each tab is sent as it is done; if the server cannot be reached it scans anyway and sends it next time.

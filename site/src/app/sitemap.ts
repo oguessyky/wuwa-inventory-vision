@@ -1,5 +1,4 @@
 import type { MetadataRoute } from 'next';
-import { macKinds } from '@/components/Doc';
 import { address, pages, type Lang } from '@/lib/content';
 
 // Every page of the help site for search engines (D214): each in Chinese, with its English page
@@ -21,6 +20,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }));
   return [
     ...pages().flatMap(p => both(address('zh', p.slug), address('en', p.slug), p.slug === 'index' ? 1 : 0.7)),
-    ...macKinds().flatMap(kind => both(`/guides/${kind}/`, `/en/guides/${kind}/`, 0.5)),
   ];
 }

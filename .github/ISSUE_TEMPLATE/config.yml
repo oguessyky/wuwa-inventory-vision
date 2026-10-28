@@ -1,0 +1,9 @@
+# Every issue starts from a form (PLAN.md D226); help is one link away.
+blank_issues_enabled: false
+contact_links:
+  - name: 出了问题怎么办 · Troubleshooting
+    url: https://oguessyky.github.io/wuwa-inventory-vision/troubleshooting/
+    about: 常见问题，一问一答 · Common problems, one answer each
+  - name: 帮助网站 · The help site
+    url: https://oguessyky.github.io/wuwa-inventory-vision/
+    about: 安装、扫描、各个页面 · Installing, scanning, the pages

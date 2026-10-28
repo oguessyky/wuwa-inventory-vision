@@ -16,7 +16,7 @@ It is an unofficial fan-made tool, not affiliated with Kuro Games; whether to us
 - **The player ID goes first**: it is wiped from every picture before it is saved or shown.
 - **Everything stays on your own devices.** No analytics, no crash reports, no ads.
 - Your phone sees it through **your own** Tailscale network, never the internet.
-- A scanner sends its home only what it read and small item pictures, **never a whole frame**.
+- A scanner sends its server only what it read and small item pictures, **never a whole frame**.
 
 ## When it goes online
 

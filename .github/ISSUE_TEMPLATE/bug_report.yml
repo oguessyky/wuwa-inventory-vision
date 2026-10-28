@@ -1,0 +1,84 @@
+# A bug report (PLAN.md D226): what the project needs to act on it, and nothing it must never hold.
+name: 问题报告 · Bug report
+description: 有什么不对：扫描、页面、安装、服务器 · Something is wrong with a scan, a page, the setup or the server
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        谢谢你来报告！先看看[出了问题怎么办](https://oguessyky.github.io/wuwa-inventory-vision/troubleshooting/)，很多问题那里有答案。
+        Thanks for reporting! [Troubleshooting](https://oguessyky.github.io/wuwa-inventory-vision/en/troubleshooting/) answers many questions first.
+
+        **别贴出你的玩家 UID（特征码）、联机好友的名字，也别附上 `data` 文件夹或数据库。** 截图前先把它们遮住。
+        **Never post your player UID (特征码), co-op friends' names, or the `data` folder or database.** Cover them in a screenshot first.
+  - type: dropdown
+    id: package
+    attributes:
+      label: 哪个程序包 · Which package
+      options:
+        - 完整版 Full (full)
+        - 扫描端 Scanner (scanner)
+        - 服务器 Server (server)
+        - Mac 完整版 Mac full (mac-full)
+        - Mac 扫描端 Mac scanner (mac-scanner)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本 · Version
+      description: 「更新 › 数据 › 版本」，或程序包文件夹里的 VERSION · Update › Data › Versions, or VERSION in the package's folder
+      placeholder: "1.2.0"
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: 电脑 · Computer
+      description: 系统和显卡 · The system and the graphics card
+      placeholder: Windows 11, NVIDIA RTX 4070 / macOS 15, Apple M2 / UGREEN NAS (UGOS)
+    validations:
+      required: true
+  - type: input
+    id: screen
+    attributes:
+      label: 游戏窗口的大小 · The game window's size
+      description: "扫描的问题才要：分辨率和是否全屏 · Only for a scan: its resolution, and whether it is full screen"
+      placeholder: 2560×1440, full screen
+  - type: textarea
+    id: happened
+    attributes:
+      label: 发生了什么 · What happened
+      description: 看到了什么，或者哪里不对 · What you saw, or what is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 怎么能再出现 · How to make it happen again
+      placeholder: |
+        1. 双击 2 扫描 Scan · Double-click 2 扫描 Scan
+        2. …
+  - type: textarea
+    id: expected
+    attributes:
+      label: 应该是什么样 · What should have happened
+  - type: textarea
+    id: logs
+    attributes:
+      label: 窗口里的文字 · What the window said
+      description: 终端或扫描页里的文字，原样贴上（先删掉 UID）· The terminal's or the scan page's text, as it is (with the UID removed first)
+      render: text
+  - type: textarea
+    id: pictures
+    attributes:
+      label: 截图 · Screenshots
+      description: 可以拖进来；先遮住特征码和别人的名字 · Drag them in; cover the 特征码 and other people's names first
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 发之前 · Before sending
+      options:
+        - label: 我贴的东西里没有玩家 UID（特征码）、别人的名字，也没有 data 文件夹或数据库 · Nothing here holds a player UID (特征码), anyone else's name, or the data folder or database
+          required: true

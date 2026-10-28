@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update to the home's version, only when the home says this one is behind (D203, D204).
+# Update to the server's version, only when the server says this one is behind (D203, D204).
 # Runs from a copy: a script rewritten while it runs would go wrong.
 if [ "$1" != "--copy" ]; then
   copy="${TMPDIR:-/tmp}/wuwa-update.command"

@@ -9,12 +9,12 @@ import { Icon } from './Icons';
 // they are written there.
 
 export interface Part {
-  kind: 'full' | 'scanner' | 'home';
+  kind: 'full' | 'scanner' | 'server' | 'mac-full' | 'mac-scanner';
   /** a heading above this part's steps, when a page has more than one part */
   title?: { zh: string; en: string };
   /** the steps to show, by number; the rest are left to the full guide */
   only?: number[];
-  /** the step that pastes the home's compose file: the file itself goes under it, to copy */
+  /** the step that pastes the server's compose file: the file itself goes under it, to copy */
   yaml?: number;
 }
 

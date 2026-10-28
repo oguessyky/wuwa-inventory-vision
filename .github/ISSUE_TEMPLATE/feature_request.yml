@@ -1,0 +1,45 @@
+# A feature request (PLAN.md D226): what is missing, and what the project will never do.
+name: 想要的功能 · Feature request
+description: 想要它多做点什么 · Something you would like it to do
+title: "[Idea] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这个工具**只读屏幕像素**：不读游戏内存或文件、不抓网络包，也不会替你玩、不会自动操作，不做任何改变账号的事（使用、合成、出售、丢弃）。需要这些的想法没法做，谢谢理解。
+        This tool **only reads screen pixels**: it never reads the game's memory or files or its network traffic, never plays or automates anything for you, and never changes your account (use, craft, sell, discard). Ideas that need any of that cannot be done -- thanks for understanding.
+  - type: dropdown
+    id: area
+    attributes:
+      label: 哪一部分 · Which part
+      options:
+        - 扫描 Scanning
+        - 总览 Dashboard
+        - 规划 / 材料 Planner / Materials
+        - 共鸣者 / 武器 Resonators / Weapons
+        - 库存 / 商店 / 料理 Inventory / Shops / Cooking
+        - 服务器 / 手机 Server / Phone
+        - 安装 / 更新 Setup / Updating
+        - 帮助网站 Help site
+        - 其他 Something else
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 现在哪里不方便 · What is hard now
+      description: 你想做什么，现在为什么做不到或很麻烦 · What you want to do, and why it is hard or impossible now
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: 你想要的样子 · What you would like
+    validations:
+      required: true
+  - type: textarea
+    id: else
+    attributes:
+      label: 别的办法 · Other ways
+      description: 你现在怎么凑合，或者别的工具怎么做 · How you get by now, or how another tool does it

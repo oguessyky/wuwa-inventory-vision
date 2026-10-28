@@ -15,9 +15,9 @@
    "about_en": "Everything on one PC: the scanner and the pages"
   },
   {
-   "slug": "home",
-   "zh": "用 NAS 当主机",
-   "en": "A home on a NAS",
+   "slug": "server",
+   "zh": "用 NAS 当服务器",
+   "en": "A server on a NAS",
    "group": "install",
    "about_zh": "数据放在 NAS 上，手机随时能看",
    "about_en": "The data on a NAS, open from your phone anytime"
@@ -53,6 +53,14 @@
    "group": "use",
    "about_zh": "新图鉴，新版本",
    "about_en": "A new catalogue, a new version"
+  },
+  {
+   "slug": "versions",
+   "zh": "版本记录",
+   "en": "Release notes",
+   "group": "use",
+   "about_zh": "每个版本改了扫描端还是服务器",
+   "about_en": "What each version changed, scanner or server"
   },
   {
    "slug": "troubleshooting",

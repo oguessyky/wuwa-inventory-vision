@@ -64,29 +64,29 @@ Almost always Screen Recording is not allowed: **System Settings → Privacy & S
 uv run python -m wuwa_vision platform
 ```
 
-## The home and the phone
+## The server and the phone
 
 ### The phone cannot open the site
 
-The PC (or the home) and the phone both need Tailscale, signed in to the same account. With one PC only, start the pages without `--local`, then open the address it prints on the phone.
+The PC (or the server) and the phone both need Tailscale, signed in to the same account. With one PC only, start the pages without `--local`, then open the address it prints on the phone.
 
-### The home's address does not open
+### The server's address does not open
 
-Check the Tailscale container's log for a login: a `TS_AUTHKEY` left as `tskey-auth-PUT-YOURS-HERE`, or a key already used up, will not do. In the Tailscale admin console, `wuwa-home` must show as connected.
+Check the Tailscale container's log for a login: a `TS_AUTHKEY` left as `tskey-auth-PUT-YOURS-HERE`, or a key already used up, will not do. In the Tailscale admin console, `wuwa-server` must show as connected.
 
-### The home asks to log in again after months
+### The server asks to log in again after months
 
-Key expiry is on for that device: turn it off for `wuwa-home` in the Tailscale admin console, and redeploy.
+Key expiry is on for that device: turn it off for `wuwa-server` in the Tailscale admin console, and redeploy.
 
-### Connecting to the home says the key is wrong
+### Connecting to the server says the key is wrong
 
-The key is `data/home.key` in the home's storage path. Download it with the NAS's file manager (it lands in Downloads), double-click **`2 连接主机 Connect home`** and press Enter at the key: it takes the newest `home*.key` in Downloads, so downloading it more than once is fine.
+The key is `data/server.key` in the server's storage path. Download it with the NAS's file manager (it lands in Downloads), double-click **`2 连接服务器 Connect server`** and press Enter at the key: it takes the newest `server*.key` in Downloads, so downloading it more than once is fine.
 
-### The home will not start after an update: "joining network namespace of container: No such container"
+### The server will not start after an update: "joining network namespace of container: No such container"
 
-The home's app lives in the Tailscale container's network. The update made a new Tailscale container, and the old app container still points at the one that was removed. In the NAS's Docker app, **stop** the project and **deploy** it again (rebuild, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched.
+The server's app lives in the Tailscale container's network. The update made a new Tailscale container, and the old app container still points at the one that was removed. In the NAS's Docker app, **stop** the project and **deploy** it again (rebuild, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched.
 
-From v1.1.3 the compose file has a tiny third container, `net`, that holds the network and that no update replaces, so this does not happen again. A home set up before v1.1.3: paste the new compose file into the project once, then deploy.
+From v1.1.3 the compose file has a tiny third container, `net`, that holds the network and that no update replaces, so this does not happen again. A server set up before v1.1.3: paste the new compose file into the project once, then deploy.
 
 ### It says "cannot join network namespace of a non running container"
 
@@ -94,7 +94,7 @@ The project's containers were started out of order: press start once more.
 
 ### A scan says the versions differ
 
-What the two send each other changed: update the scanner and the home to the same version, see [Updating](/update).
+What the two send each other changed: update the scanner and the server to the same version, see [Updating](/update).
 
 ### The first catalogue download takes long
 

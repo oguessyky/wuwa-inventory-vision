@@ -1,11 +1,10 @@
-import { MacGuide, macKinds, macMetadata } from '@/components/Doc';
+import { Moved, movedMetadata } from '@/components/Doc';
 
-// A Mac package's guide (D214): /guides/mac-full/ and /guides/mac-scanner/.
+// The Mac guides' old pages (D214), /en/guides/mac-full/ and /en/guides/mac-scanner/: their steps
+// are pictures on the Mac page now (D228), so the old address forwards there.
 export const dynamicParams = false;
-export const generateStaticParams = () => macKinds().map(kind => ({ slug: 'guides', kind }));
-export async function generateMetadata({ params }: { params: Promise<{ slug: string; kind: string }> }) {
-  return macMetadata('en', (await params).kind);
-}
-export default async function Page({ params }: { params: Promise<{ slug: string; kind: string }> }) {
-  return <MacGuide lang="en" kind={(await params).kind} />;
+export const generateStaticParams = () => ['mac-full', 'mac-scanner'].map(kind => ({ slug: 'guides', kind }));
+export const metadata = movedMetadata('en', 'mac');
+export default function Page() {
+  return <Moved lang="en" to="mac" />;
 }

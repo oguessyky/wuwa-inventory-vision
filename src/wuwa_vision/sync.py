@@ -83,7 +83,12 @@ _FACE = ("key", "name", "backbone", "embedding", "created_at", "named_at", "sugg
 #: Gallery rows that are the catalogue, not a scan: every machine builds its own
 #: from the shipped pack (`seed`), so they are never sent.
 _REFERENCE = "reference"
-HOME_KEY_FILE, HOME_FILE = "home.key", "home.json"
+#: The server's key (D225: the home is the server), and where a scanner keeps its server.
+#: `home.key` is the name it had before 1.2.0: a server still holding one copies it.
+SERVER_KEY_FILE, OLD_KEY_FILE, HOME_FILE = "server.key", "home.key", "home.json"
+#: Enter at the address question: the server's name on the tailnet, then the name it had
+#: before 1.2.0, which every server set up until then still answers to (D225).
+DEFAULT_SERVERS = ("wuwa-server", "wuwa-home")
 
 
 class SyncError(Exception):
@@ -301,7 +306,7 @@ def need(store: Store, offered: dict) -> dict:
     """Of what a scanner offers, what this home does not have yet."""
     _same_protocol(offered)
     if int(offered.get("epoch") or 0) != store.sync_epoch():
-        raise SyncError("扫描数据在主机上被清空过；先同步（pull）再上传。")
+        raise SyncError("扫描数据在服务器上被清空过；先同步（pull）再上传。")
     known_scans = {r["uid"] for r in store.conn.execute("SELECT uid FROM scan")}
     gallery, faces = _learned(store)
     on_disk = {p.stem for p in store.icon_dir.glob("*.webp")}
@@ -319,7 +324,7 @@ def need(store: Store, offered: dict) -> dict:
 def _same_protocol(said: dict) -> None:
     if said.get("protocol") != PROTOCOL:
         raise SyncError(f"两边的版本不一样（这边是 {PROTOCOL}，对面是 {said.get('protocol')}）；"
-                        "把扫描端和主机更新到同一个版本。")
+                        "把扫描端和服务器更新到同一个版本。")
 
 
 def _insert_scan(conn: sqlite3.Connection, scan: dict) -> int:
@@ -369,7 +374,7 @@ def receive(store: Store, data: bytes) -> dict:
         raise SyncError("上传的内容读不出来。")
     _same_protocol(said)
     if int(said.get("epoch") or 0) != store.sync_epoch():
-        raise SyncError("扫描数据在主机上被清空过；先同步（pull）再上传。")
+        raise SyncError("扫描数据在服务器上被清空过；先同步（pull）再上传。")
 
     took = {"scans": 0, "known": 0, "observations": 0, "gallery": 0, "faces": 0,
             "weapon_kinds": 0, "aliases": 0, "wallet": 0, "icons": 0}
@@ -544,9 +549,14 @@ def catalogue_file(directory: Path, rel: str) -> Path | None:
 # ------------------------------------------------------------------- keys and config
 
 
-def home_key(data_dir: Path, create: bool = False) -> str | None:
-    """The key a scanner must show to upload. Kept beside the data, made on first use."""
-    path = data_dir / HOME_KEY_FILE
+def server_key(data_dir: Path, create: bool = False) -> str | None:
+    """The key a scanner must show to upload. Kept beside the data, made on first use. A
+    `home.key` from before 1.2.0 is copied to `server.key`: the same key, so every scanner given
+    it still fits; and copied, not moved, so the server can go back to 1.1.4 and find its own
+    key there (D225)."""
+    path, old = data_dir / SERVER_KEY_FILE, data_dir / OLD_KEY_FILE
+    if not path.is_file() and old.is_file():
+        path.write_bytes(old.read_bytes())
     if path.is_file():
         return path.read_text(encoding="utf-8").strip() or None
     if not create:
@@ -592,8 +602,8 @@ def check_address(url: str, resolve: Callable[[str], str | None] = _resolve) -> 
     parts = urllib.parse.urlsplit(f"http://{said}" if bare else said)
     host = (parts.hostname or "").lower()
     if parts.scheme not in ("http", "https") or not host or parts.username or parts.query:
-        raise SyncError("主机地址要写成 http://名字.ts.net:端口、100.x，"
-                        "或者设备名（如 wuwa-home）。")
+        raise SyncError("服务器地址要写成 http://名字.ts.net:端口、100.x，"
+                        "或者设备名（如 wuwa-server）。")
     ok = host == "localhost" or host.endswith(".ts.net")
     if not ok:
         try:
@@ -607,7 +617,7 @@ def check_address(url: str, resolve: Callable[[str], str | None] = _resolve) -> 
             except ValueError:
                 ok = False
     if not ok:
-        raise SyncError("主机只能是 tailnet 上的地址（…ts.net、100.x 或 Tailscale 里的设备名），"
+        raise SyncError("服务器只能是 tailnet 上的地址（…ts.net、100.x 或 Tailscale 里的设备名），"
                         "不能是局域网或公网地址。")
     port = parts.port or (HOME_PORT if bare else None)
     return f"{parts.scheme}://{host}" + (f":{port}" if port else "")
@@ -661,10 +671,11 @@ def downloads_folder() -> Path:
 
 
 def find_key(said: str | None) -> tuple[str | None, Path | None]:
-    """The home's key from what was typed at the key question (D220): the key itself; a path to
-    a key file (one dragged into the window); or nothing, which takes the newest home*.key in
-    Downloads -- a browser names a second download `home (1).key`. Returns (key, the file it
-    came from), or (None, None) when there is none."""
+    """The server's key from what was typed at the key question (D220): the key itself; a path
+    to a key file (one dragged into the window); or nothing, which takes the newest server*.key
+    in Downloads -- a browser names a second download `server (1).key` -- or, from a server not
+    yet on 1.2.0, the newest home*.key (D225). Returns (key, the file it came from), or
+    (None, None) when there is none."""
     said = (said or "").strip().strip('"').strip("'")
     if said:
         given = Path(said)
@@ -675,8 +686,9 @@ def find_key(said: str | None) -> tuple[str | None, Path | None]:
             pass
         return said, None
     folder = downloads_folder()
-    found = sorted((p for p in folder.glob("home*.key") if p.is_file()),
-                   key=lambda p: p.stat().st_mtime, reverse=True)
+    newest = lambda pattern: sorted((p for p in folder.glob(pattern) if p.is_file()),  # noqa: E731
+                                    key=lambda p: p.stat().st_mtime, reverse=True)
+    found = newest("server*.key") + newest("home*.key")
     for path in found:
         try:
             key = path.read_text(encoding="utf-8").strip()
@@ -895,9 +907,9 @@ class Home:
                 detail = json.loads(exc.read()).get("detail")
             except (ValueError, AttributeError):
                 detail = None
-            raise SyncError(str(detail or f"主机回答 {exc.code}")) from exc
+            raise SyncError(str(detail or f"服务器回答 {exc.code}")) from exc
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            raise SyncError(f"连不上主机 {self.url}（{getattr(exc, 'reason', exc)}）") from exc
+            raise SyncError(f"连不上服务器 {self.url}（{getattr(exc, 'reason', exc)}）") from exc
 
     def _ask(self, path: str, body: bytes | None = None, kind: str = "application/json") -> bytes:
         """`_call`, with whoever is watching told what crossed."""
@@ -911,12 +923,12 @@ class Home:
         try:
             return json.loads(self._ask(path, body))
         except ValueError as exc:
-            raise SyncError("主机的回答读不出来；那个地址上是这个程序吗？") from exc
+            raise SyncError("服务器的回答读不出来；那个地址上是这个程序吗？") from exc
 
     def hello(self) -> dict:
         said = self._json("/api/sync/hello")
         if said.get("app") != "wuwa-vision" or not said.get("home"):
-            raise SyncError("那个地址上的程序不是主机（要用 serve --home 启动）。")
+            raise SyncError("那个地址上的程序不是服务器（要用 serve --server 启动）。")
         _same_protocol(said)
         return said
 

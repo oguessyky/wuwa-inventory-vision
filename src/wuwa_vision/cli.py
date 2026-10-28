@@ -436,7 +436,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     # learns what the home knows first (D145). One on its own does neither.
     home = _home(args.db)
     if home is not None:
-        say(f"home: {home.url} -- each tab goes there once it is finished, "
+        say(f"server: {home.url} -- each tab goes there once it is finished, "
             "the rest when the scan ends")
         _watch_sync(home, state)
         _sync_before(args.db, home, say)
@@ -732,16 +732,16 @@ def _sync_before(db: Path | str, home, say=print) -> None:  # noqa: ANN001 -- sy
     try:
         sent = home.push(store)
         if sent.get("scans"):
-            say(f"  home: sent {sent['scans']} scan(s) kept from before")
+            say(f"  server: sent {sent['scans']} scan(s) kept from before")
         took = home.pull(store, Path(CATALOGUE_DIR))
         if took.get("set_aside"):
-            say(f"  home: its scans were wiped; this copy was set aside in {took['set_aside']}")
+            say(f"  server: its scans were wiped; this copy was set aside in {took['set_aside']}")
         learned = {k: v for k, v in took.items() if v and k != "set_aside"}
-        say("  home: up to date" if not learned else
-            "  home: fetched " + ", ".join(f"{v} {k}" for k, v in learned.items()))
+        say("  server: up to date" if not learned else
+            "  server: fetched " + ", ".join(f"{v} {k}" for k, v in learned.items()))
         _say_versions(home.hello(), say)
     except sync.SyncError as exc:
-        say(f"  ! home: {exc}")
+        say(f"  ! server: {exc}")
         say("    scanning on this machine's copy; the scan is kept and sent next time")
     finally:
         store.close()
@@ -759,7 +759,7 @@ def _say_versions(hello: dict, say=print) -> None:
 
     line = versions.say(said)
     if line:
-        say(("  ! " if said["update"] == "mine" else "  ") + "home: " + line)
+        say(("  ! " if said["update"] == "mine" else "  ") + "server: " + line)
     if hint(said):
         say("    " + hint(said))
 
@@ -773,10 +773,10 @@ def _sync_after(db: Path | str, home, say=print) -> None:  # noqa: ANN001 -- syn
     try:
         sent = home.push(store)
         waiting = len(sync.unsent_scans(store))
-        say(f"home: sent {sent.get('scans', 0)} scan(s) to {home.url}"
+        say(f"server: sent {sent.get('scans', 0)} scan(s) to {home.url}"
             + (f"; {waiting} still waiting" if waiting else ""))
     except sync.SyncError as exc:
-        say(f"! home: {exc}")
+        say(f"! server: {exc}")
         say(f"  {len(sync.unsent_scans(store))} scan(s) kept here; "
             "they go with the next scan, or now with: wuwa push")
     finally:
@@ -795,7 +795,7 @@ def _sync_line(said: dict) -> str:
     filled = round(20 * fraction) if fraction is not None else 0
     bar = "[" + "#" * filled + "-" * (20 - filled) + "]"
     percent = f"{100 * fraction:3.0f}%" if fraction is not None else " ..."
-    parts = [f"{'to home  ' if said.get('way') == 'up' else 'from home'} {bar} {percent}"]
+    parts = [f"{'to server  ' if said.get('way') == 'up' else 'from server'} {bar} {percent}"]
     step, items = said.get("step"), said.get("items") or 0
     size = said.get("bytes")
     by_bytes = (f"{_size(max(size - said['bytes_done'], 0))} left of {_size(size)}"
@@ -887,7 +887,8 @@ def _stay_with_the_page(state) -> None:  # noqa: ANN001 -- LiveState
 
 
 def _cmd_home(args: argparse.Namespace) -> int:
-    """Give this scanner a home, show it, or take it away."""
+    """Give this scanner its server, show it, or take it away (`wuwa server`; `home` before
+    1.2.0, which still answers -- D225)."""
     from . import sync
 
     data = Path(args.db).parent
@@ -896,27 +897,28 @@ def _cmd_home(args: argparse.Namespace) -> int:
         print("this machine is on its own again: scans stay here")
         return 0
     if args.action == "set":
-        if not args.url:
-            print("usage: wuwa home set <address> [key]")
-            print("  the address: wuwa-home, wuwa-home.<tailnet>.ts.net, or 100.x (D189)")
-            print("  the key: the one line in data/home.key on the home, the path to that file,")
-            print("  or nothing: home.key is then taken from your Downloads folder (D220)")
-            return 2
-        # Enter at the key question: the home.key downloaded from the NAS (D220)
+        # Enter at the key question: the server.key downloaded from the NAS (D220)
         key, came_from = sync.find_key(args.key)
         if not key:
-            print(f"no key: home.key is not in {sync.downloads_folder()}")
-            print("  download data/home.key from the home's folder on the NAS,"
+            print(f"no key: server.key is not in {sync.downloads_folder()}")
+            print("  download data/server.key from the server's folder on the NAS,"
                   " then run this again,")
             print("  or paste the key itself (the one line in that file)")
             return 2
         if came_from:
             print(f"key: from {came_from}")
-        try:
-            home = sync.Home(args.url, key)
-            said = home.check()
-        except sync.SyncError as exc:
-            print(f"not set: {exc}")
+        # Enter at the address: wuwa-server, then wuwa-home, the name before 1.2.0 (D225)
+        tries = [args.url.strip()] if (args.url or "").strip() else list(sync.DEFAULT_SERVERS)
+        said, failed = None, []
+        for address in tries:
+            try:
+                home = sync.Home(address, key)
+                said = home.check()
+                break
+            except sync.SyncError as exc:
+                failed.append(f"{address}: {exc}")
+        if said is None:
+            print("not set: " + "; ".join(failed))
             return 1
         sync.write_home(data, home.url, key)
         # This copy joins the home as it is: what it holds is offered, not thrown
@@ -925,20 +927,20 @@ def _cmd_home(args: argparse.Namespace) -> int:
         store.set_setting(sync.SYNC_EPOCH, str(said["epoch"]))
         waiting = len(sync.unsent_scans(store))
         store.close()
-        print(f"home: {home.url}")
+        print(f"server: {home.url}")
         print(f"  every scan from now on is sent there; {waiting} scan(s) here go with the next "
               "one, or now with: wuwa push")
         _say_versions(said)
         return 0
     said = sync.read_home(data)
     if not said:
-        print("no home: this machine keeps its own scans (the default)")
-        print("  to send them to an always-on one: wuwa home set http://<name>.ts.net:4000 <key>")
+        print("no server: this machine keeps its own scans (the default)")
+        print("  to send them to an always-on one: wuwa server set wuwa-server <key>")
         return 0
     store = Store(args.db)
     waiting = len(sync.unsent_scans(store))
     store.close()
-    print(f"home: {said['url']}   ({waiting} scan(s) waiting to be sent)")
+    print(f"server: {said['url']}   ({waiting} scan(s) waiting to be sent)")
     return 0
 
 
@@ -947,7 +949,7 @@ def _cmd_push(args: argparse.Namespace) -> int:
 
     home = _home(args.db)
     if home is None:
-        print("no home set: wuwa home set http://<name>.ts.net:4000 <key>")
+        print("no server set: wuwa server set wuwa-server <key>")
         return 1
     store = Store(args.db)
     _watch_sync(home)
@@ -967,25 +969,36 @@ def _cmd_push(args: argparse.Namespace) -> int:
 NOTHING_TO_UPDATE = 3
 
 
+def _cmd_shortcuts(args: argparse.Namespace) -> int:
+    """Shortcuts on the Desktop and in the Start menu, or take them away (D224)."""
+    from . import shortcuts, versions
+
+    plan = shortcuts.plan(versions.ROOT, sys.platform)
+    if not plan:
+        print("没有可做的快捷方式：只在 Windows 上、解压出来的程序包里才有。")
+        return 1
+    return shortcuts.make(plan, versions.ROOT, remove=args.remove)
+
+
 def _cmd_update(args: argparse.Namespace) -> int:
     """Update this copy to its home's version, only when the home says it is behind (D203)."""
     from . import selfupdate, sync, versions
 
     home = _home(args.db)
     if home is None:
-        print("没有主机：只有主机比这个扫描端新时才会更新（wuwa home set …）。")
+        print("没有服务器：只有服务器比这个扫描端新时才会更新（wuwa server set …）。")
         return 1
     try:
         hello = home.hello()
     except sync.SyncError as exc:
-        print(f"问不到主机：{exc}")
+        print(f"问不到服务器：{exc}")
         return 1
     plan = selfupdate.plan(versions.this_version(), hello, selfupdate.kind_of(versions.ROOT),
                            sys.platform)
     if plan is None:
-        print(f"不用更新：这个扫描端 v{versions.this_version()}，主机 {hello.get('version')}。")
+        print(f"不用更新：这个扫描端 v{versions.this_version()}，服务器 {hello.get('version')}。")
         return NOTHING_TO_UPDATE
-    print(f"更新到主机的版本 v{plan.version}：")
+    print(f"更新到服务器的版本 v{plan.version}：")
     for change in plan.missing:
         print(f"  · {change['zh']}")
     print(f"  从 GitHub 下载 {plan.zip_name} …")
@@ -1004,7 +1017,7 @@ def _cmd_pull(args: argparse.Namespace) -> int:
 
     home = _home(args.db)
     if home is None:
-        print("no home set: wuwa home set http://<name>.ts.net:4000 <key>")
+        print("no server set: wuwa server set wuwa-server <key>")
         return 1
     store = Store(args.db)
     _watch_sync(home)
@@ -1016,7 +1029,7 @@ def _cmd_pull(args: argparse.Namespace) -> int:
     finally:
         store.close()
     if took.get("set_aside"):
-        print(f"the home's scans were wiped; this copy was set aside in {took['set_aside']}")
+        print(f"the server's scans were wiped; this copy was set aside in {took['set_aside']}")
     learned = {k: v for k, v in took.items() if v and k != "set_aside"}
     print("up to date" if not learned else
           "fetched " + ", ".join(f"{v} {k}" for k, v in learned.items()))
@@ -1033,14 +1046,14 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     # Tailscale's own proxy, on the user's tailnet and nowhere else (D108).
     print(f"  main app: http://127.0.0.1:{args.port}")
     key = None
-    if args.home:
+    if args.server:
         # A home takes scans from scanners that show its key (D145). The key is a
         # file beside the data, never printed: whoever can read the file may upload.
         from . import sync
 
-        key = sync.home_key(Path(args.db).parent, create=True)
-        print(f"  home    : takes scans from scanners holding the key in "
-              f"{Path(args.db).parent / sync.HOME_KEY_FILE}")
+        key = sync.server_key(Path(args.db).parent, create=True)
+        print(f"  server  : takes scans from scanners holding the key in "
+              f"{Path(args.db).parent / sync.SERVER_KEY_FILE}")
     else:
         # A scanner's own pages show only what this machine holds: say where the rest is.
         here = _home(args.db)
@@ -1170,26 +1183,34 @@ def main(argv: list[str] | None = None) -> int:
         help="this PC only: do not share the app with your tailnet",
     )
     p_serve.add_argument(
-        "--home", action="store_true",
-        help="be the home of other machines' scans: take uploads from scanners that hold "
-             "the key in data/home.key (made on first start)",
+        "--server", "--home", action="store_true",
+        help="be the server of other machines' scans: take uploads from scanners that hold "
+             "the key in data/server.key (made on first start; --home before 1.2.0)",
     )
     p_serve.set_defaults(func=_cmd_serve)
 
     p_home = sub.add_parser(
-        "home", help="send this machine's scans to an always-on copy of the app on your tailnet")
+        "server", aliases=["home"],
+        help="send this machine's scans to your server: the app, always on, on your tailnet")
     p_home.add_argument("action", nargs="?", choices=["show", "set", "forget"], default="show")
-    p_home.add_argument("url", nargs="?", help="the home's tailnet address")
+    p_home.add_argument("url", nargs="?",
+                        help="the server's tailnet address; left out: wuwa-server, then wuwa-home")
     p_home.add_argument("key", nargs="?",
-                        help="the one line in data/home.key on the home, the path to that file,"
-                             " or left out: home.key is then taken from Downloads (D220)")
+                        help="the one line in data/server.key on the server, the path to that "
+                             "file, or left out: server.key is then taken from Downloads (D220)")
     p_home.set_defaults(func=_cmd_home)
-    sub.add_parser("push", help="send finished scans to the home now").set_defaults(func=_cmd_push)
+    sub.add_parser("push", help="send finished scans to the server now").set_defaults(
+        func=_cmd_push)
     sub.add_parser(
-        "update", help="update to the home's version, when the home says this one is behind"
+        "update", help="update to the server's version, when the server says this one is behind"
     ).set_defaults(func=_cmd_update)
+    p_short = sub.add_parser(
+        "shortcuts", help="add shortcuts to the Desktop and the Start menu (Windows)"
+    )
+    p_short.add_argument("--remove", action="store_true", help="take them away again")
+    p_short.set_defaults(func=_cmd_shortcuts)
     sub.add_parser(
-        "pull", help="fetch what the home has learned, and its catalogue, now"
+        "pull", help="fetch what the server has learned, and its catalogue, now"
     ).set_defaults(func=_cmd_pull)
 
     args = parser.parse_args(argv)

@@ -689,7 +689,7 @@ def _sync_routes(app: FastAPI, db_path: Path, home_key: str | None) -> None:
 
     def keyed(request: Request) -> None:
         if not sync.key_matches(home_key, request.headers.get("x-wuwa-key")):
-            raise HTTPException(401, "上传要用主机的钥匙（data/home.key）。")
+            raise HTTPException(401, "上传要用服务器的钥匙（data/server.key）。")
 
     def said(request_body: bytes) -> dict:
         try:

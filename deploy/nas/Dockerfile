@@ -1,4 +1,4 @@
-# The home (PLAN.md D129, D145): the dashboard and the data, on a box that is always on.
+# The server (PLAN.md D129, D145): the dashboard and the data, on a box that is always on.
 #
 # No recogniser in here -- no torch, no model, no GPU. The machine with the game scans
 # and sends finished scans; this shows them. The image is the app's base install and
@@ -8,7 +8,7 @@ FROM python:3.12-slim
 
 # Where it comes from (D183): the published image is built from the public repository.
 LABEL org.opencontainers.image.source="https://github.com/oguessyky/wuwa-inventory-vision" \
-      org.opencontainers.image.description="WuWa Inventory Vision: the home (dashboard and data)" \
+      org.opencontainers.image.description="WuWa Inventory Vision: the server (dashboard and data)" \
       org.opencontainers.image.licenses="Apache-2.0"
 
 ENV PYTHONUNBUFFERED=1 \
@@ -53,4 +53,4 @@ HEALTHCHECK --interval=60s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:4000/api/sync/hello', timeout=4).status == 200 else 1)"
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python", "-m", "wuwa_vision", "serve", "--home", "--local", "--port", "4000"]
+CMD ["python", "-m", "wuwa_vision", "serve", "--server", "--local", "--port", "4000"]

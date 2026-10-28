@@ -15,7 +15,7 @@ How to install WuWa Inventory Vision and check that it works. For what the proje
 | GPU | optional — an NVIDIA card makes recognition ~30× faster, CPU works otherwise |
 
 The easiest way in is a release: <https://github.com/oguessyky/wuwa-inventory-vision/releases>. Take the **full** zip (or **scanner**,
-for a PC that sends to a home), unzip it, and follow its `START-HERE.md` -- on Windows it
+for a PC that sends to a server), unzip it, and follow its `START-HERE.md` -- on Windows it
 carries Python itself. Or take the source:
 
 ```bash
@@ -178,7 +178,7 @@ error: Failed to spawn: `python`
 
 The same policy, one step further down: the interpreter itself is unsigned. That happens when
 the machine had no Python 3.12 from python.org when the environment was made, and `uv` fetched
-a build of its own instead. `type .venv\pyvenv.cfg` shows it: the `home =` line points into a
+a build of its own instead. `type .venv\pyvenv.cfg` shows it: the `server =` line points into a
 `uv\python\cpython-3.12…` folder rather than at `…\Programs\Python\Python312`.
 
 Install Python **3.12** from python.org, then make the environment again:

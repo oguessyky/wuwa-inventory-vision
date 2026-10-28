@@ -89,7 +89,7 @@ the catalogue's own picture beside the pictures from the game. Where the catalog
 picture is something else, the picture has a red ring and a ?, the row says 可能认错, and such
 rows come first (the 可能认错 chip shows only them). Click a picture to rename it -- the
 catalogue's guess is offered first -- or to clear its name. The change reaches every crop of the
-same picture and the scans that saw it; on the home, every scanner takes it at its next fetch.
+same picture and the scans that saw it; on the server, every scanner takes it at its next fetch.
 When the flag is wrong -- the name is right after all -- the same sheet has 名字没错：是…; the
 picture and its copies under that name stay unflagged until they are renamed (D167). The
 sheet's search takes pinyin and initials, and its buttons show each name's catalogue picture.
@@ -125,7 +125,7 @@ Open the second one on a phone or laptop signed in to the same tailnet. Use the 
 `100.x` address — Tailscale's share answers to the name only.
 
 - The app itself still listens on this PC only. Tailscale forwards to it; nothing is opened on your
-  home network or the internet.
+  server network or the internet.
 - The share lasts while `serve` runs and ends with it, however it ends.
 - **There is no login.** Every device on your tailnet sees your inventory and can use every button,
   including 清空扫描数据. If your tailnet has other people on it, run with `--local`:
@@ -151,7 +151,7 @@ here; each group leads to the page that owns it, and a tile opens its item.
 
 - **The strip.** 贝币 and 星声 as the last scan read them. A ring per bag tab: full and ticked
   when its last scan read everything, the share it read when not. How many items still wait
-  to be told apart, and on a scanner with a [home](nas.md) how many scans are not sent yet.
+  to be told apart, and on a scanner with a [server](nas.md) how many scans are not sent yet.
 - **现有经验能养成.** How many resonators and five-star weapons your EXP items take to Lv.90,
   with a bar towards the next one; and for echoes a bar per tier, +5 to +25, each "if all of
   it went there" and counted in EXP alone. The items themselves are the tiles underneath.

@@ -6,7 +6,7 @@ Reads your Wuthering Waves bag **off the screen** and turns it into a list of wh
 works out what you still have to farm. This package has everything: the **scanner** (reads the
 bag while you scroll it) and the **dashboard** (the pages: 总览, 库存, 材料, 共鸣者, 武器, 料理,
 商店, 规划…), on one PC. It also holds the files for running the dashboard on a NAS
-([docs/nas.md](docs/nas.md)); the separate *home* package is the easier way to do that.
+([docs/nas.md](docs/nas.md)); the separate *server* package is the easier way to do that.
 
 It never touches the game's files, memory or network traffic: only pixels. Nothing you do in it
 changes your account, and everything stays on your own computer ([PRIVACY.md](PRIVACY.md)).
@@ -43,6 +43,10 @@ It says what it finds and asks before each step: the packages (with the PyTorch 
 GPU), the recognition model (~346 MB), and the item catalogue from Kuro's official wiki (a few
 minutes). Add `-Yes` to take every default without being asked. On macOS: `./setup.sh`.
 
+Last, it offers shortcuts: `WuWa Scan` and `WuWa Dashboard` on the Desktop, and a
+*WuWa Inventory Vision* folder in the Start menu. Add or remove them later with
+`uv run python -m wuwa_vision shortcuts` (`--remove`). After moving the folder, run Setup again.
+
 ## 2. Scan
 
 **Double-click `2 扫描 Scan`**, or run:
@@ -74,8 +78,8 @@ address your own phone can open too; `serve --local` keeps it on this PC.
 - **After a game patch**: the 更新 page's *从 Wiki 更新* button fetches the new catalogue.
 - **A new version of this program**: unzip it into a new folder, move the `data` folder
   across from the old one -- your scans, names and settings are all in there -- and run the
-  setup in the new folder. If this PC scans for a home, **`4 更新 Update`** does it for you
-  when the home is newer (it downloads the home's version from GitHub; nothing otherwise).
+  setup in the new folder. If this PC scans for a server, **`4 更新 Update`** does it for you
+  when the server is newer (it downloads the server's version from GitHub; nothing otherwise).
 - **Something wrong**: [docs/setup.md](docs/setup.md) ends with troubleshooting, and the app's
   帮助 page says what to do when something does not work.
 
