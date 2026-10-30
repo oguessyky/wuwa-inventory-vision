@@ -143,18 +143,19 @@ file was written.
 
 **Tailscale (in the home's images)**
 
-The home (D183, D191) runs beside Tailscale's own container image, `tailscale/tailscale`,
-published again as `ghcr.io/oguessyky/wuwa-inventory-vision-tailscale` so a NAS's image list says
-whose it is: unchanged -- no package added, nothing rebuilt -- with only the home's Serve
-settings and defaults put in. Tailscale is © Tailscale Inc. & contributors, under the
-BSD-3-Clause licence; its text is in `deploy/tailscale-image/TAILSCALE-LICENSE` and inside
-the image at `/usr/share/licenses/tailscale/LICENSE`.
+The server's image (D183, D238) carries Tailscale's own programs, taken unchanged from its
+container image, `tailscale/tailscale`, with only the server's Serve settings and defaults put
+in. For compose files from before D238, that image is also published again as
+`ghcr.io/oguessyky/wuwa-inventory-vision-tailscale` (D191), unchanged in the same way. Tailscale
+is © Tailscale Inc. & contributors, under the BSD-3-Clause licence; its text is in
+`deploy/tailscale-image/TAILSCALE-LICENSE` and inside both images at
+`/usr/share/licenses/tailscale/LICENSE`.
 
-**Kubernetes' pause image (in the home's compose file)**
+**Kubernetes' pause image (in the older compose file)**
 
-The home's compose file (D215) runs `registry.k8s.io/pause:3.10`, unchanged, to hold the
-network the app and its Tailscale share, so an update of either leaves the other in place. It is
-pulled by Docker from the Kubernetes project's own registry; nothing of it is in this repository.
+The server's compose file before D238 runs `registry.k8s.io/pause:3.10`, unchanged, to hold the
+network the app and its Tailscale share. It is pulled by Docker from the Kubernetes project's own
+registry; nothing of it is in this repository, and the current compose file does not use it.
 It is part of Kubernetes, © The Kubernetes Authors, under the Apache License 2.0.
 
 **Python itself (in the release packages for Windows)**

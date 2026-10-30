@@ -2,6 +2,17 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.3.0",
+   "date": "2026-10-30",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "服务器现在只有一个容器（程序和 Tailscale 在一起），重启和更新不会再报 “network namespace” 错误。旧配置文件还能继续用；要改成一个容器，粘贴一次新的配置文件，步骤见帮助",
+     "en": "the server is now one container (the app and Tailscale together), so a restart or an update can no longer fail with a \"network namespace\" error. The older compose file keeps working; to move, paste the new one once: the help says how"
+    }
+   ]
+  },
+  {
    "version": "1.2.3",
    "date": "2026-10-30",
    "scanner": [

@@ -1,5 +1,5 @@
-# WuWa Inventory Vision -- the server (PLAN.md D183, D186). Paste this whole file into your NAS's
-# Docker app as it is: Project -> Create project ->
+# WuWa Inventory Vision -- the server (PLAN.md D183, D186, D238). Paste this whole file into your
+# NAS's Docker app as it is: Project -> Create project ->
 #   Name:                  wuwa-inventory-vision
 #   Storage path:          an empty folder (the data is kept there)
 #   Compose configuration: this file, with your Tailscale auth key over tskey-auth-PUT-YOURS-HERE
@@ -7,29 +7,22 @@
 # 从 Wiki 更新 on its 更新 page. (Anywhere else with Docker: save it as docker-compose.yaml in a
 # folder and `docker compose up -d` there. The key may then go in a .env beside it instead.)
 #
-# The app listens on 127.0.0.1 and nothing else, and no port is published: it shares one
-# network with the Tailscale container beside it, whose Serve (built into its image) is the only
-# way in -- from your own tailnet, never funnel. That network is held by a third, tiny container
-# (net) that no update ever replaces, so the Docker app's update can replace either of the other
-# two and the rest stays where it was (D215). That Tailscale is a device of its own on your
-# tailnet (TS_HOSTNAME); a Tailscale already on this machine is not touched.
+# One container: the app, and Tailscale beside it inside the same image. The app listens on
+# 127.0.0.1 and nothing else, and no port is published: Tailscale's Serve, built into the image,
+# is the only way in -- from your own tailnet, never funnel. That Tailscale is a device of its own
+# on your tailnet (TS_HOSTNAME); a Tailscale already on this machine is not touched.
+#
+# Set up with the older file of three containers (net, tailscale, wuwa)? Press Update first, so
+# the new image is here: an older one has no Tailscale inside. Stop the project, then paste this
+# file over it and deploy. The data and the name on your tailnet stay, and no new key is needed.
+# Stopping matters too: the old Tailscale must not run beside the new one.
 #
 # Updating: the Docker app's update. Pin a version with WUWA_VERSION; update the scanner too.
-# The containers are named after the project, so a second project beside this one never clashes.
+# The container is named after the project, so a second project beside this one never clashes.
 services:
-  net:
-    # holds the network the other two share, and does nothing else: Kubernetes' standard
-    # "pause" container, pinned, so an update never has a new one to pull
-    image: registry.k8s.io/pause:3.10
+  wuwa:
+    image: ${WUWA_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-server}:${WUWA_VERSION:-latest}
     restart: unless-stopped
-
-  tailscale:
-    # Tailscale's own image under this app's name, its Serve settings built in (D191)
-    image: ${WUWA_TAILSCALE_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-tailscale}:${WUWA_VERSION:-latest}
-    restart: unless-stopped
-    network_mode: service:net
-    depends_on:
-      - net
     environment:
       # your key, from https://login.tailscale.com/admin/settings/keys -- used once, on the first start
       TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}
@@ -38,17 +31,9 @@ services:
       # your scanners again (D225)
       TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}
     volumes:
-      - ./tailscale-state:/var/lib/tailscale
-
-  wuwa:
-    image: ${WUWA_IMAGE:-ghcr.io/oguessyky/wuwa-inventory-vision-server}:${WUWA_VERSION:-latest}
-    restart: unless-stopped
-    network_mode: service:net
-    depends_on:
-      - net
-      - tailscale
-    volumes:
       # the database, the scan crops, the catalogue and the upload key (server.key)
       - ${WUWA_DATA:-./data}:/app/data
+      # who this device is on your tailnet
+      - ./tailscale-state:/var/lib/tailscale
       # read once, on the very first start, if it is there (a copy of a server moved here)
       - ./seed-data:/seed:ro

@@ -1,3 +1,6 @@
+# Kept for compose files from before D238, which still pull it: a server's Tailscale now lives
+# in the server's own image (deploy/nas/Dockerfile, the same pinned version).
+#
 # The server's Tailscale, under this app's name (PLAN.md D191): Tailscale's own official image,
 # unchanged -- no package added, nothing rebuilt -- with the server's Serve settings and defaults
 # built in, so a NAS's image list says whose it is and the compose file says only the key and

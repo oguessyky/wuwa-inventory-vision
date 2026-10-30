@@ -33,8 +33,8 @@ In the NAS's Docker app: **Project** → **Create project**:
 | Storage path | an empty folder, such as `/volume1/docker/wuwa-inventory-vision`. The data is kept there; keep it out of anything that syncs from a PC (a database must not be synced while it is written) |
 | Compose configuration | paste the whole of `docker-compose.yaml` -- from this folder, or the release page -- and, in its `TS_AUTHKEY` line, replace `tskey-auth-PUT-YOURS-HERE` with your key |
 
-Then **Deploy**. The Docker app pulls the two images -- `wuwa-inventory-vision-server`, the app, and
-`wuwa-inventory-vision-tailscale`, Tailscale's own image under this app's name -- and starts them.
+Then **Deploy**. The Docker app pulls one image, `wuwa-inventory-vision-server`, which holds the app
+and Tailscale's own programs, and starts it as one container.
 
 Elsewhere, with plain Docker: put `docker-compose.yaml` in a folder, put the key in a `.env`
 beside it (`.env.example` says how), and run `docker compose up -d` there.
@@ -78,6 +78,17 @@ stays. To stay on one version, change `latest` in the compose file's `WUWA_VERSI
 version (e.g. `1.1.0`). The scanner needs updating only when a release changed it: 总览 says
 so, and **更新 › 数据 › 版本** lists what each version changed on which side.
 
+## Moving to one container
+
+A server set up with the older compose file has three containers: `…-net-1`, `…-tailscale-1` and `…-wuwa-1`. It keeps running and its updates keep working, but a restart can fail with a "network namespace" error. To move:
+
+1. Press **Update** first, so the new image is on the NAS: an older one has no Tailscale inside, and the server would drop off your tailnet.
+2. **Stop the project** in the Docker app. The old Tailscale must not run beside the new one: they would fight over one device.
+3. Paste the new `docker-compose.yaml` over the old one, writing your own name back over `wuwa-server` if you changed it, and **deploy**.
+4. Delete the two containers left over, `…-net-1` and `…-tailscale-1`.
+
+The data and the name on your tailnet stay, and no new key is needed.
+
 ## Trying a new version beside the one you have
 
 A second server does not disturb the first. Create a second project -- its own name, such as
@@ -106,8 +117,8 @@ Everything is in the `data` folder inside the storage path: `wuwa.sqlite`, `icon
 | It asks to log in again after months | key expiry is on for this device: turn it off in the admin console and redeploy |
 | A scanner's `server set` says 钥匙 | the key is not this server's: it is the line in `data/server.key` |
 | A scan says the versions differ | the scanner and the server must be the same version: update both |
-| After an update it will not start: "joining network namespace of container: No such container" | the app lives in the Tailscale container's network, and the update made a new Tailscale container. Stop the project and deploy it again (rebuild / recreate, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched. From v1.1.3 the compose file holds the network in a third container (`net`) that updates never replace, so this does not happen again: paste the new compose file into the project once and deploy |
-| "cannot join network namespace of a non running container" | the project was started out of order: press start once more |
+| After an update it will not start: "joining network namespace of container: No such container" | the project still has the older three containers, and the one holding their network was replaced. Stop the project and deploy it again (recreate: start and restart do not repair it). The data is in the project's `data` folder and is not touched. Then move to one container (above) |
+| "cannot join network namespace of a non running container" | the older three containers were started or restarted at the same moment. Stop the project and deploy it again, then move to one container (above) |
 
 The source, and the other packages: <https://github.com/oguessyky/wuwa-inventory-vision>.
 

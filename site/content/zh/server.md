@@ -11,6 +11,17 @@ NAS 上不用编译、不用敲命令：复制下面的配置，粘贴进 Docker
 
 {{steps}}
 
+## 改成一个容器
+
+用旧配置文件装的服务器有三个容器：`…-net-1`、`…-tailscale-1` 和 `…-wuwa-1`。它还能继续用，也能继续更新，但重启时可能报 “network namespace” 错误。改成一个容器后就不会再这样。步骤：
+
+1. 先按 **Update**，把新镜像拉到 NAS 上：旧镜像里没有 Tailscale，服务器会从你的 tailnet 上掉线。
+2. 在 NAS 的 Docker 应用里**先停止项目**。旧的 Tailscale 不能和新的同时运行，否则两个会抢同一台设备。
+3. 把新的 `docker-compose.yaml` 粘贴覆盖旧的，如果你改过 `wuwa-server` 这个名字，就把它改回你自己的，再**部署**。
+4. 删掉留下的两个容器：`…-net-1` 和 `…-tailscale-1`。
+
+数据和 Tailscale 里的名字都不变，也不需要新的钥匙。
+
 ## 备份
 
 一切都在存储路径的 `data` 文件夹里：`wuwa.sqlite`、`icons/`、`catalogue/`、`server.key`。先停止项目再复制。

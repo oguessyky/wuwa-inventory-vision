@@ -267,17 +267,17 @@ def pic_project() -> str:
     side = "".join(t(40, 84 + k * 30, w, 13, ACCENT if w == "Project" else MUTED,
                      700 if w == "Project" else 400)
                    for k, w in enumerate(("Overview", "Project", "Container", "Image")))
-    yaml = [("services:", MUTED), ("  net:", MUTED), ("    image: registry.k8s.io/pause:3.10", MUTED),
-            ("  tailscale:", MUTED),
-            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-tailscale…", MUTED), ("    environment:", MUTED),
+    yaml = [("services:", MUTED), ("  wuwa:", MUTED),
+            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-server…", MUTED), ("    environment:", MUTED),
             ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
-            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}", MUTED), ("  wuwa:", MUTED),
-            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-server…", MUTED)]
+            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}", MUTED), ("    volumes:", MUTED),
+            ("      - ${WUWA_DATA:-./data}:/app/data", MUTED),
+            ("      - ./tailscale-state:/var/lib/tailscale", MUTED)]
     editor = box(160, 176, 440, 30 + len(yaml) * 17, "#07090b", LINE, 6)
     for k, (line, colour) in enumerate(yaml):
         editor += t(170, 196 + k * 17, line, 11, colour, 600 if colour == ACCENT else 400,
                     mono=True)
-    lit = 196 + 6 * 17                 # the key's line (D215 put net: above it)
+    lit = 196 + 4 * 17                 # the key's line
     return svg(window(20, 16, 600, 430, "Docker")
                + f'<path d="M140 44v402" stroke="{LINE}"/>' + side
                + t(160, 72, "Create project · 创建项目", 15, INK, 700)
@@ -437,9 +437,12 @@ def guide_server() -> str:
              "to the PC with the scanner (it lands in Downloads). Then double-click "
              "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()),
         step(7, "更新", "Updating",
-             "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
+             "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。"
+             "项目还有三个容器（旧配置文件）？先按 <b>Update</b>，再<b>停止项目</b>，把新的配置文件粘贴覆盖、部署，然后删掉留下的 <code>…-net-1</code> 和 <code>…-tailscale-1</code>。数据和名字都不变。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
-             "the data stays. Update the scanner to the same version.", pic_update()),
+             "the data stays. Update the scanner to the same version. Still three containers (the older file)? "
+             "Press <b>Update</b>, <b>stop the project</b>, paste the new file over it and deploy, then delete the "
+             "<code>…-net-1</code> and <code>…-tailscale-1</code> left over. The data and the name stay.", pic_update()),
         step(8, "在旁边试新版", "Try a version beside the one you have",
              "再建一个项目，名称 <code>wuwa-inventory-vision-test</code>、另一个空文件夹，粘贴同一个文件，"
              "只改一个词：<code>TS_HOSTNAME</code> 那行的 <code>wuwa-server</code> 改成 <code>wuwa-server-test</code>。"

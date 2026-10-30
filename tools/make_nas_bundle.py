@@ -36,6 +36,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEPLOY = ROOT / "deploy" / "nas"
+#: Tailscale's Serve settings and licence: one copy each, for this image and that one (D238).
+TAILSCALE = ROOT / "deploy" / "tailscale-image"
 #: What the image is built from, besides deploy/nas itself.
 SOURCES = ("pyproject.toml", "uv.lock", "README.md", "LICENSE", "NOTICE", "CREDITS.md",
            "TERMS.md", "PRIVACY.md", "PRIVACY.zh-CN.md", "src", "tools", "assets")
@@ -100,6 +102,8 @@ def plan(dest: Path) -> tuple[dict[Path, bytes | Path], list[Path]]:
         dest / "setup.sh": content(DEPLOY / "setup.sh"),
         dest / "app" / "Dockerfile": content(DEPLOY / "Dockerfile"),
         dest / "app" / "entrypoint.sh": content(DEPLOY / "entrypoint.sh"),
+        dest / "app" / "serve.json": content(TAILSCALE / "serve.json"),
+        dest / "app" / "TAILSCALE-LICENSE": content(TAILSCALE / "TAILSCALE-LICENSE"),
         dest / "app" / "VERSION": version().encode(),
     }
     for rel in tracked(SOURCES):

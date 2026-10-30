@@ -84,13 +84,13 @@ The key is `data/server.key` in the server's storage path. Download it with the 
 
 ### The server will not start after an update: "joining network namespace of container: No such container"
 
-The server's app lives in the Tailscale container's network. The update made a new Tailscale container, and the old app container still points at the one that was removed. In the NAS's Docker app, **stop** the project and **deploy** it again (rebuild, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched.
+This only happens on a project still using the older file of three containers. They share one network, and Docker ties that to one container by its id, so when that container is replaced the others point at nothing. In the NAS's Docker app, **stop** the project and **deploy it again** (recreate: start and restart do not repair it). The data is in the project's `data` folder and is not touched.
 
-From v1.1.3 the compose file has a tiny third container, `net`, that holds the network and that no update replaces, so this does not happen again. A server set up before v1.1.3: paste the new compose file into the project once, then deploy.
+Then [move to one container](/server), which has nothing to fail this way.
 
 ### It says "cannot join network namespace of a non running container"
 
-The project's containers were started out of order: press start once more.
+The older file of three containers again: they were started or restarted at the same moment. **Stop** the project and **deploy it again**, then [move to one container](/server). Until you do, avoid the project's restart.
 
 ### A scan says the versions differ
 
