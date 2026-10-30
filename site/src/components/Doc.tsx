@@ -15,18 +15,18 @@ const T = {
         groups: { install: '安装', use: '使用', help: '帮助', legal: '法律' } as Record<Group, string>,
         tagline: '从屏幕读出鸣潮背包，算出下一步该刷什么。',
         foot: '非官方的爱好者工具，与库洛游戏无关。《鸣潮》中的一切名称和图片都属于库洛游戏。', source: '源码',
-        title: '鸣潮背包识别 · 滚一遍背包，剩下的交给它',
+        title: '鸣潮背包识别 · 鸣潮背包扫描器，滚一遍背包，剩下的交给它',
         guide: '这个包的指南', zip: '下载', mac: '在 Mac 上安装' },
   en: { site: 'WuWa Inventory Vision', download: 'Download', other: '中文', next: 'Next', top: 'Home',
         groups: { install: 'Install', use: 'Use', help: 'Help', legal: 'Legal' } as Record<Group, string>,
         tagline: 'Reads your Wuthering Waves bag off the screen and works out what to farm next.',
         foot: 'An unofficial fan-made tool, not affiliated with Kuro Games. Every name and picture from Wuthering Waves belongs to Kuro Games.', source: 'Source',
-        title: 'WuWa Inventory Vision · Scroll your bag once, it does the counting',
+        title: 'WuWa Inventory Vision · Wuthering Waves inventory scanner and planner',
         guide: 'This package’s guide', zip: 'Download', mac: 'Install on a Mac' },
 };
 const DESCRIPTION = {
-  zh: '从屏幕读出鸣潮背包，算出下一步该刷什么：安装、使用和排错。',
-  en: 'Reads your Wuthering Waves bag off the screen and works out what to farm next: how to install it, use it, and fix it.',
+  zh: '鸣潮背包扫描器：从屏幕读出鸣潮背包，算出下一步该刷什么。安装、使用和排错。',
+  en: 'A Wuthering Waves inventory scanner: it reads your bag off the screen and works out what to farm next. How to install it, use it, and fix it.',
 };
 
 /** Each page's icon, from the app's family: the app's own drawings, and the site's five. */

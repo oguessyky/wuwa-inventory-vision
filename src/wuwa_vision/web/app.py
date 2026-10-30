@@ -678,9 +678,12 @@ def _sync_routes(app: FastAPI, db_path: Path, home_key: str | None) -> None:
         try:
             # version: so a redeploy can be checked from outside (D164); releases: what
             # each changed on which side, so an older scanner learns what it lacks (D197)
+            # server, empty: who it is and whether it holds anything, so a scanner can tell a
+            # server it has never met from the one it knows (D234)
             return {"app": "wuwa-vision", "home": home_key is not None,
                     "protocol": sync.PROTOCOL, "epoch": st.sync_epoch(), "version": _version(),
-                    "releases": list(versions.RELEASES)}
+                    "releases": list(versions.RELEASES),
+                    "server": st.server_id(), "empty": st.holds_nothing()}
         finally:
             st.close()
 

@@ -2,6 +2,38 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.2.3",
+   "date": "2026-10-30",
+   "scanner": [
+    {
+     "zh": "连接服务器时马上下载图鉴，第一次扫描不用再等",
+     "en": "connecting to a server fetches the catalogue at once, so the first scan does not wait"
+    },
+    {
+     "zh": "换到一台全新的服务器时，扫描器会把所有记录都带过去，什么也不会丢",
+     "en": "moving to a brand-new server brings everything this scanner has, and loses nothing"
+    }
+   ],
+   "home": [
+    {
+     "zh": "商店：手机上底数单独占一行，从左边开始，填 400 也不会超出格子",
+     "en": "shops: on a phone the base has its own line, from the left, so 400 no longer runs out of the tile"
+    },
+    {
+     "zh": "商店：「差」放到「限」下面一行，数字再长也不会叠在一起",
+     "en": "shops: what is short sits on the line under the limit, so a long number never runs over it"
+    },
+    {
+     "zh": "选中多样后的批量操作（商店、共鸣者、料理）会显示进度，每 10 样一批",
+     "en": "actions on picked items (shops, resonators, cooking) show how far they have got, ten at a time"
+    },
+    {
+     "zh": "服务器有了自己的身份，换了新服务器的扫描器能认出来",
+     "en": "a server now says who it is, so a scanner can tell when it has been moved to a new one"
+    }
+   ]
+  },
+  {
    "version": "1.2.2",
    "date": "2026-10-30",
    "scanner": [

@@ -912,6 +912,27 @@ def _stay_with_the_page(state) -> None:  # noqa: ANN001 -- LiveState
     print("" if _stay_until_left(state) == "enter" else "\nlive page closed.")
 
 
+def _fetch_on_connect(home, store: Store) -> None:  # noqa: ANN001 -- sync.Home
+    """The catalogue and what the server has learned, as soon as a scanner connects (D234).
+    Connect has done its job either way: what does not come now comes with the first scan."""
+    from . import sync
+    from .catalogue import CATALOGUE_DIR
+
+    print("  fetching the catalogue and what the server knows, so the first scan does not wait:")
+    _watch_sync(home)
+    try:
+        took = home.pull(store, Path(CATALOGUE_DIR))
+    except sync.SyncError as exc:
+        print(f"  ! not fetched now ({exc}); it comes with the first scan")
+        return
+    learned = {k: v for k, v in took.items() if v and k != "set_aside"}
+    print("  up to date" if not learned else
+          "  fetched " + ", ".join(f"{v} {k}" for k, v in learned.items()))
+    if home.catalogue_files == 0:
+        print("  ! the server has no catalogue yet: press 从 Wiki 更新 on its 更新 page."
+              " This scanner keeps its own until then")
+
+
 def _cmd_home(args: argparse.Namespace) -> int:
     """Give this scanner its server, show it, or take it away (`wuwa server`; `home` before
     1.2.0, which still answers -- D225)."""
@@ -948,15 +969,24 @@ def _cmd_home(args: argparse.Namespace) -> int:
             return 1
         sync.write_home(data, home.url, key)
         # This copy joins the home as it is: what it holds is offered, not thrown
-        # away. Only a wipe of the home from now on makes it start over.
+        # away. Only a wipe of the home from now on makes it start over. A server it has
+        # never met, or one with nothing in it, gets everything it holds (D234).
         store = Store(args.db)
         store.set_setting(sync.SYNC_EPOCH, str(said["epoch"]))
+        joined = sync.join(store, said)
+        home.joined = joined
         waiting = len(sync.unsent_scans(store))
-        store.close()
         print(f"server: {home.url}")
+        if joined == "fresh":
+            print("  a server this copy has not worked with: everything here goes to it, "
+                  "and nothing here is removed")
         print(f"  every scan from now on is sent there; {waiting} scan(s) here go with the next "
               "one, or now with: wuwa push")
         _say_versions(said)
+        # What a scan needs from the server is fetched now, so the first scan does not wait
+        # for it (D234): "if scanner first connect to server pls start get the catalog"
+        _fetch_on_connect(home, store)
+        store.close()
         return 0
     said = sync.read_home(data)
     if not said:

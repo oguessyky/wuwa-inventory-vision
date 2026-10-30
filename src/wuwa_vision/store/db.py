@@ -35,6 +35,12 @@ ECHO_BASE = "五星声骸+25"
 #: app_setting key: how many times the scans were wiped. A scanner compares it
 #: with the home's to know its own copy is of a past that was thrown away (D145).
 SYNC_EPOCH = "sync.epoch"
+#: app_setting key, on a server: who it is, made once and kept through wipes (D234).
+SERVER_ID = "server.id"
+#: app_setting keys, on a scanner: the server its sync state belongs to, and that the next
+#: push offers everything it learned even with no scan to send -- it joined a server afresh.
+SYNC_SERVER = "sync.server"
+SYNC_OFFER_ALL = "sync.offer_all"
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -552,6 +558,19 @@ class Store:
     def sync_epoch(self) -> int:
         """How many times this database has been started over (`wipe_scans`)."""
         return int(self.setting(SYNC_EPOCH, "0") or 0)
+
+    def server_id(self) -> str:
+        """Who this server is (D234): made the first time it is asked, never changed after."""
+        with self.conn:
+            self.conn.execute("INSERT OR IGNORE INTO app_setting (key, value) VALUES (?, ?)",
+                              (SERVER_ID, uuid.uuid4().hex))
+        return self.setting(SERVER_ID) or ""
+
+    def holds_nothing(self) -> bool:
+        """No scan and nothing learned from one: a server deployed from nothing (D234)."""
+        return not self.conn.execute(
+            "SELECT 1 FROM scan UNION ALL SELECT 1 FROM gallery "
+            "WHERE tab IS NULL OR tab != 'reference' LIMIT 1").fetchone()
 
     def learn_weapon_kind(self, name: str, kind: str) -> None:
         """Remember a weapon's type as its own panel printed it (D98)."""

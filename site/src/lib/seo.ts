@@ -20,11 +20,13 @@ export const ROOT_METADATA: Metadata = {
 };
 export const VIEWPORT: Viewport = { themeColor: '#0b0c10', colorScheme: 'dark' };
 
-/** The words people search for it by, in each language. */
+/** The words people search for it by, in each language. A scanner is what most would call it
+ * (the user, 2026-10-30: "mention something wuthering wave scanner, so easy people to search for it"). */
 const KEYWORDS = {
-  zh: ['鸣潮', '鸣潮背包', '鸣潮库存', '鸣潮养成计算器', '鸣潮材料计算', '鸣潮突破材料', '鸣潮规划', '共鸣者养成',
-       '背包识别', '库洛', 'Wuthering Waves'],
-  en: ['Wuthering Waves', 'WuWa', 'inventory tracker', 'material calculator', 'ascension materials',
+  zh: ['鸣潮', '鸣潮扫描器', '鸣潮背包扫描', '鸣潮背包扫描器', '鸣潮背包', '鸣潮库存', '鸣潮养成计算器', '鸣潮材料计算',
+       '鸣潮突破材料', '鸣潮规划', '共鸣者养成', '背包识别', '库洛', 'Wuthering Waves', 'Wuthering Waves scanner'],
+  en: ['Wuthering Waves', 'WuWa', 'Wuthering Waves scanner', 'WuWa scanner', 'Wuthering Waves inventory scanner',
+       'inventory scanner', 'inventory tracker', 'material calculator', 'ascension materials',
        'resonator planner', 'weapon planner', 'farming planner', 'screen reader', '鸣潮'],
 };
 

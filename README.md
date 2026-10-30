@@ -4,7 +4,7 @@
 
 **Step-by-step guide, with pictures:** <https://oguessyky.github.io/wuwa-inventory-vision/en/>
 
-**A free helper for Wuthering Waves players that knows what is in your bag.** You scroll through
+**A free Wuthering Waves inventory scanner and planner that knows what is in your bag.** You scroll through
 your in-game inventory once, and it reads every item and its count off the screen. Then it shows
 you what you can level with what you have, what each resonator and weapon still needs, what you
 are short of, and what to farm or buy next. It runs on your own computer (Windows or Mac), and you

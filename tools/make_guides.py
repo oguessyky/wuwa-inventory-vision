@@ -224,7 +224,8 @@ def pic_connect() -> str:
                + console(340, 16, 280, 200, "2 连接服务器 Connect server", [
                    ("Server address [Enter = wuwa-server]:", MUTED), ("(Enter)", ACCENT),
                    ("Server key [Enter = Downloads]:", MUTED),
-                   ("(Enter)", ACCENT), ("server: saved", OK)]),
+                   ("(Enter)", ACCENT), ("server: saved", OK),
+                   ("fetching the catalogue…", MUTED), ("fetched 860 catalogue", OK)]),
                640, 232, "server.key downloaded from the NAS, then Enter in Connect server")
 
 
@@ -431,10 +432,10 @@ def guide_server() -> str:
              "expiry, or it asks to log in again in six months (key expiry).", pic_expiry()),
         step(6, "连接扫描器", "Connect a scanner",
              "在 NAS 的文件管理器里，把存储路径里的 <code>data/server.key</code> 下载到装了扫描器的电脑（放在「下载」文件夹）。"
-             "然后双击 <b>2 连接服务器 Connect server</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。",
+             "然后双击 <b>2 连接服务器 Connect server</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。连接后会先下载图鉴（约 50 MB），等它显示 <code>fetched</code> 再关窗口。",
              "In the NAS's file manager, download <code>data/server.key</code> from the storage path "
              "to the PC with the scanner (it lands in Downloads). Then double-click "
-             "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads.", pic_connect()),
+             "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()),
         step(7, "更新", "Updating",
              "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
@@ -498,10 +499,10 @@ def guide_scanner() -> str:
              pic_setup(True)),
         step(3, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
              "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-server</code>，"
-             "钥匙也直接按回车：会从「下载」里自己找。也可以贴上钥匙那一行。只要做一次。",
+             "钥匙也直接按回车：会从「下载」里自己找。也可以贴上钥匙那一行。只要做一次。连接后会先下载图鉴（约 50 MB），等它显示 <code>fetched</code> 再关窗口。",
              "First download the server's <code>data/server.key</code> from the NAS (it lands in Downloads). "
              "For the address, Enter alone takes <code>wuwa-server</code>; for the key, Enter alone takes "
-             "server.key from Downloads (pasting its one line works too). Once.", pic_connect()),
+             "server.key from Downloads (pasting its one line works too). Once. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()),
         step(4, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到服务器。",
@@ -658,9 +659,9 @@ def guide_mac(scanner: bool) -> str:
     ]
     if scanner:
         steps.append(step(5, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
-             "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址和钥匙都直接按回车。只要做一次。",
+             "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址和钥匙都直接按回车。只要做一次。连接后会先下载图鉴（约 50 MB），等它显示 <code>fetched</code> 再关窗口。",
              "First download the server's <code>data/server.key</code> from the NAS (it lands in "
-             "Downloads). Press Enter at both questions. Once.", pic_connect()))
+             "Downloads). Press Enter at both questions. Once. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()))
     steps.append(step(len(steps) + 1, f"双击 {scan}", f"Double-click {scan}",
          "<b>点一下游戏窗口</b>：在 Mac 上只有点进去的窗口才算在最前面。打开背包，慢慢滚每个分页；"
          "扫完回到终端按 <b>Ctrl+C</b>。在 Mac 上它只读不点，不会替你按任何键。",

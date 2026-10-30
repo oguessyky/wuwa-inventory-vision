@@ -59,7 +59,7 @@ from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .store.db import SYNC_EPOCH, Store
+from .store.db import SYNC_EPOCH, SYNC_OFFER_ALL, SYNC_SERVER, Store
 
 #: What both ends must agree on to talk at all. Raised when the bundle changes shape.
 PROTOCOL = 1
@@ -297,6 +297,35 @@ def start_over(store: Store, epoch: int) -> Path:
     store.wipe_scans()
     store.set_setting(SYNC_EPOCH, str(epoch))
     return folder
+
+
+def join(store: Store, said: dict) -> str:
+    """Whose sync state this copy holds, from what a server said of itself (D234).
+
+    - "same": the server it knows. Its word stands: what it lacks, it removed.
+    - "adopted": a copy from before servers had names (1.2.2 and older), meeting a server that
+      holds something -- the one it worked with. Its name is kept from now on.
+    - "fresh": a server it has never met, or an empty one. What it lacks proves nothing: this
+      copy offers every scan and everything it learned, removes nothing, and takes the
+      server's epoch -- the old server's would read as a wipe and set the copy aside.
+    - "unknown": a server from before names. As before: nothing guessed, nothing reset.
+    """
+    theirs = said.get("server")
+    if not theirs:
+        return "unknown"
+    mine = store.setting(SYNC_SERVER)
+    if mine == theirs:
+        return "same"
+    if mine is None and not said.get("empty"):
+        store.set_setting(SYNC_SERVER, str(theirs))
+        return "adopted"
+    with store.conn:
+        store.conn.execute("DELETE FROM sync_seen")
+        store.conn.execute("UPDATE scan SET synced_at = NULL")
+    store.set_setting(SYNC_EPOCH, str(int(said.get("epoch") or 0)))
+    store.set_setting(SYNC_OFFER_ALL, "1")
+    store.set_setting(SYNC_SERVER, str(theirs))
+    return "fresh"
 
 
 # ------------------------------------------------------------------- the home's side
@@ -866,6 +895,16 @@ class Home:
         #: Who is told how a push or a pull is going (D156). Nobody, by default.
         self.tell: Callable[[dict | None], None] | None = None
         self._going: Transfer | None = None
+        #: How this copy met the server (`join`), once it has: asked once per Home.
+        self.joined: str | None = None
+        #: How many files the server's catalogue has, once a pull has asked (0: none yet).
+        self.catalogue_files: int | None = None
+
+    def meet(self, store: Store) -> str:
+        """`join`, the first time this Home speaks for `store`."""
+        if self.joined is None:
+            self.joined = join(store, self.hello())
+        return self.joined
 
     @contextlib.contextmanager
     def _half(self, way: str) -> Iterator[Transfer]:
@@ -945,14 +984,27 @@ class Home:
         In parts, one scan (one tab) each, oldest first (D171): the home takes in a piece at a
         time instead of a whole session at once, and a connection lost on the way costs only
         the part it was carrying -- the parts before it are home, and marked so."""
+        self.meet(store)
         scans = unsent_scans(store)
-        if not scans:
-            return {"scans": 0, "known": 0}
-        total: dict[str, int] = {}
-        for i, scan in enumerate(scans):
-            took = self._push_part(store, offer(store, [scan], everything=i == len(scans) - 1))
+        known = 0
+        if len(scans) > 1:
+            # one question for all of them: a copy that joined afresh offers months of scans,
+            # and the server may have most (D234)
+            asked = self._json("/api/sync/need", {"protocol": PROTOCOL, "epoch": store.sync_epoch(),
+                                                  "scans": [s["uid"] for s in scans]})
+            had = set(asked.get("known") or [])
+            known = mark_sent(store, sorted(had))
+            scans = [s for s in scans if s["uid"] not in had]
+        everything = store.setting(SYNC_OFFER_ALL) == "1"
+        if not scans and not everything:
+            return {"scans": 0, "known": known}
+        parts: list[list] = [[scan] for scan in scans] or [[]]   # [[]]: what it learned, alone
+        total: dict[str, int] = {"known": known}
+        for i, part in enumerate(parts):
+            took = self._push_part(store, offer(store, part, everything=i == len(parts) - 1))
             for key, value in took.items():
                 total[key] = total.get(key, 0) + int(value or 0)
+        store.set_setting(SYNC_OFFER_ALL, "")
         return total
 
     def _push_part(self, store: Store, offered: dict) -> dict:
@@ -973,6 +1025,7 @@ class Home:
 
     def pull(self, store: Store, catalogue_dir: Path | None = None) -> dict:
         """Bring this scanner's copy up to what the home knows."""
+        self.meet(store)
         with self._half("down") as going:
             return self._pull(store, catalogue_dir, going)
 
@@ -1020,6 +1073,7 @@ class Home:
         """Fetch the catalogue files that differ from the home's. Adds and replaces;
         a file only this machine has is left alone."""
         theirs = self._json("/api/sync/catalogue").get("files") or {}
+        self.catalogue_files = len(theirs)
         mine = catalogue_manifest(directory)
         differ = [(rel, size) for rel, (size, digest) in theirs.items()
                   if mine.get(rel) != [size, digest] and _plain_path(rel)]
