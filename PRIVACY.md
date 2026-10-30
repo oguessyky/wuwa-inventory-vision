@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective 28 October 2026.
+Effective 30 October 2026.
 
 This Privacy Policy is provided in English and may be translated into other languages for your
 convenience. In the event of any conflict or discrepancy between the English version and a
@@ -36,8 +36,12 @@ up, on your own server -- section 3). None of it is sent to the author.
   filters and sort orders, whether the navigation is folded, whether you have finished the
   first-time guide. These stay in that browser. The app sets no cookies and does no tracking.
 - **Shortcuts, if you ask for them.** When setup asks and you say yes, or you run `wuwa shortcuts`,
-  the app puts shortcuts on your Desktop and in your Start menu. They hold only where the app's own
-  files are. `wuwa shortcuts --remove` takes them away again.
+  the app puts shortcuts in the places you said yes to: your Desktop, and your Start menu (on a
+  Mac, Applications). They hold only where the app's own files are. `wuwa shortcuts --remove` takes
+  them away again, and so does uninstalling.
+- **Uninstalling.** `5 卸载 Uninstall` removes the shortcuts and the app's folder. It asks first
+  whether your scans and settings go too, and keeps them unless you say yes. Nothing is sent
+  anywhere.
 
 ## 3. What leaves your computer, and only when you start it
 

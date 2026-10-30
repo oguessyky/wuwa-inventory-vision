@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import catalogue as catalogue_mod
+from . import web_icons
 
 #: The repository root, where tools/ lives (a source checkout).
 ROOT = Path(__file__).resolve().parents[2]
@@ -215,6 +216,9 @@ class UpdateJob:
             self.step = ""
             self.step_no = len(steps)
             self.finished_at = time.time()
+        # new or redrawn icons: the pages' WebP copies, in the background (D230). Even a run with
+        # a failed step saved the rest; nothing happens where `serve` did not start them.
+        web_icons.refresh()
 
     def _step(self, command: list[str], env: dict[str, str]) -> int:
         process = subprocess.Popen(

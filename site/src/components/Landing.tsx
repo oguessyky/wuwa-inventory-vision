@@ -124,7 +124,8 @@ function about(lang: Lang, v: string) {
 export function Landing({ lang }: { lang: Lang }) {
   const w = W[lang];
   const v = version();
-  const pic = (name: string) => `${BASE}/screens/${lang === 'en' ? 'en/' : ''}${name}.png`;
+  // shown as WebP, made while the site is built (D230); the PNG stays for the share card
+  const pic = (name: string) => `${BASE}/screens/${lang === 'en' ? 'en/' : ''}${name}.webp`;
   // each package as the picker's answer shows it (D228): its zip, its guide, its guide's steps
   const zips = downloads();
   const packs: Record<string, Pack> = Object.fromEntries(packages().map(p => [p.kind, {

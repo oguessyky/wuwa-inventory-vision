@@ -23,8 +23,8 @@ import json
 import re
 import shutil
 import threading
-import urllib.parse
 import time
+import urllib.parse
 from collections.abc import Callable
 from contextvars import ContextVar
 from datetime import datetime, timedelta
@@ -34,11 +34,11 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 from pydantic import BaseModel, Field
+from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
 from .. import dashboard as dashboard_mod
-from .. import demo, exp, guess, planner, roster, versions
+from .. import demo, exp, guess, planner, roster, versions, web_icons
 from .. import shops as shops_mod
 from .. import weapons as weapons_mod
 from ..catalogue import Catalogue, read_overrides, write_overrides
@@ -2420,6 +2420,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         path = reference_dir() / filename        # asked now (D188)
         if not path.exists():
             raise HTTPException(404, "missing reference icon")
+        # the page's copy as WebP when it is made (D230); the PNG until then, and for scanners
+        copy = web_icons.copy_for(path)
+        if copy is not None:
+            return FileResponse(copy, media_type="image/webp")
         media = "image/png" if filename.endswith(".png") else "image/webp"
         return FileResponse(path, media_type=media)
 

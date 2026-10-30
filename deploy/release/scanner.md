@@ -46,9 +46,10 @@ It installs the packages (with the PyTorch that fits your GPU) and the recogniti
 (~346 MB). `-Scanner` skips the item catalogue: the server sends it before every scan. Add `-Yes`
 to take every default without being asked. On macOS: `./setup.sh --scanner`.
 
-Last, it offers shortcuts: `WuWa Scan` on the Desktop, and a *WuWa Inventory Vision* folder
-in the Start menu (Connect server, Scan, Update). Add or remove them later with
-`uv run python -m wuwa_vision shortcuts` (`--remove`).
+Last, it offers shortcuts, a question for each place: `WuWa Scan` on the Desktop, and a
+*WuWa Inventory Vision* folder in the Start menu (Scan, Update; Connect server only if you say yes
+-- it is done once). Add or remove them later with `uv run python -m wuwa_vision shortcuts`
+(`--desktop`, `--menu`, `--connect`, `--remove`).
 
 ## 2. Give it its server (once)
 
@@ -93,6 +94,12 @@ uv run python -m wuwa_vision push
 | `uv run python -m wuwa_vision server` | where this PC's scans go, and how many are waiting |
 | `uv run python -m wuwa_vision pull` | fetch what the server knows, now |
 | `uv run python -m wuwa_vision server forget` | stop sending; keep the scans on this PC |
+
+## Uninstalling
+
+**double-click `5 卸载 Uninstall`**. It removes the shortcuts, the installed
+environment, the recognition model and the program's files, and asks first whether your scans
+and settings (the `data` folder) go too -- they stay unless you say yes.
 
 ## If something is wrong
 

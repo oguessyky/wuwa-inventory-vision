@@ -999,11 +999,23 @@ def _cmd_shortcuts(args: argparse.Namespace) -> int:
     """Shortcuts on the Desktop and in the Start menu, or take them away (D224)."""
     from . import shortcuts, versions
 
-    plan = shortcuts.plan(versions.ROOT, sys.platform)
+    if args.remove:              # every one it could have made, wherever (D231)
+        plan = shortcuts.everything(versions.ROOT, sys.platform)
+    else:
+        places = tuple(p for p, on in (("desktop", args.desktop), ("menu", args.menu)) if on)
+        plan = shortcuts.plan(versions.ROOT, sys.platform, places or shortcuts.PLACES,
+                              connect=args.connect)
     if not plan:
-        print("没有可做的快捷方式：只在 Windows 上、解压出来的程序包里才有。")
+        print("没有可做的快捷方式：只在 Windows 或 Mac 上、解压出来的程序包里才有。")
         return 1
     return shortcuts.make(plan, versions.ROOT, remove=args.remove)
+
+
+def _cmd_uninstall(args: argparse.Namespace) -> int:
+    """Remove the program from its folder, asking before the scans and settings (D232)."""
+    from . import uninstall, versions
+
+    return uninstall.run(Path(args.folder) if args.folder else versions.ROOT)
 
 
 def _cmd_update(args: argparse.Namespace) -> int:
@@ -1089,6 +1101,11 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     shared = None if args.local else tailnet.share(args.port)
     if args.local:
         print("  tailnet : not shared (--local)")
+    # the pages' item icons as WebP, made in the background; the PNG until each is ready (D230)
+    from . import web_icons
+    from .catalogue import CATALOGUE_DIR
+
+    web_icons.start(Path(CATALOGUE_DIR))
     try:
         uvicorn.run(create_app(Path(args.db), home_key=key), host="127.0.0.1", port=args.port,
                     log_level="info")
@@ -1231,10 +1248,18 @@ def main(argv: list[str] | None = None) -> int:
         "update", help="update to the server's version, when the server says this one is behind"
     ).set_defaults(func=_cmd_update)
     p_short = sub.add_parser(
-        "shortcuts", help="add shortcuts to the Desktop and the Start menu (Windows)"
+        "shortcuts", help="add shortcuts: the Desktop, the Start menu or a Mac's Applications"
     )
+    p_short.add_argument("--desktop", action="store_true", help="on the Desktop only")
+    p_short.add_argument("--menu", action="store_true",
+                         help="in the Start menu (a Mac: Applications) only")
+    p_short.add_argument("--connect", action="store_true", help="a Connect server one too")
     p_short.add_argument("--remove", action="store_true", help="take them away again")
     p_short.set_defaults(func=_cmd_shortcuts)
+    p_gone = sub.add_parser(
+        "uninstall", help="remove the program, its shortcuts and environment; asks before the data")
+    p_gone.add_argument("--folder", help="the package's folder (default: this one)")
+    p_gone.set_defaults(func=_cmd_uninstall)
     sub.add_parser(
         "pull", help="fetch what the server has learned, and its catalogue, now"
     ).set_defaults(func=_cmd_pull)

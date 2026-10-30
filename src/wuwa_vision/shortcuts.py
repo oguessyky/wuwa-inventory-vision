@@ -1,27 +1,33 @@
 # Copyright 2026 oguessyky
 # SPDX-License-Identifier: Apache-2.0
 # Part of WuWa Inventory Vision (https://github.com/oguessyky). Keep this notice: see NOTICE.
-"""Shortcuts on the Desktop and in the Start menu (D224).
+"""Shortcuts on the Desktop and in the Start menu, or a Mac's Applications (D224, D231).
 
 The user, 2026-10-28: "is it possible to made able for user to add a shortcut to their desktop
-or start menu?". A shortcut opens one of the package's own double-click files (D184), with the
-app's icon (`assets/wuwa.ico`):
+or start menu?"; then "not all people want it in both place, and I think you forgot to support
+for mac. ... shortcut for connect server I dont think is needed (you may put it as optional". A
+shortcut opens one of the package's own double-click files (D184), with the app's icon:
 
 - the Desktop gets the two used every day: scan, and the pages;
-- the Start menu gets a folder, `WuWa Inventory Vision`, with every one but Setup.
+- the "menu" -- the Start menu's `WuWa Inventory Vision` folder, or a Mac's Applications, where
+  Launchpad and Spotlight find them -- gets every one but Setup and Uninstall;
+- Connect server only when asked: it is done once.
 
-Setup asks before it makes them, as it asks before every step; `wuwa shortcuts` makes them later
-and `wuwa shortcuts --remove` takes them away -- only its own, by name, and the Start menu's
-folder only when nothing else is left in it. Windows only for now: a Mac has no Start menu.
+Setup asks once per place; `wuwa shortcuts` makes them later and `--remove` (and the uninstall,
+D232) takes away every one it could have made -- only its own, by name.
 
-The plan and the script are pure; `make()` hands the script to PowerShell's own shortcut maker
-(WScript.Shell), encoded, so no name or folder in it can be misread as a command.
+Windows: Windows' Unicode shortcut maker, given an encoded PowerShell script, so no name or folder
+in it can be misread as a command. A Mac: a `.command` on the Desktop that runs the package's own,
+and in Applications a small app that opens it in Terminal, with `assets/wuwa.icns`.
 """
 
 from __future__ import annotations
 
 import base64
+import plistlib
+import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -29,8 +35,9 @@ from pathlib import Path
 #: The names are English (the user, 2026-10-28: "the shortcut should use the english name tho").
 APP = "WuWa Inventory Vision"
 PREFIX = "WuWa"
-#: The app's own icon, in the package.
+#: The app's own icon, in the package: Windows', and a Mac's.
 ICON = Path("assets") / "wuwa.ico"
+ICNS = Path("assets") / "wuwa.icns"
 #: Each double-click file (its name after the step's number) and what its shortcut says.
 WHAT = {
     "连接服务器 Connect server": "连接服务器 · Connect this scanner to its server",
@@ -38,38 +45,100 @@ WHAT = {
     "总览 Dashboard": "打开页面 · Open the pages",
     "更新 Update": "更新扫描端 · Update this scanner to its server's version",
 }
+CONNECT = "连接服务器 Connect server"
 DESKTOP = ("扫描 Scan", "总览 Dashboard")
-MENU = ("连接服务器 Connect server", "扫描 Scan", "总览 Dashboard", "更新 Update")
+MENU = (CONNECT, "扫描 Scan", "总览 Dashboard", "更新 Update")
+#: The places: the Desktop, and the "menu" -- the Start menu, or a Mac's Applications.
+PLACES = ("desktop", "menu")
 
 
 @dataclass(frozen=True)
 class Shortcut:
-    name: str          # the .lnk's name, without .lnk
+    name: str          # the shortcut's name, without .lnk / .command / .app
     target: Path       # the double-click file it opens
     place: str         # "desktop" or "menu"
     about: str         # what it says when the pointer rests on it
 
 
-def launchers(folder: Path) -> dict[str, Path]:
+def launchers(folder: Path, system: str = sys.platform) -> dict[str, Path]:
     """The package's double-click files, by their name after the number: "扫描 Scan"."""
+    suffix = ".command" if system == "darwin" else ".cmd"
     found = {}
-    for path in folder.glob("* *.cmd"):
+    for path in folder.glob(f"* *{suffix}"):
         number, _, name = path.stem.partition(" ")
         if number.isdigit():
             found[name] = path
     return found
 
 
-def plan(folder: Path, system: str) -> list[Shortcut]:
-    """The shortcuts this package gets on this system: none in a checkout, none off Windows."""
-    if not system.startswith("win"):
+def plan(folder: Path, system: str, places: tuple[str, ...] = PLACES,
+         connect: bool = False) -> list[Shortcut]:
+    """The shortcuts this package gets on this system, in the places asked for: none in a
+    checkout, none where neither Windows nor a Mac. Connect server only when asked (D231)."""
+    if not (system.startswith("win") or system == "darwin"):
         return []
-    found = launchers(folder)
+    found = launchers(folder, system)
     # named in English, the launcher's own English half: "扫描 Scan" -> "WuWa Scan"
     return [Shortcut(f"{PREFIX} {name.split(' ', 1)[-1]}", found[name], place, WHAT[name])
-            for place, names in (("desktop", DESKTOP), ("menu", MENU))
-            for name in names if name in found]
+            for place, names in (("desktop", DESKTOP), ("menu", MENU)) if place in places
+            for name in names if name in found and (connect or name != CONNECT)]
 
+
+def everything(folder: Path, system: str) -> list[Shortcut]:
+    """Every shortcut this package could have made: what `--remove` and the uninstall take away."""
+    return plan(folder, system, PLACES, connect=True)
+
+
+# --- a Mac -----------------------------------------------------------------------------------
+
+def _mac_paths(s: Shortcut, home: Path) -> Path:
+    if s.place == "desktop":
+        return home / "Desktop" / f"{s.name}.command"
+    return home / "Applications" / f"{s.name}.app"
+
+
+def mac_apply(shortcuts: list[Shortcut], folder: Path, home: Path,
+              remove: bool = False) -> list[Path]:
+    """Make them in `home` (or take them away), and return what was touched. The Desktop's is a
+    `.command` that runs the package's own -- not a link, which would run it from the Desktop's
+    folder; Applications' is a small app that opens it in Terminal, as a double-click does."""
+    touched = []
+    for s in shortcuts:
+        path = _mac_paths(s, home)
+        if remove:
+            if path.is_dir():
+                shutil.rmtree(path)
+                touched.append(path)
+            elif path.exists():
+                path.unlink()
+                touched.append(path)
+            continue
+        if s.place == "desktop":
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f'#!/bin/bash\n# {s.about} -- WuWa Inventory Vision (D231)\n'
+                            f'exec "{s.target}"\n', "utf-8", newline="\n")
+            path.chmod(0o755)
+        else:
+            contents = path / "Contents"
+            (contents / "MacOS").mkdir(parents=True, exist_ok=True)
+            (contents / "Resources").mkdir(parents=True, exist_ok=True)
+            run = contents / "MacOS" / "run"
+            run.write_text(f'#!/bin/bash\nopen -a Terminal "{s.target}"\n', "utf-8", newline="\n")
+            run.chmod(0o755)
+            icon = folder / ICNS
+            if icon.exists():
+                shutil.copyfile(icon, contents / "Resources" / "wuwa.icns")
+            info = {"CFBundleName": s.name, "CFBundleDisplayName": s.name,
+                    "CFBundleIdentifier": "io.github.oguessyky.wuwa." + s.name.split()[-1].lower(),
+                    "CFBundleExecutable": "run", "CFBundleIconFile": "wuwa",
+                    "CFBundlePackageType": "APPL", "CFBundleVersion": "1",
+                    "LSUIElement": True}
+            (contents / "Info.plist").write_bytes(plistlib.dumps(info))
+        touched.append(path)
+    return touched
+
+
+# --- Windows ---------------------------------------------------------------------------------
 
 def _quoted(text: str | Path) -> str:
     """A PowerShell string that is only ever a string: '…', with ' doubled."""
@@ -167,7 +236,11 @@ def command(shortcuts: list[Shortcut], folder: Path, remove: bool = False) -> li
 
 
 def make(shortcuts: list[Shortcut], folder: Path, remove: bool = False) -> int:
-    """Run it, and print what PowerShell said it did."""
+    """Make them (or take them away) on this machine, and say what was done."""
+    if sys.platform == "darwin":
+        for path in mac_apply(shortcuts, folder, Path.home(), remove):
+            print(f"  {'removed' if remove else 'added'}: {path}")
+        return 0
     done = subprocess.run(command(shortcuts, folder, remove), capture_output=True, text=True,
                           encoding="utf-8", errors="replace")
     for line in (done.stdout + done.stderr).splitlines():

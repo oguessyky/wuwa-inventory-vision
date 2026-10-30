@@ -9,6 +9,10 @@ import { Code } from './Code';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
+/** A screenshot as the page shows it: the WebP made beside it while the site is built (D230). The
+ * words name the PNG, which docs/screens holds and the README shows. */
+const webp = (src: string) => (src.startsWith('screens/') ? src.replace(/\.(png|jpe?g)$/i, '.webp') : src);
+
 /** An address in the words: '/install' is a page of the site, in the page's own language. */
 function to(href: string, lang: Lang): string {
   if (!href.startsWith('/')) return href;
@@ -99,7 +103,7 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
     const picture = /^!\[([^\]]*)\]\(([^)]+)\)$/.exec(line.trim());
     if (picture) {
       flush();
-      blocks.push(<figure key={`f${blocks.length}`}><img src={`${BASE}/${picture[2]}`} alt={picture[1]} loading="lazy" />
+      blocks.push(<figure key={`f${blocks.length}`}><img src={`${BASE}/${webp(picture[2])}`} alt={picture[1]} loading="lazy" />
         {picture[1] ? <figcaption>{picture[1]}</figcaption> : null}</figure>);
       continue;
     }

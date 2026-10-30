@@ -485,15 +485,16 @@ def guide_scanner() -> str:
              "folder moved later means setting up again.",
              pic_unzip("C:\\wuwa-scanner", [
                  ("1 安装 Setup.cmd", ""), ("2 连接服务器 Connect server.cmd", ""),
-                 ("3 扫描 Scan.cmd", ""), ("python/", "已带 Python · Python included"),
+                 ("3 扫描 Scan.cmd", ""), ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
+                 ("python/", "已带 Python · Python included"),
                  ("START-HERE.html", "这一页 · this page")],
                  ("1 安装 Setup.cmd", "2 连接服务器 Connect server.cmd", "3 扫描 Scan.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）。装依赖、显卡对应的 PyTorch 和识别模型；"
-             "图鉴由服务器发过来，这里不用下。最后问要不要在桌面和开始菜单放快捷方式。",
+             "图鉴由服务器发过来，这里不用下。最后分别问要不要在桌面、开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
              "PyTorch for your GPU and the recognition model. The catalogue comes from the server. "
-             "Last, it offers shortcuts on the Desktop and in the Start menu.",
+             "Last, it asks about shortcuts, one place at a time: the Desktop, the Start menu.",
              pic_setup(True)),
         step(3, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
              "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-server</code>，"
@@ -526,14 +527,16 @@ def guide_full() -> str:
              "folder moved later means setting up again.",
              pic_unzip("C:\\wuwa-vision", [
                  ("1 安装 Setup.cmd", ""), ("2 扫描 Scan.cmd", ""), ("3 总览 Dashboard.cmd", ""),
+                 ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
                  ("python/", "已带 Python · Python included"), ("START-HERE.html", "这一页 · this page")],
                  ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd")), UNBLOCK),
         step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）：依赖、显卡对应的 PyTorch、识别模型，"
-             "还有从库洛官方 Wiki 下载的图鉴（几分钟）。最后问要不要在桌面和开始菜单放快捷方式。",
+             "还有从库洛官方 Wiki 下载的图鉴（几分钟）。最后分别问要不要在桌面、开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
              "PyTorch for your GPU, the recognition model, and the catalogue from Kuro's wiki (a "
-             "few minutes). Last, it offers shortcuts on the Desktop and in the Start menu.",
+             "few minutes). Last, it asks about shortcuts, one place at a time: the Desktop, the Start "
+             "menu.",
              pic_setup(False)),
         step(3, "双击 2 扫描 Scan", "Double-click 2 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
@@ -619,6 +622,7 @@ def guide_mac(scanner: bool) -> str:
     rows = ([("1 安装 Setup.command", ""), ("2 连接服务器 Connect server.command", ""),
              ("3 扫描 Scan.command", "")] if scanner else
             [("1 安装 Setup.command", ""), ("2 扫描 Scan.command", ""), ("3 总览 Dashboard.command", "")])
+    rows.append(("5 卸载 Uninstall.command", "不用时 · to remove it"))
     rows.append(("START-HERE.html", "这一页 · this page"))
     scan = "3 扫描 Scan" if scanner else "2 扫描 Scan"
     steps = [
@@ -636,11 +640,14 @@ def guide_mac(scanner: bool) -> str:
         step(3, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "第一次 macOS 会说「无法验证开发者」：右键点它 → <b>打开</b> → 再点 <b>打开</b>。"
              "然后它会说找到了什么，每一步都先问（按 Enter 就是“是”）"
-             + ("；图鉴由服务器发过来，这里不用下。" if scanner else "，包括从库洛官方 Wiki 下载的图鉴。"),
+             + ("；图鉴由服务器发过来，这里不用下。" if scanner else "，包括从库洛官方 Wiki 下载的图鉴。")
+             + "最后分别问要不要在桌面、「应用程序」（启动台、聚焦搜索）放快捷方式。",
              "The first time, macOS says it cannot verify the developer: right-click it → "
              "<b>Open</b> → <b>Open</b>. Then it says what it found and asks before each step "
              "(Enter is yes)" + ("; the catalogue comes from the server." if scanner
-                                 else ", the catalogue from Kuro's wiki among them."),
+                                 else ", the catalogue from Kuro's wiki among them.")
+             + " Last, it asks about shortcuts, one place at a time: the Desktop, Applications "
+             "(Launchpad, Spotlight).",
              pic_open_anyway(), pic_setup(scanner, mac=True)),
         step(4, "允许「屏幕录制」", "Allow Screen Recording",
              "macOS 不让任何程序读别的窗口，除非你同意：<b>系统设置 → 隐私与安全性 → 屏幕与系统录音</b>，"

@@ -43,9 +43,10 @@ It says what it finds and asks before each step: the packages (with the PyTorch 
 GPU), the recognition model (~346 MB), and the item catalogue from Kuro's official wiki (a few
 minutes). Add `-Yes` to take every default without being asked. On macOS: `./setup.sh`.
 
-Last, it offers shortcuts: `WuWa Scan` and `WuWa Dashboard` on the Desktop, and a
-*WuWa Inventory Vision* folder in the Start menu. Add or remove them later with
-`uv run python -m wuwa_vision shortcuts` (`--remove`). After moving the folder, run Setup again.
+Last, it offers shortcuts, a question for each place: `WuWa Scan` and `WuWa Dashboard` on the
+Desktop, and a *WuWa Inventory Vision* folder in the Start menu. Add or remove them later with
+`uv run python -m wuwa_vision shortcuts` (`--desktop`, `--menu`, `--remove`). After moving the
+folder, run Setup again.
 
 ## 2. Scan
 
@@ -80,6 +81,9 @@ address your own phone can open too; `serve --local` keeps it on this PC.
   across from the old one -- your scans, names and settings are all in there -- and run the
   setup in the new folder. If this PC scans for a server, **`4 更新 Update`** does it for you
   when the server is newer (it downloads the server's version from GitHub; nothing otherwise).
+- **Uninstalling**: **double-click `5 卸载 Uninstall`**. It removes the shortcuts, the installed
+  environment, the recognition model and the program's files, and asks first whether your scans
+  and settings (the `data` folder) go too -- they stay unless you say yes.
 - **Something wrong**: [docs/setup.md](docs/setup.md) ends with troubleshooting, and the app's
   帮助 page says what to do when something does not work.
 

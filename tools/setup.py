@@ -59,13 +59,15 @@ def say(machine: Machine, plan: Plan) -> None:
         print(f"  WARNING : {plan.blocked}")
 
 
-def ask(question: str, assume_yes: bool) -> bool:
+def ask(question: str, assume_yes: bool, default: bool = True) -> bool:
+    """A yes or no, Enter taking the default; --yes takes every default."""
     if assume_yes:
-        return True
+        return default
     try:
-        return input(f"{question} [Y/n] ").strip().lower() in ("", "y", "yes")
+        said = input(f"{question} {'[Y/n]' if default else '[y/N]'} ").strip().lower()
     except EOFError:  # non-interactive: do nothing rather than guess
         return False
+    return default if not said else said in ("y", "yes")
 
 
 def run(command: list[str]) -> int:
@@ -161,10 +163,22 @@ def verify() -> None:
 
 
 def add_shortcuts(assume_yes: bool) -> None:
-    """Shortcuts on the Desktop and in the Start menu, if this is a package on Windows (D224)."""
-    plan = shortcuts.plan(ROOT, sys.platform)
-    if (plan and ask("add shortcuts to the Desktop and the Start menu?", assume_yes)
-            and shortcuts.make(plan, ROOT)):
+    """Shortcuts, if this is a package on Windows or a Mac (D224): a question per place, as not
+    everyone wants both; Connect server only on a yes, as it is done once (D231)."""
+    every = shortcuts.everything(ROOT, sys.platform)
+    if not every:
+        return
+    places = []
+    if ask("add shortcuts to the Desktop?", assume_yes):
+        places.append("desktop")
+    menu_question = ("add shortcuts to Applications (Launchpad, Spotlight)?"
+                     if sys.platform == "darwin" else "add shortcuts to the Start menu?")
+    if ask(menu_question, assume_yes):
+        places.append("menu")
+    connect = (bool(places) and any(s.name.endswith("Connect server") for s in every)
+               and ask("also a shortcut for Connect server?", assume_yes, default=False))
+    plan = shortcuts.plan(ROOT, sys.platform, tuple(places), connect)
+    if plan and shortcuts.make(plan, ROOT):
         print("  the shortcuts could not be made: the double-click files still work")
 
 

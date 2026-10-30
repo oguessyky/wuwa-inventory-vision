@@ -21,6 +21,11 @@ Unzip this folder somewhere it can stay, then **double-click `1 安装 Setup`**.
 macOS may say it cannot check the file: right-click it, choose **Open**, then **Open** again. It
 runs `./setup.sh --scanner`.
 
+Last, it offers shortcuts, a question for each place: on the Desktop, and in Applications, where
+Launchpad and Spotlight find them -- each opens the package's own file in Terminal, with the app's
+icon (Connect server only if you say yes). `uv run python -m wuwa_vision shortcuts --remove` takes
+them away.
+
 ## 2. Give it its server (once)
 
 First download `server.key` from the server's data folder -- it lands in Downloads. Then
@@ -42,6 +47,9 @@ has what differs on a Mac (Screen Recording, the focus click).
 - **Updating**: when this Mac scans for a server and the server is newer, **double-click
   `4 更新 Update`**: it downloads the server's version from this project's GitHub releases, checks
   it, puts it over this folder (your `data` stays) and runs the setup again.
+- **Uninstalling**: **double-click `5 卸载 Uninstall`**. It removes the shortcuts, the installed
+  environment, the recognition model and the program's files, and asks first whether your scans
+  and settings (the `data` folder) go too -- they stay unless you say yes.
 - **Something wrong**: [docs/setup.md](docs/setup.md) ends with troubleshooting.
 
 Licence: Apache 2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)); how the project asks to be used:

@@ -2,6 +2,30 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.2.2",
+   "date": "2026-10-30",
+   "scanner": [
+    {
+     "zh": "安装时分别问要不要在桌面、开始菜单放快捷方式；「连接服务器」的快捷方式只在你说要时才放",
+     "en": "setup asks about the Desktop and the Start menu one at a time; a Connect server shortcut only if you say yes"
+    },
+    {
+     "zh": "Mac 也能放快捷方式：桌面和「应用程序」（启动台、聚焦搜索都找得到）",
+     "en": "shortcuts on a Mac too: on the Desktop and in Applications, where Launchpad and Spotlight find them"
+    },
+    {
+     "zh": "新的「5 卸载 Uninstall」：去掉快捷方式和程序，先问扫描记录和设置要不要一起删（默认留下）",
+     "en": "a new 5 卸载 Uninstall: removes the shortcuts and the program, and asks first whether your scans and settings go too (they stay unless you say yes)"
+    }
+   ],
+   "home": [
+    {
+     "zh": "网页里的物品图标改用 WebP：库存页的图标从 15.6 MB 变成 4.0 MB，打开更快；发给扫描端的图鉴仍是 PNG",
+     "en": "the pages' item icons are WebP: the inventory's icons go from 15.6 MB to 4.0 MB and open faster; the catalogue sent to scanners stays PNG"
+    }
+   ]
+  },
+  {
    "version": "1.2.1",
    "date": "2026-10-28",
    "scanner": [
