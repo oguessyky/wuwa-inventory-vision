@@ -26,9 +26,7 @@ services:
     environment:
       # your key, from https://login.tailscale.com/admin/settings/keys -- used once, on the first start
       TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}
-      # this server's name on your tailnet; a second server beside it takes another (wuwa-server-test).
-      # Set up before 1.2.0? It is called wuwa-home: write wuwa-home here to keep it, or connect
-      # your scanners again (D225)
+      # this server's name on your tailnet; a second server beside it takes another (wuwa-server-test)
       TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}
     volumes:
       # the database, the scan crops, the catalogue and the upload key (server.key)

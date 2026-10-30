@@ -53,13 +53,9 @@ jobs:
           context: ${{ runner.temp }}/server/app
           platforms: linux/amd64,linux/arm64
           push: true
-          # the same image under its name before 1.2.0 too, so a NAS whose compose file names
-          # wuwa-inventory-vision-home keeps getting each update (D225)
           tags: |
             ghcr.io/oguessyky/wuwa-inventory-vision-server:${{ steps.version.outputs.version }}
             ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-server:latest' || '' }}
-            ghcr.io/oguessyky/wuwa-inventory-vision-home:${{ steps.version.outputs.version }}
-            ${{ github.event_name == 'release' && !github.event.release.prerelease && 'ghcr.io/oguessyky/wuwa-inventory-vision-home:latest' || '' }}
       - name: the server's Tailscale, under this app's name (D191)
         uses: docker/build-push-action@v6
         with:

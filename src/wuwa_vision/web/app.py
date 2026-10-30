@@ -591,7 +591,7 @@ class _DataStamp:
 #: The answers that are kept until the database or the catalogue changes (D171): each a
 #: function of those two alone. Not 猜谜 (the day's puzzle), not the scan monitor, not a
 #: write -- and not 总览, which also says what a scanner has not sent home yet, from a file
-#: (`data/home.json`) that `wuwa home set` writes from outside.
+#: (`data/server.json`) that `wuwa server set` writes from outside.
 KEPT_ANSWERS = frozenset({
     "/api/english", "/api/find", "/api/inventory", "/api/cooking", "/api/materials",
     "/api/resonators", "/api/weapons", "/api/shops", "/api/recognized", "/api/holders",

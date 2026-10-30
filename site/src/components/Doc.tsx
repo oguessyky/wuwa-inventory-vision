@@ -271,9 +271,8 @@ function Releases({ lang }: { lang: Lang }) {
   );
 }
 
-/** Where a page that is no more has gone (D225, D228): the home's page is the server's, and the Mac
- * guides' pages are pictures on the Mac page. The old address forwards there, and tells search
- * engines the new one is the page. */
+/** Where a page that is no more has gone (D228): the Mac guides' pages are pictures on the Mac
+ * page. The old address forwards there, and tells search engines the new one is the page. */
 export function movedMetadata(lang: Lang, to: string): Metadata {
   return { title: T[lang].site, robots: { index: false, follow: true },
            alternates: { canonical: `${SITE}${address(lang, to)}` } };

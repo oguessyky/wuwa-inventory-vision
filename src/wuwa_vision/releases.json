@@ -4,11 +4,24 @@
   {
    "version": "1.3.0",
    "date": "2026-10-30",
-   "scanner": [],
+   "scanner": [
+    {
+     "zh": "修复：换到新服务器时，扫描记录很多的扫描器会报「上传的内容太大」，之后每次都失败。现在分批发送，中断后也能接着传",
+     "en": "fixed: a scanner with a lot of data moved to a new server stopped with \"上传的内容太大\", and every push after failed too. It now sends in parts, and picks up where it stopped"
+    },
+    {
+     "zh": "只留下「服务器」这个名字：旧的 wuwa-home 和 wuwa home 命令已移除，旧文件会自动改名，已连接的服务器不用重新设置",
+     "en": "only the name server is left: the old wuwa-home and the wuwa home command are gone. Old files take their new names by themselves, so a scanner keeps its server"
+    }
+   ],
    "home": [
     {
      "zh": "服务器现在只有一个容器（程序和 Tailscale 在一起），重启和更新不会再报 “network namespace” 错误。旧配置文件还能继续用；要改成一个容器，粘贴一次新的配置文件，步骤见帮助",
      "en": "the server is now one container (the app and Tailscale together), so a restart or an update can no longer fail with a \"network namespace\" error. The older compose file keeps working; to move, paste the new one once: the help says how"
+    },
+    {
+     "zh": "修复：上传或更新图鉴时，页面会报错打不开（database is locked）。现在读取不再需要等待，保存也会排队完成",
+     "en": "fixed: pages failed with \"database is locked\" during an upload or a wiki update. Reading no longer waits, and a save takes its turn"
     }
    ]
   },

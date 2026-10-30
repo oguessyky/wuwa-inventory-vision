@@ -9,7 +9,7 @@ if [ ! -f /app/data/wuwa.sqlite ] && [ -f /seed/wuwa.sqlite ]; then
     cp -a /seed/. /app/data/
 fi
 
-if [ ! -f /app/data/server.key ] && [ ! -f /app/data/home.key ]; then   # home.key: before 1.2.0 (D225)
+if [ ! -f /app/data/server.key ]; then
     echo "first start: the key a scanner needs will be the one line of server.key in the data folder"
 fi
 
@@ -20,14 +20,29 @@ if [ -z "${TS_HOSTNAME:-}" ]; then
     exec "$@"
 fi
 
-# Whichever ends first ends the container, and Docker brings both back: half a server says
-# nothing is wrong. Stopping the container stops both.
-PATH="/opt/tailscale:$PATH" /opt/tailscale/containerboot &
-env -u TS_AUTHKEY "$@" &
-stop() { kill -TERM $(jobs -p) 2>/dev/null || true; }
-trap stop TERM INT
+# Tailscale is started again on its own when it ends: its start gives up after a minute with no
+# working login, and that must not take the app down with it. The app ending ends the container,
+# and Docker brings both back. Stopping the container stops both.
 set +e
-wait -n
+keep_tailscale() {
+    trap 'kill -TERM "$boot" 2>/dev/null; wait "$boot"; exit 0' TERM INT
+    while true; do
+        PATH="/opt/tailscale:$PATH" /opt/tailscale/containerboot &
+        boot=$!
+        wait "$boot"
+        echo "tailscale ended: starting it again in 10 seconds"
+        sleep 10 &
+        wait $!
+    done
+}
+
+keep_tailscale &
+tailscale=$!
+env -u TS_AUTHKEY "$@" &
+app=$!
+stop() { kill -TERM "$app" "$tailscale" 2>/dev/null || true; }
+trap stop TERM INT
+wait "$app"
 code=$?
 stop
 wait

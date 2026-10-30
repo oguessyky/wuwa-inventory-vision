@@ -227,7 +227,7 @@ database; the rest are plain files.
 | A rebuild changed nothing | Open `http://<the NAS>:4000/api/sync/hello`: its `version` is the `app/VERSION` the running build was made from. If it is the old one while `app/VERSION` on the NAS is new, the project was restarted, not rebuilt -- rebuild it, or `sh setup.sh`. If `app/VERSION` on the NAS is old too, the copy from the PC has not finished arriving. |
 | A thing is recognised as something else, scan after scan | The scanner learned a wrong name for its picture. Open 更新 › 识别 on the server, find the name (or the 可能认错 chip), click the picture and give it the right name: every crop of that picture and the scans that saw it change, and each scanner takes it at its next fetch. |
 | `server set` says 连不上服务器 | The address is not answering from the PC. Open it in the PC's browser; check that `setup.sh` finished and that both are on the tailnet. |
-| … says 不是服务器 | Something else answers there, or the app was started without `--home`. |
+| … says 不是服务器 | Something else answers there, or the app was started without `--server`. |
 | … says 钥匙 | The key is not the one in the server's `server.key`. |
 | … says the address must be on the tailnet | Only `…ts.net`, `100.x` and this machine itself are accepted — never a LAN or public address. |
 | It stopped answering after the Tailscale container was updated or recreated | With `WUWA_NETWORK=container:…` the app lives in that container's network, and a new Tailscale container is a new network. Run `sh setup.sh` again. |

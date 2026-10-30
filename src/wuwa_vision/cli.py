@@ -11,7 +11,6 @@ import functools
 import shutil
 import subprocess
 import sys
-import urllib.parse
 from pathlib import Path
 
 from .capture.windows import set_dpi_awareness
@@ -722,21 +721,6 @@ def _home(db: Path | str):  # noqa: ANN202 -- sync.Home | None
         return sync.Home(said["url"], said["key"])
     except sync.SyncError as exc:
         first = exc
-    # The saved name may be the server's from before 1.2.0: `wuwa-home`, which a server given
-    # the new compose file answers as `wuwa-server`. Same key; kept if it answers (D225).
-    old = urllib.parse.urlsplit(said["url"])
-    if (old.hostname or "") in sync.DEFAULT_SERVERS:
-        for name in sync.DEFAULT_SERVERS:
-            if name == old.hostname:
-                continue
-            try:
-                renamed = old._replace(netloc=old.netloc.replace(old.hostname, name))
-                home = sync.Home(renamed.geturl(), said["key"])
-            except sync.SyncError:
-                continue
-            sync.write_home(Path(db).parent, home.url, said["key"])
-            print(f"server: {old.hostname} is now {name} -- {home.url}, remembered")
-            return home
     # A server that cannot be found never stops a scan (D145): this one runs on its own, keeps
     # what it reads, and sends it when the server is found again.
     print(f"server: {said['url']} cannot be found ({first}) -- scanning on its own; the scans "
@@ -954,7 +938,7 @@ def _cmd_home(args: argparse.Namespace) -> int:
             return 2
         if came_from:
             print(f"key: from {came_from}")
-        # Enter at the address: wuwa-server, then wuwa-home, the name before 1.2.0 (D225)
+        # Enter at the address: the name a server takes
         tries = [args.url.strip()] if (args.url or "").strip() else list(sync.DEFAULT_SERVERS)
         said, failed = None, []
         for address in tries:
@@ -1256,18 +1240,18 @@ def main(argv: list[str] | None = None) -> int:
         help="this PC only: do not share the app with your tailnet",
     )
     p_serve.add_argument(
-        "--server", "--home", action="store_true",
+        "--server", action="store_true",
         help="be the server of other machines' scans: take uploads from scanners that hold "
-             "the key in data/server.key (made on first start; --home before 1.2.0)",
+             "the key in data/server.key (made on first start)",
     )
     p_serve.set_defaults(func=_cmd_serve)
 
     p_home = sub.add_parser(
-        "server", aliases=["home"],
+        "server",
         help="send this machine's scans to your server: the app, always on, on your tailnet")
     p_home.add_argument("action", nargs="?", choices=["show", "set", "forget"], default="show")
     p_home.add_argument("url", nargs="?",
-                        help="the server's tailnet address; left out: wuwa-server, then wuwa-home")
+                        help="the server's tailnet address; left out: wuwa-server")
     p_home.add_argument("key", nargs="?",
                         help="the one line in data/server.key on the server, the path to that "
                              "file, or left out: server.key is then taken from Downloads (D220)")
