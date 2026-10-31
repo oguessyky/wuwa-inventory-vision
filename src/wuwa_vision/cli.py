@@ -1106,6 +1106,16 @@ def _cmd_serve(args: argparse.Namespace) -> int:
         key = sync.server_key(Path(args.db).parent, create=True)
         print(f"  server  : takes scans from scanners holding the key in "
               f"{Path(args.db).parent / sync.SERVER_KEY_FILE}")
+        from .recognize.pack import server_reference
+
+        store = Store(args.db)
+        try:
+            taken = server_reference(store)
+        finally:
+            store.close()
+        if taken:
+            print(f"  server  : took the catalogue's {taken} pictures from the shipped pack, "
+                  "to check learned names against")
     else:
         # A scanner's own pages show only what this machine holds: say where the rest is.
         here = _home(args.db)

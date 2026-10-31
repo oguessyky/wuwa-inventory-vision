@@ -17,6 +17,7 @@ Plain numpy over the stored embeddings: no encoder, no torch, so a home that has
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass
 
 import numpy as np
@@ -44,8 +45,12 @@ class Crop:
     """A person said `name` is right (D167): the catalogue's doubt is not shown."""
 
 
-def learned(store: Store) -> list[Crop]:
-    """Every named picture saved from the game, with the catalogue's doubts beside it."""
+def learned(store: Store, known: Collection[str] | None = None) -> list[Crop]:
+    """Every named picture saved from the game, with the catalogue's doubts beside it.
+
+    `known`: the names the downloaded catalogue has; None when there is none yet. The pictures
+    can be older than the names (D243), and an item with no picture of its own would lose to
+    whatever looks most like it, so it is not doubted. A name no catalogue has heard of is."""
     rows = store.conn.execute(
         "SELECT icon_hash, item_name, rarity, tab, backbone, embedding, created_at FROM gallery "
         "WHERE item_name IS NOT NULL AND (tab IS NULL OR tab != 'reference')"
@@ -55,6 +60,7 @@ def learned(store: Store) -> list[Crop]:
         "WHERE tab = 'reference' AND item_name IS NOT NULL AND embedding IS NOT NULL"
     ).fetchall()
     confirmed = store.confirmed_crops()
+    drawn = {r[0] for r in refs}
     by_backbone: dict[str, tuple[list[str], np.ndarray, np.ndarray]] = {}
     for backbone in {r[2] for r in refs}:
         mine = [r for r in refs if r[2] == backbone]
@@ -64,7 +70,8 @@ def learned(store: Store) -> list[Crop]:
     for digest, name, rarity, tab, backbone, blob, created in rows:
         doubt, margin = None, 0.0
         sure = confirmed.get(digest) == name
-        if blob is not None and backbone in by_backbone and not sure:
+        weighed = name in drawn or (known is not None and name not in known)
+        if blob is not None and backbone in by_backbone and not sure and weighed:
             doubt, margin = _verdict(name, rarity, _unit(blob), *by_backbone[backbone])
         out.append(Crop(digest, name, rarity, tab, created, doubt, margin, sure))
     return out

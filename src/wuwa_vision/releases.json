@@ -22,6 +22,10 @@
     {
      "zh": "修复：上传或更新图鉴时，页面会报错打不开（database is locked）。现在读取不再需要等待，保存也会排队完成",
      "en": "fixed: pages failed with \"database is locked\" during an upload or a wiki update. Reading no longer waits, and a save takes its turn"
+    },
+    {
+     "zh": "修复：从零开始的服务器上，识别页的「可能认错」永远是空的。现在服务器自带图鉴的参考数据，可以核对学到的名字",
+     "en": "fixed: on a server started from nothing, 识别's 可能认错 stayed empty however wrong a name was. A server now has the catalogue's reference data to check learned names against"
     }
    ]
   },
