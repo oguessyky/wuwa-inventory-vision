@@ -202,6 +202,17 @@ To have that as a button:
 Keep the project in this folder: `app/`, `.env` and `seed-data/` are found beside the compose
 file. A project the app makes somewhere else, from pasted text, would not find them.
 
+## Moving to one container
+
+A server set up with the older compose file has three containers: `…-net-1`, `…-tailscale-1` and `…-wuwa-1`. It keeps running and its updates keep working, but a restart can fail with a "network namespace" error. To move:
+
+1. Press **Update** first, so the new image is on the NAS: an older one has no Tailscale inside, and the server would drop off your tailnet.
+2. **Stop the project** in the Docker app (`docker compose stop` elsewhere). The old Tailscale must not run beside the new one: they would fight over one device.
+3. Paste the new `docker-compose.yaml` over the old one, writing your own name back over `wuwa-server` if you changed it, and **deploy**.
+4. Delete the two containers left over, `…-net-1` and `…-tailscale-1`.
+
+The data and the name on your tailnet stay, and no new key is needed.
+
 ## Backing up
 
 Everything the server has is in its data volume: `wuwa.sqlite`, `icons/`, `catalogue/` and
@@ -216,12 +227,12 @@ database; the rest are plain files.
 | A rebuild changed nothing | Open `http://<the NAS>:4000/api/sync/hello`: its `version` is the `app/VERSION` the running build was made from. If it is the old one while `app/VERSION` on the NAS is new, the project was restarted, not rebuilt -- rebuild it, or `sh setup.sh`. If `app/VERSION` on the NAS is old too, the copy from the PC has not finished arriving. |
 | A thing is recognised as something else, scan after scan | The scanner learned a wrong name for its picture. Open 更新 › 识别 on the server, find the name (or the 可能认错 chip), click the picture and give it the right name: every crop of that picture and the scans that saw it change, and each scanner takes it at its next fetch. |
 | `server set` says 连不上服务器 | The address is not answering from the PC. Open it in the PC's browser; check that `setup.sh` finished and that both are on the tailnet. |
-| … says 不是服务器 | Something else answers there, or the app was started without `--home`. |
+| … says 不是服务器 | Something else answers there, or the app was started without `--server`. |
 | … says 钥匙 | The key is not the one in the server's `server.key`. |
 | … says the address must be on the tailnet | Only `…ts.net`, `100.x` and this machine itself are accepted — never a LAN or public address. |
 | It stopped answering after the Tailscale container was updated or recreated | With `WUWA_NETWORK=container:…` the app lives in that container's network, and a new Tailscale container is a new network. Run `sh setup.sh` again. |
 | A push says 清空 | The server was wiped. `wuwa pull`, then scan again. |
 | A push or pull says the versions differ | Update the scanner and the server to the same version. |
-| An update stops with "joining network namespace of container: No such container" | The app lives in the Tailscale container's network, and the update made a new Tailscale container but restarted the old app container. Stop the project and deploy it again (recreate, not start), or delete only the `…-wuwa-1` container and start the project; `docker compose up -d --force-recreate` does the same. Nothing in `data/` is touched. From v1.1.3 the network is held by a third container, `net` (Kubernetes' `pause`, pinned), which no update replaces, so this does not happen again; a server set up before that takes the new compose file once (D215). |
-| "cannot join network namespace of a non running container" | Docker Compose started the app before `net`; start the project once more. |
+| An update stops with "joining network namespace of container: No such container" | The project still has the older three containers, and the one holding their network was replaced. Stop the project and deploy it again (recreate: start and restart do not repair it); `docker compose up -d` does the same. Nothing in `data/` is touched. Then move to one container (below; D238). |
+| "cannot join network namespace of a non running container" | The older three containers were started or restarted at the same moment. Stop the project and deploy it again, then move to one container (below; D238). |
 | The app runs but the address does not open from a phone | `WUWA_NETWORK` in `.env` does not match how Tailscale runs, so `tailscale serve` is pointing at a different `127.0.0.1`. Delete that line and run `sh setup.sh` again. |

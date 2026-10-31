@@ -11,7 +11,6 @@ import functools
 import shutil
 import subprocess
 import sys
-import urllib.parse
 from pathlib import Path
 
 from .capture.windows import set_dpi_awareness
@@ -407,7 +406,8 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     # The live page (D25): wucv's boxes-and-labels view, served locally instead
     # of drawn over the game. Started first, so it can be opened while waiting --
     # and before the home is asked anything, whose answer it shows arriving (D156).
-    state = LiveState(picture=args.preview)
+    state = LiveState(picture=args.preview, phone={"port": args.share_port})
+    state.set_stopper(panic.event.set)  # the pages' stop button is this key (D254)
     if args.web:
         url = _start_live_server(Path(args.db), state, args.port)
         # Opened for the user (D153). It takes the front, which costs nothing:
@@ -600,7 +600,8 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     print()
     reason = result.stop_reason
     if result.aborted:
-        reason = f"{panic.key} pressed -- everything read so far is saved"
+        how = "stop pressed on the scan page" if state.stopping else f"{panic.key} pressed"
+        reason = f"{how} -- everything read so far is saved"
     print(f"stopped: {reason}")
     unfocused = sum(t.report.frames_unfocused for t in result.tabs)
     # Views, not gate accepts: a click is read too, and the gate never sees it
@@ -676,7 +677,8 @@ def _open_in_browser(url: str) -> bool:
 
 def _share_with_phone(db: Path, state, port: int):  # noqa: ANN001, ANN202 -- LiveState, Share
     """Give the user's phone the scan's status (D153): a second app that can only
-    be read, on its own port, and that port alone handed to their tailnet.
+    be read and told to stop (D254), on its own port, and that port alone handed to
+    their tailnet.
 
     The share, or None having said why not -- the scan then runs as it always did.
     """
@@ -686,10 +688,12 @@ def _share_with_phone(db: Path, state, port: int):  # noqa: ANN001, ANN202 -- Li
     shared, why = tailnet.open_share(port)
     if shared is None:
         print(f"phone page: not shared ({why})")
+        state.set_phone({"port": port, "why": why})
         return None
     _serve_in_background(create_phone_app(db, state), port, "phone-page")
+    state.set_phone({"port": port, "url": shared.url})
     print(f"phone page: {shared.url}  (your own Tailscale devices only; it shows the")
-    print("            scan's progress, changes nothing, and never a picture of the game)")
+    print("            scan's progress, can stop it, and never a picture of the game)")
     return shared
 
 
@@ -722,21 +726,6 @@ def _home(db: Path | str):  # noqa: ANN202 -- sync.Home | None
         return sync.Home(said["url"], said["key"])
     except sync.SyncError as exc:
         first = exc
-    # The saved name may be the server's from before 1.2.0: `wuwa-home`, which a server given
-    # the new compose file answers as `wuwa-server`. Same key; kept if it answers (D225).
-    old = urllib.parse.urlsplit(said["url"])
-    if (old.hostname or "") in sync.DEFAULT_SERVERS:
-        for name in sync.DEFAULT_SERVERS:
-            if name == old.hostname:
-                continue
-            try:
-                renamed = old._replace(netloc=old.netloc.replace(old.hostname, name))
-                home = sync.Home(renamed.geturl(), said["key"])
-            except sync.SyncError:
-                continue
-            sync.write_home(Path(db).parent, home.url, said["key"])
-            print(f"server: {old.hostname} is now {name} -- {home.url}, remembered")
-            return home
     # A server that cannot be found never stops a scan (D145): this one runs on its own, keeps
     # what it reads, and sends it when the server is found again.
     print(f"server: {said['url']} cannot be found ({first}) -- scanning on its own; the scans "
@@ -954,7 +943,7 @@ def _cmd_home(args: argparse.Namespace) -> int:
             return 2
         if came_from:
             print(f"key: from {came_from}")
-        # Enter at the address: wuwa-server, then wuwa-home, the name before 1.2.0 (D225)
+        # Enter at the address: the name a server takes
         tries = [args.url.strip()] if (args.url or "").strip() else list(sync.DEFAULT_SERVERS)
         said, failed = None, []
         for address in tries:
@@ -1122,6 +1111,16 @@ def _cmd_serve(args: argparse.Namespace) -> int:
         key = sync.server_key(Path(args.db).parent, create=True)
         print(f"  server  : takes scans from scanners holding the key in "
               f"{Path(args.db).parent / sync.SERVER_KEY_FILE}")
+        from .recognize.pack import server_reference
+
+        store = Store(args.db)
+        try:
+            taken = server_reference(store)
+        finally:
+            store.close()
+        if taken:
+            print(f"  server  : took the catalogue's {taken} pictures from the shipped pack, "
+                  "to check learned names against")
     else:
         # A scanner's own pages show only what this machine holds: say where the rest is.
         here = _home(args.db)
@@ -1256,18 +1255,18 @@ def main(argv: list[str] | None = None) -> int:
         help="this PC only: do not share the app with your tailnet",
     )
     p_serve.add_argument(
-        "--server", "--home", action="store_true",
+        "--server", action="store_true",
         help="be the server of other machines' scans: take uploads from scanners that hold "
-             "the key in data/server.key (made on first start; --home before 1.2.0)",
+             "the key in data/server.key (made on first start)",
     )
     p_serve.set_defaults(func=_cmd_serve)
 
     p_home = sub.add_parser(
-        "server", aliases=["home"],
+        "server",
         help="send this machine's scans to your server: the app, always on, on your tailnet")
     p_home.add_argument("action", nargs="?", choices=["show", "set", "forget"], default="show")
     p_home.add_argument("url", nargs="?",
-                        help="the server's tailnet address; left out: wuwa-server, then wuwa-home")
+                        help="the server's tailnet address; left out: wuwa-server")
     p_home.add_argument("key", nargs="?",
                         help="the one line in data/server.key on the server, the path to that "
                              "file, or left out: server.key is then taken from Downloads (D220)")

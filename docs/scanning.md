@@ -57,20 +57,24 @@ The banner at the top says when to act: **Ready** (green): scroll or click the n
 
 **One screen? Watch it on your phone.** With the game filling the PC's only screen, the live page
 is behind it. `live --share` puts the scan's status on your phone instead, over
-[Tailscale](https://tailscale.com) (installed and signed in on both the PC and the phone):
+[Tailscale](https://tailscale.com) (installed and signed in on both the PC and the phone).
+`扫描 Scan` and its shortcuts run it that way; a plain `live` keeps the scan to this PC:
 
 ```
 uv run wuwa live --identify --share
 ```
 
-It prints an address like `http://your-pc.your-tailnet.ts.net:8713`. Open it on the phone and
+It prints an address like `http://your-pc.your-tailnet.ts.net:8713`, and the top of the PC's live
+page shows it with its port; a scan that was not shared says there how to share one. Open it on
+the phone and
 bookmark it: it is the same for every scan. Held upright the page shows the banner, filled with
 its colour so it reads from arm's length, then each tab's progress, what the scan needs from you
 (items to click apart, a view that did not overlap the one before, a tab that is complete), the
 event log and the items. Turned sideways it adds the box grid. If it loses the scan it says so
 and when it last heard from it.
 
-- It can only be looked at. Fixing a name stays on the PC's page and in the main app.
+- It can be looked at, and it can stop the scan. Fixing a name stays on the PC's page and in the
+  main app.
 - It never shows a picture of the game, whatever `--preview` says: boxes and names only.
 - Only your own Tailscale devices can reach it, and only while the scan runs. Nothing is opened
   on your server network. Without Tailscale the scan runs as usual and says it is not shared.

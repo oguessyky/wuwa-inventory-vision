@@ -113,6 +113,15 @@ def ensure_reference(store: Store, backbone: str, path: Path = PACK_PATH) -> int
     return import_pack(store, backbone, path)
 
 
+def server_reference(store: Store, path: Path = PACK_PATH) -> int:
+    """The catalogue's pictures for a server (D243). They are never sent to it and it has no
+    recogniser to make them, so without the pack 更新 › 识别 has nothing to doubt a name against.
+    A server that started from a scanner's database has them already, newer than these."""
+    if not path.exists():
+        return 0
+    return ensure_reference(store, read_pack(path)[0]["backbone"], path)
+
+
 def pack_names(path: Path = PACK_PATH) -> frozenset[str]:
     """Every name in the shipped pack (the snap list when no catalogue is downloaded)."""
     if not path.exists():

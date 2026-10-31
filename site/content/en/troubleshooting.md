@@ -6,6 +6,20 @@
 
 A zip downloaded by a browser marks every file in it as from the internet. **Before** unzipping: right-click the zip → **Properties** → tick **Unblock** → OK, then unzip. Already unzipped? When it asks, it is safe to press **Run**: the files are the package's own.
 
+{{guide:scanner:1}}
+
+### Smart App Control blocked it, and there is no Run button
+
+Run a .cmd without unblocking it, and a new Windows 11 refuses it outright: "Smart App Control blocked a file that may be unsafe", with only **Okay** and **Get apps from the Store**. Smart App Control need not be turned off.
+
+{{guide:scanner:3}}
+
+With no scan done yet, nothing of yours is in the folder, so the easiest way is to start again: delete the unzipped folder, right-click the zip → **Properties** → tick **Unblock** → OK, and unzip again.
+
+Or one at a time: right-click the blocked file → **Properties** → tick **Unblock** → OK, for each .cmd. After a scan, use this one: your data is in the folder.
+
+Still not sure? The code is public. An AI coding tool such as Codex can read it for you (a free ChatGPT account can use it, within limits that change: see OpenAI's page). Point it at a freshly unzipped folder before the first scan: such a tool sends what it reads to its company, and nothing of yours is in the folder yet.
+
 ### "wuwa" or python will not start: blocked by a policy
 
 Some PCs' security policy blocks it. Run it as a module instead of `wuwa`:
@@ -70,6 +84,10 @@ uv run python -m wuwa_vision platform
 
 The PC (or the server) and the phone both need Tailscale, signed in to the same account. With one PC only, start the pages without `--local`, then open the address it prints on the phone.
 
+### The phone cannot open the scan page
+
+Look at the `phone page:` line in the terminal. `phone page: not shared` gives the reason in brackets, such as Tailscale not installed or not signed in; the scan runs as usual, the phone just cannot see it. If it printed an address, check that Tailscale is connected on the phone. The address opens only while the scan runs.
+
 ### The server's address does not open
 
 Check the Tailscale container's log for a login: a `TS_AUTHKEY` left as `tskey-auth-PUT-YOURS-HERE`, or a key already used up, will not do. In the Tailscale admin console, `wuwa-server` must show as connected.
@@ -84,13 +102,13 @@ The key is `data/server.key` in the server's storage path. Download it with the 
 
 ### The server will not start after an update: "joining network namespace of container: No such container"
 
-The server's app lives in the Tailscale container's network. The update made a new Tailscale container, and the old app container still points at the one that was removed. In the NAS's Docker app, **stop** the project and **deploy** it again (rebuild, not just start); or delete only the `…-wuwa-1` container and start the project. The data is in the project's `data` folder and is not touched.
+This only happens on a project still using the older file of three containers. They share one network, and Docker ties that to one container by its id, so when that container is replaced the others point at nothing. In the NAS's Docker app, **stop** the project and **deploy it again** (recreate: start and restart do not repair it). The data is in the project's `data` folder and is not touched.
 
-From v1.1.3 the compose file has a tiny third container, `net`, that holds the network and that no update replaces, so this does not happen again. A server set up before v1.1.3: paste the new compose file into the project once, then deploy.
+Then [move to one container](/server), which has nothing to fail this way.
 
 ### It says "cannot join network namespace of a non running container"
 
-The project's containers were started out of order: press start once more.
+The older file of three containers again: they were started or restarted at the same moment. **Stop** the project and **deploy it again**, then [move to one container](/server). Until you do, avoid the project's restart.
 
 ### A scan says the versions differ
 

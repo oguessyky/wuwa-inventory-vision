@@ -25,9 +25,13 @@ changes your account, and everything stays on your own computer ([PRIVACY.md](PR
 ## 1. Set it up (once)
 
 **Before you unzip it:** right-click the downloaded zip → **Properties** → tick **Unblock** at the
-bottom → OK. A zip downloaded by a browser marks every file in it as from the internet, and
-Windows then asks about each one ("Open File - Security Warning ... Unknown Publisher"). If it
-asks anyway, it is safe to press **Run**: the files are this package's own.
+bottom → OK. Once is enough: `START-HERE.html` has the picture. A zip downloaded by a browser marks
+every file in it as from the internet. Older Windows asks about each one ("Open File - Security
+Warning ... Unknown Publisher"), and **Run** is safe there. Run without unblocking, Smart App Control on a new Windows 11
+blocks them with no Run button, only **Okay** and **Get apps from the Store**: delete the unzipped
+folder, unblock the zip and unzip again, or unblock each .cmd the same way. Still not
+sure? The code is public: have an AI coding tool such as Codex read the folder before the first
+scan, when nothing of yours is in it.
 
 Unzip this folder somewhere short, such as `C:\wuwa-vision`, and leave it there: the setup
 builds on the Python inside it, so moving the folder later means running the setup again.
@@ -61,6 +65,15 @@ page at a time. Click an item and its name and count are read from the game's ow
 Press **F9** when you are done -- everything read so far is kept. A live page,
 <http://127.0.0.1:8711/live>, opens in your browser and shows what it is reading.
 [docs/scanning.md](docs/scanning.md) has the details.
+
+**One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
+this computer and the phone, `扫描 Scan` shares the scan's status with your own devices: open the
+`phone page:` address it prints (port 8713) on the phone. To keep a scan to this computer, start it
+from the program's folder with:
+
+```
+uv run python -m wuwa_vision live --identify
+```
 
 ## 3. Use the dashboard
 

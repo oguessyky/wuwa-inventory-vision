@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { address, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
+import { address, guideSteps, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
 import { Markdown } from './Markdown';
 import { GuideSteps, type Part } from './GuideSteps';
 import { Icon } from './Icons';
@@ -177,6 +177,22 @@ const STEPS: Record<string, Part[]> = {
   ],
 };
 
+/** A troubleshooting answer: `{{guide:<kind>:<step>}}` on its own line stands for that step's
+ * drawings in the guide, so someone who never opens the guide still sees them (D256). */
+function Answer({ text, lang }: { text: string; lang: Lang }) {
+  return (
+    <>
+      {text.split(/^(\{\{guide:[a-z-]+:\d+\}\})$/m).map((part, i) => {
+        const [, kind, n] = /^\{\{guide:([a-z-]+):(\d+)\}\}$/.exec(part) ?? [];
+        return kind
+          ? <div key={i} className="gpic" dangerouslySetInnerHTML={{
+              __html: guideSteps(kind, lang).find(s => s.n === Number(n))?.picture ?? '' }} />
+          : <Markdown key={i} text={part} lang={lang} />;
+      })}
+    </>
+  );
+}
+
 /** A page's words. An install page has its steps where `{{steps}}` stands; troubleshooting is a
  * list of questions, each folded until it is opened (D219). */
 function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string }) {
@@ -218,7 +234,7 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
                 return (
                   <details key={question} className="q">
                     <summary>{question}</summary>
-                    <Markdown text={answer.join('\n')} lang={lang} />
+                    <Answer text={answer.join('\n')} lang={lang} />
                   </details>
                 );
               })}
@@ -271,9 +287,8 @@ function Releases({ lang }: { lang: Lang }) {
   );
 }
 
-/** Where a page that is no more has gone (D225, D228): the home's page is the server's, and the Mac
- * guides' pages are pictures on the Mac page. The old address forwards there, and tells search
- * engines the new one is the page. */
+/** Where a page that is no more has gone (D228): the Mac guides' pages are pictures on the Mac
+ * page. The old address forwards there, and tells search engines the new one is the page. */
 export function movedMetadata(lang: Lang, to: string): Metadata {
   return { title: T[lang].site, robots: { index: false, follow: true },
            alternates: { canonical: `${SITE}${address(lang, to)}` } };

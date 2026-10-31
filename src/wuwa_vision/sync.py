@@ -68,6 +68,9 @@ PROTOCOL = 1
 MAX_BUNDLE_BYTES = 256_000_000
 MAX_JSON_BYTES = 64_000_000
 MAX_ICON_BYTES = 2_000_000
+#: What one upload carries of what a scanner learned (D240). A row is about 5 KB and its crop
+#: about 10 KB, so a part is about 30 MB, well inside both limits above.
+PART_ROWS = 2000
 #: A crop's name: the first 32 hex digits of a SHA-256 (`store.db.icon_hash`).
 _DIGEST = re.compile(r"^[0-9a-f]{32}$")
 _UID = re.compile(r"^[0-9a-f]{32}$")
@@ -83,12 +86,10 @@ _FACE = ("key", "name", "backbone", "embedding", "created_at", "named_at", "sugg
 #: Gallery rows that are the catalogue, not a scan: every machine builds its own
 #: from the shipped pack (`seed`), so they are never sent.
 _REFERENCE = "reference"
-#: The server's key (D225: the home is the server), and where a scanner keeps its server.
-#: `home.key` is the name it had before 1.2.0: a server still holding one copies it.
-SERVER_KEY_FILE, OLD_KEY_FILE, HOME_FILE = "server.key", "home.key", "home.json"
-#: Enter at the address question: the server's name on the tailnet, then the name it had
-#: before 1.2.0, which every server set up until then still answers to (D225).
-DEFAULT_SERVERS = ("wuwa-server", "wuwa-home")
+#: The server's key, and where a scanner keeps its server (D225, D239).
+SERVER_KEY_FILE, SCANNER_FILE = "server.key", "server.json"
+#: Enter at the address question: the server's name on the tailnet.
+DEFAULT_SERVERS = ("wuwa-server",)
 
 
 class SyncError(Exception):
@@ -152,6 +153,17 @@ def offer(store: Store, scans: list[sqlite3.Row] | None = None, everything: bool
         "gallery": sorted(gallery), "faces": sorted(faces),
         "icons": _digests((crops | set(gallery) | set(faces)) & have),
     }
+
+
+def pieces(wanted: dict) -> list[dict]:
+    """`wanted` as uploads of at most PART_ROWS rows and crops each, the scans with the first
+    (D240). A scanner given a new server offers all it ever learned: 24,729 rows on the user's,
+    far over what one upload may be. Each part is asked for and stands alone, so a connection
+    lost on the way costs only the part it was carrying."""
+    lists = {k: list(wanted.get(k) or []) for k in ("gallery", "faces", "icons")}
+    parts = max(1, -(-max(map(len, lists.values())) // PART_ROWS))
+    return [{**wanted, **{k: v[i * PART_ROWS:(i + 1) * PART_ROWS] for k, v in lists.items()},
+             "scans": wanted.get("scans") if i == 0 else []} for i in range(parts)]
 
 
 def bundle(store: Store, need: dict) -> bytes:
@@ -289,7 +301,7 @@ def start_over(store: Store, epoch: int) -> Path:
     """The home was wiped (清空扫描数据) since this scanner last spoke to it: what this
     copy learned belongs to a past that was thrown away. Set aside, then forgotten,
     the same way the home did it -- or the next upload would bring it all back."""
-    folder = store.path.parent / "backups" / datetime.now().strftime("%Y%m%d-%H%M%S-home-wiped")
+    folder = store.path.parent / "backups" / datetime.now().strftime("%Y%m%d-%H%M%S-server-wiped")
     store.backup_to(folder / store.path.name)
     icons = store.icon_dir
     if any(icons.iterdir()):
@@ -578,14 +590,26 @@ def catalogue_file(directory: Path, rel: str) -> Path | None:
 # ------------------------------------------------------------------- keys and config
 
 
+def _take_new_name(data_dir: Path, old: str, new: str) -> None:
+    """A file from before 1.3.0 takes its new name, so the old one is left nowhere (D239). What
+    it holds still counts: a server's key, or the server a scanner was given. A copy with the
+    same bytes goes; one that differs stays, since nothing here says which is wanted."""
+    before, after = data_dir / old, data_dir / new
+    try:
+        if not before.is_file():
+            return
+        if not after.is_file():
+            before.replace(after)
+        elif before.read_bytes() == after.read_bytes():
+            before.unlink()
+    except OSError:
+        pass
+
+
 def server_key(data_dir: Path, create: bool = False) -> str | None:
-    """The key a scanner must show to upload. Kept beside the data, made on first use. A
-    `home.key` from before 1.2.0 is copied to `server.key`: the same key, so every scanner given
-    it still fits; and copied, not moved, so the server can go back to 1.1.4 and find its own
-    key there (D225)."""
-    path, old = data_dir / SERVER_KEY_FILE, data_dir / OLD_KEY_FILE
-    if not path.is_file() and old.is_file():
-        path.write_bytes(old.read_bytes())
+    """The key a scanner must show to upload. Kept beside the data, made on first use."""
+    path = data_dir / SERVER_KEY_FILE
+    _take_new_name(data_dir, "home.key", SERVER_KEY_FILE)
     if path.is_file():
         return path.read_text(encoding="utf-8").strip() or None
     if not create:
@@ -623,7 +647,7 @@ def check_address(url: str, resolve: Callable[[str], str | None] | None = None) 
 
     Written the ways Tailscale shows it (D189): the MagicDNS name without http:// and
     the port, the 100.x address the admin console copies, or just the device's name
-    (`wuwa-home`) -- taken only when it resolves into 100.64.0.0/10. With no scheme
+    (`wuwa-server`) -- taken only when it resolves into 100.64.0.0/10. With no scheme
     given, http:// and port 4000 are put in.
     """
     resolve = resolve or _resolve        # looked up now, not when the module loaded
@@ -655,7 +679,8 @@ def check_address(url: str, resolve: Callable[[str], str | None] | None = None) 
 
 def read_home(data_dir: Path) -> dict | None:
     """Where this scanner sends its scans: {"url", "key"}, or None for a machine on its own."""
-    path = data_dir / HOME_FILE
+    path = data_dir / SCANNER_FILE
+    _take_new_name(data_dir, "home.json", SCANNER_FILE)
     try:
         said = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -664,7 +689,8 @@ def read_home(data_dir: Path) -> dict | None:
 
 
 def write_home(data_dir: Path, url: str | None, key: str | None = None) -> None:
-    path = data_dir / HOME_FILE
+    path = data_dir / SCANNER_FILE
+    _take_new_name(data_dir, "home.json", SCANNER_FILE)
     if not url:
         path.unlink(missing_ok=True)
         return
@@ -703,9 +729,8 @@ def downloads_folder() -> Path:
 def find_key(said: str | None) -> tuple[str | None, Path | None]:
     """The server's key from what was typed at the key question (D220): the key itself; a path
     to a key file (one dragged into the window); or nothing, which takes the newest server*.key
-    in Downloads -- a browser names a second download `server (1).key` -- or, from a server not
-    yet on 1.2.0, the newest home*.key (D225). Returns (key, the file it came from), or
-    (None, None) when there is none."""
+    in Downloads -- a browser names a second download `server (1).key`. Returns (key, the file
+    it came from), or (None, None) when there is none."""
     said = (said or "").strip().strip('"').strip("'")
     if said:
         given = Path(said)
@@ -716,9 +741,8 @@ def find_key(said: str | None) -> tuple[str | None, Path | None]:
             pass
         return said, None
     folder = downloads_folder()
-    newest = lambda pattern: sorted((p for p in folder.glob(pattern) if p.is_file()),  # noqa: E731
-                                    key=lambda p: p.stat().st_mtime, reverse=True)
-    found = newest("server*.key") + newest("home*.key")
+    found = sorted((p for p in folder.glob("server*.key") if p.is_file()),
+                   key=lambda p: p.stat().st_mtime, reverse=True)
     for path in found:
         try:
             key = path.read_text(encoding="utf-8").strip()
@@ -872,11 +896,11 @@ class EarlyPush:
             try:
                 sent = self._home().push(store)
                 if sent.get("scans"):
-                    self._say(f"home: sent {label} while scanning")
+                    self._say(f"server: sent {label} while scanning")
             except SyncError as exc:
-                self._say(f"! home: {exc} -- {label} waits here and goes at the end")
+                self._say(f"! server: {exc} -- {label} waits here and goes at the end")
             except Exception as exc:  # noqa: BLE001 -- a sender's slip must never stop a scan
-                self._say(f"! home: {label} not sent ({exc}) -- it goes at the end")
+                self._say(f"! server: {label} not sent ({exc}) -- it goes at the end")
             finally:
                 store.close()
 
@@ -1012,13 +1036,15 @@ class Home:
         wanted = self._json("/api/sync/need", offered)
         took = {"scans": 0}
         if any(wanted.get(k) for k in ("scans", "gallery", "faces", "icons")):
-            packed = bundle(store, wanted)
-            with self._half("up") as going:
-                going.begin("scans", size=len(packed), scans=len(wanted.get("scans") or []),
-                            crops=len(wanted.get("icons") or []))
-                sent = self._ask("/api/sync/scans", packed, "application/zip")
-                going.done()
-            took = json.loads(sent)
+            for piece in pieces(wanted):
+                packed = bundle(store, piece)
+                with self._half("up") as going:
+                    going.begin("scans", size=len(packed), scans=len(piece.get("scans") or []),
+                                crops=len(piece.get("icons") or []))
+                    sent = self._ask("/api/sync/scans", packed, "application/zip")
+                    going.done()
+                for key, value in json.loads(sent).items():
+                    took[key] = took.get(key, 0) + int(value or 0)
         mark_sent(store, offered["scans"])
         mark_seen(store, offered["gallery"], offered["faces"])     # it had them, or has them now
         return {**took, "known": len(wanted.get("known") or [])}

@@ -291,22 +291,32 @@ def icon_hash(icon: np.ndarray) -> str:
     return hashlib.sha256(norm.tobytes()).hexdigest()[:32]
 
 
+#: How long a write waits for another one, in seconds (D242).
+WRITE_WAIT = 30
+
+
 class Store:
     """Thin SQLite wrapper. No ORM: the schema is small and explicit."""
 
     def __init__(self, path: Path | str) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(self.path)
+        # a real write waits for another this long, rather than failing a request (D242)
+        self.conn = sqlite3.connect(self.path, timeout=WRITE_WAIT)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(_SCHEMA)
         self._migrate()
-        self.conn.execute(
-            "INSERT OR REPLACE INTO meta(key, value) VALUES ('schema_version', ?)",
-            (str(SCHEMA_VERSION),),
-        )
-        self.conn.commit()
+        # Only when it changed (D242). Written on every open, this made every page a writer:
+        # one long write (an upload, a wiki import) and they all failed with "database is locked".
+        written = self.conn.execute(
+            "SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+        if written is None or written["value"] != str(SCHEMA_VERSION):
+            self.conn.execute(
+                "INSERT OR REPLACE INTO meta(key, value) VALUES ('schema_version', ?)",
+                (str(SCHEMA_VERSION),),
+            )
+            self.conn.commit()
 
     def _migrate(self) -> None:
         """Apply forward migrations. Schema changes must never require a manual wipe."""
@@ -560,7 +570,11 @@ class Store:
         return int(self.setting(SYNC_EPOCH, "0") or 0)
 
     def server_id(self) -> str:
-        """Who this server is (D234): made the first time it is asked, never changed after."""
+        """Who this server is (D234): made the first time it is asked, never changed after. A hello
+        only reads, once it is made: the health check asks every minute (D242)."""
+        made = self.setting(SERVER_ID)
+        if made:
+            return made
         with self.conn:
             self.conn.execute("INSERT OR IGNORE INTO app_setting (key, value) VALUES (?, ?)",
                               (SERVER_ID, uuid.uuid4().hex))

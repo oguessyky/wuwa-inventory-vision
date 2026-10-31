@@ -142,8 +142,6 @@ export function compose(): string {
   return file.slice(file.indexOf('services:'));
 }
 
-/** A page that is no more, and the page it became (D225, D228): its old address forwards there. */
-export const MOVED: Record<string, string> = { home: 'server' };
 
 export interface Release { version: string; date: string; scanner: { zh: string; en: string }[]; home: { zh: string; en: string }[] }
 

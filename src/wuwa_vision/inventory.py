@@ -30,11 +30,16 @@ Headless: the main app renders the result; nothing here knows about HTTP.
 
 from __future__ import annotations
 
+import threading
 from dataclasses import asdict, dataclass
 
 from .catalogue import Catalogue
 from .recognize.names import weapon_names
 from .store.db import Store
+
+#: One at a time (D242). A page load asks for this several times at once, and Python's sqlite3 takes
+#: the interpreter's lock back for every row: six together took 10 s, where one takes 0.3 s.
+_READING = threading.Lock()
 
 #: Bag tabs the main app shows (the scanner skips 声骸, 任务, 武器, 特殊).
 BAG_TABS = ("资源", "素材", "补给")
@@ -77,9 +82,8 @@ class Item:
         return {**asdict(self), "pending": self.pending}
 
 
-def _readings(store: Store) -> list[dict]:
-    """One row per (scan, stitched item): its best-confidence reading."""
-    rows = store.conn.execute(
+def _reading_rows(store: Store) -> list:
+    return store.conn.execute(
         """SELECT o.scan_id, s.tab_label AS tab, s.started_at,
                   COALESCE(o.item_key, o.icon_hash) AS key,
                   MAX(o.item_name) AS name, MAX(o.rarity) AS rarity,
@@ -94,6 +98,12 @@ def _readings(store: Store) -> list[dict]:
             WHERE s.tab_label IS NOT NULL
          GROUP BY o.scan_id, COALESCE(o.item_key, o.icon_hash)"""
     ).fetchall()
+
+
+def _readings(store: Store) -> list[dict]:
+    """One row per (scan, stitched item): its best-confidence reading."""
+    with _READING:
+        rows = _reading_rows(store)
     out = []
     for row in rows:
         r = dict(row)

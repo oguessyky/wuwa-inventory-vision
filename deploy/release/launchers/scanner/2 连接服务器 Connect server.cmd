@@ -7,8 +7,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo The server's address: just its name on Tailscale (Enter tries wuwa-server, then the older
-echo name wuwa-home), or the name
+echo The server's address: just its name on Tailscale (Enter tries wuwa-server), or the name
 echo Tailscale shows (wuwa-server.your-tailnet.ts.net), or its 100.x address. http:// and port
 echo 4000 are put in when left out.
 set WUWA_SERVER=

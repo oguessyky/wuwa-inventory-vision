@@ -31,7 +31,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -423,9 +423,28 @@ def _icon_route(app: FastAPI, db_path: Path) -> None:
 # ------------------------------------------------------------ scan monitor
 
 
+def _stop_route(app: FastAPI, live: LiveState) -> None:
+    """The stop button (D254): what the panic key does, for a Mac and a phone, which have none
+    to press with the game in front.
+
+    A plain POST reaches 127.0.0.1 from any site open in this browser, and the tailnet's address
+    from any page on a device on it. A custom header is one such a page must ask leave for, and
+    nothing here gives leave. The scan's own pages are on this origin and need none.
+    """
+
+    @app.post("/api/live/stop", status_code=204)
+    def live_stop(x_wuwa_stop: str | None = Header(default=None)) -> Response:  # noqa: B008
+        if x_wuwa_stop != "1":
+            raise HTTPException(403, "only the scan's own page can stop it")
+        if not live.ask_stop():
+            raise HTTPException(409, "no scan to stop")
+        return Response(status_code=204)
+
+
 def _monitor_app(db_path: Path, live: LiveState) -> FastAPI:
     app = FastAPI(title="WuWa Inventory Vision -- scan monitor", docs_url="/api/docs")
     _shared_routes(app, db_path, live)
+    _stop_route(app, live)
 
     @app.get("/", response_class=HTMLResponse)
     @app.get("/live", response_class=HTMLResponse)
@@ -486,11 +505,13 @@ def create_phone_app(db_path: Path, live: LiveState) -> FastAPI:
     this one. Behind Tailscale's proxy every request comes from 127.0.0.1, so
     the monitor could not tell a phone from this PC: what a phone must not
     reach is therefore not here at all. No name fix, no picture of the game
-    (whatever `--preview` says), nothing but GET.
+    (whatever `--preview` says), nothing but GET, and the stop (D254), which
+    writes nothing: it ends the scan, and what was read is saved as ever.
     """
     app = FastAPI(title="WuWa Inventory Vision -- scan status",
                   docs_url=None, redoc_url=None, openapi_url=None)
     _icon_route(app, db_path)
+    _stop_route(app, live)
 
     @app.get("/", response_class=HTMLResponse)
     def phone_page() -> HTMLResponse:
@@ -591,7 +612,7 @@ class _DataStamp:
 #: The answers that are kept until the database or the catalogue changes (D171): each a
 #: function of those two alone. Not 猜谜 (the day's puzzle), not the scan monitor, not a
 #: write -- and not 总览, which also says what a scanner has not sent home yet, from a file
-#: (`data/home.json`) that `wuwa home set` writes from outside.
+#: (`data/server.json`) that `wuwa server set` writes from outside.
 KEPT_ANSWERS = frozenset({
     "/api/english", "/api/find", "/api/inventory", "/api/cooking", "/api/materials",
     "/api/resonators", "/api/weapons", "/api/shops", "/api/recognized", "/api/holders",
@@ -1306,9 +1327,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
 
         cat = catalogue.get()
         weapons = set((cat.builds.get("weapons") or {}).keys())
+        known = {*cat.names(), *weapons} if (cat.directory / "index.json").exists() else None
         st = Store(db())
         try:
-            crops = review.learned(st)
+            crops = review.learned(st, known, cat.directory)
         finally:
             st.close()
         by_name: dict[str, list] = {}

@@ -2,6 +2,70 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.3.0",
+   "date": "2026-11-01",
+   "scanner": [
+    {
+     "zh": "修复：换到新服务器时，扫描记录很多的扫描器会报「上传的内容太大」，之后每次都失败。现在分批发送，中断后也能接着传",
+     "en": "fixed: a scanner with a lot of data moved to a new server stopped with \"上传的内容太大\", and every push after failed too. It now sends in parts, and picks up where it stopped"
+    },
+    {
+     "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
+     "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
+    },
+    {
+     "zh": "修复：详情面板里选中物品的大图，偶尔会被当成一个多出来的物品，分页就显示成 175/174 这样，一直算不上扫全",
+     "en": "fixed: the big picture in the detail panel could be read as one more item, so a tab said 175 of 174 and never counted as complete"
+    },
+    {
+     "zh": "修复：画面上下两排都被滚动区域切掉一截时，被切的格子可能被当成物品，多出 1 星、数量不对的假物品。现在只读完整的格子",
+     "en": "fixed: when the scroll view cut a row at both the top and the bottom of the screen, the cut tiles could be read as items, giving false 1-star items with wrong counts. Only whole tiles are read now"
+    },
+    {
+     "zh": "扫描页顶部现在会显示手机能打开的网址和端口；没有分享时，会告诉你怎么打开",
+     "en": "the top of the scan page now shows the address and port your phone can open, or how to turn that on"
+    },
+    {
+     "zh": "有 Tailscale 时，双击 扫描 Scan 或用它的快捷方式，手机就能看扫描进度，不用再输命令。只有你自己的 Tailscale 设备能打开；没有 Tailscale 时，扫描和以前一样",
+     "en": "with Tailscale, 扫描 Scan and its shortcuts now share the scan's status with your phone, with no command to type. Only your own Tailscale devices can open it. Without Tailscale a scan runs as before"
+    },
+    {
+     "zh": "扫描页和手机页都有「Stop the scan」按钮，按两下结束扫描，和 F9 一样，读到的都会保存。Mac 和手机上不用再找快捷键",
+     "en": "the scan page and the phone's page now have a Stop the scan button: two presses end the scan just as F9 does, and everything read is kept. A Mac or a phone no longer needs a key for it"
+    },
+    {
+     "zh": "安装指南的第一步现在有图：解压之前先解除锁定。新版 Windows 11 的智能应用控制拦下文件时该怎么办，也写清楚了",
+     "en": "the install guide's first step now shows, in pictures, how to unblock the zip before unzipping it, and says what to do when Smart App Control on a new Windows 11 blocks a file with no Run button"
+    },
+    {
+     "zh": "只留下「服务器」这个名字：旧的 wuwa-home 和 wuwa home 命令已移除，旧文件会自动改名，已连接的服务器不用重新设置",
+     "en": "only the name server is left: the old wuwa-home and the wuwa home command are gone. Old files take their new names by themselves, so a scanner keeps its server"
+    }
+   ],
+   "home": [
+    {
+     "zh": "帮助页的「出了问题怎么办」多了一张带图的卡片：新版 Windows 11 的智能应用控制拦下 .cmd 时该怎么解除锁定",
+     "en": "Help's When something goes wrong has a new card, with drawings: how to unblock a .cmd that Smart App Control on a new Windows 11 blocked"
+    },
+    {
+     "zh": "服务器现在只有一个容器（程序和 Tailscale 在一起），重启和更新不会再报 “network namespace” 错误。旧配置文件还能继续用；要改成一个容器，粘贴一次新的配置文件，步骤见帮助",
+     "en": "the server is now one container (the app and Tailscale together), so a restart or an update can no longer fail with a \"network namespace\" error. The older compose file keeps working; to move, paste the new one once: the help says how"
+    },
+    {
+     "zh": "修复：上传或更新图鉴时，页面会报错打不开（database is locked）。现在读取不再需要等待，保存也会排队完成",
+     "en": "fixed: pages failed with \"database is locked\" during an upload or a wiki update. Reading no longer waits, and a save takes its turn"
+    },
+    {
+     "zh": "修复：从零开始的服务器上，识别页的「可能认错」永远是空的。现在服务器自带图鉴的参考数据，可以核对学到的名字",
+     "en": "fixed: on a server started from nothing, 识别's 可能认错 stayed empty however wrong a name was. A server now has the catalogue's reference data to check learned names against"
+    },
+    {
+     "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
+     "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
+    }
+   ]
+  },
+  {
    "version": "1.2.3",
    "date": "2026-10-30",
    "scanner": [

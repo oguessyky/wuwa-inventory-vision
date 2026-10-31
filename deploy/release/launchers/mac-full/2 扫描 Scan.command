@@ -8,4 +8,4 @@ if ! command -v uv >/dev/null; then
   read -r -p "Press Enter to close " _
   exit 1
 fi
-uv run python -m wuwa_vision live --identify || { read -r -p "Press Enter to close " _; exit 1; }
+uv run python -m wuwa_vision live --identify --share || { read -r -p "Press Enter to close " _; exit 1; }

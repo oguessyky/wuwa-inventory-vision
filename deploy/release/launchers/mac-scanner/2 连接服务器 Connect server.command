@@ -7,8 +7,7 @@ if ! command -v uv >/dev/null; then
   read -r -p "Press Enter to close " _
   exit 1
 fi
-echo "The server's address: just its name on Tailscale (Enter tries wuwa-server, then the older"
-echo "name wuwa-home), or the name"
+echo "The server's address: just its name on Tailscale (Enter tries wuwa-server), or the name"
 echo "Tailscale shows (wuwa-server.your-tailnet.ts.net), or its 100.x address."
 read -r -p "Server address [Enter = wuwa-server]: " server
 echo "The key: press Enter to take server.key from your Downloads folder (download it from"

@@ -28,9 +28,13 @@ give it, on your own tailnet ([PRIVACY.md](PRIVACY.md)).
 ## 1. Set it up (once)
 
 **Before you unzip it:** right-click the downloaded zip → **Properties** → tick **Unblock** at the
-bottom → OK. A zip downloaded by a browser marks every file in it as from the internet, and
-Windows then asks about each one ("Open File - Security Warning ... Unknown Publisher"). If it
-asks anyway, it is safe to press **Run**: the files are this package's own.
+bottom → OK. Once is enough: `START-HERE.html` has the picture. A zip downloaded by a browser marks
+every file in it as from the internet. Older Windows asks about each one ("Open File - Security
+Warning ... Unknown Publisher"), and **Run** is safe there. Run without unblocking, Smart App Control on a new Windows 11
+blocks them with no Run button, only **Okay** and **Get apps from the Store**: delete the unzipped
+folder, unblock the zip and unzip again, or unblock each .cmd the same way. Still not
+sure? The code is public: have an AI coding tool such as Codex read the folder before the first
+scan, when nothing of yours is in it.
 
 Unzip this folder somewhere short, such as `C:\wuwa-scanner`, and leave it there: the setup
 builds on the Python inside it, so moving the folder later means running the setup again.
@@ -81,6 +85,15 @@ at a time; click an item to have its name and count read from the game's own pan
 **F9** when you are done. Each tab is sent to the server as soon as it is finished, the rest when the scan
 ends -- then open the server's address on your phone. [docs/scanning.md](docs/scanning.md) has the
 details.
+
+**One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
+this computer and the phone, `扫描 Scan` shares the scan's status with your own devices: open the
+`phone page:` address it prints (port 8713) on the phone. To keep a scan to this computer, start it
+from the program's folder with:
+
+```
+uv run python -m wuwa_vision live --identify
+```
 
 If the server cannot be reached, the scan still runs and is kept on this PC; it is sent with the
 next scan, or now with:

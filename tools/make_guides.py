@@ -16,6 +16,7 @@ the page in its zip as START-HERE.html.
 from __future__ import annotations
 
 import html
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +53,10 @@ code{{font-family:{MONO};background:{PANEL2};border:1px solid {LINE};border-radi
 pre{{font-family:{MONO};background:{PANEL2};border:1px solid {LINE};border-radius:8px;
   padding:10px 12px;overflow-x:auto;font-size:13px}}
 .warn{{border-left:3px solid {DANGER};padding:6px 10px;background:#2a1517;border-radius:6px}}
+.ways{{display:grid;gap:8px;margin:10px 0}}
+.way{{display:flex;gap:10px;align-items:flex-start;border:1px solid {LINE};border-radius:8px;padding:8px 10px}}
+.way p{{margin:0 0 3px}}
+.way code{{overflow-wrap:anywhere}}
 .tip{{border-left:3px solid {OK};padding:6px 10px;background:#13241c;border-radius:6px}}
 a{{color:{ACCENT}}}
 h3{{font-size:16px;margin:28px 0 6px;color:{ACCENT}}}
@@ -267,17 +272,17 @@ def pic_project() -> str:
     side = "".join(t(40, 84 + k * 30, w, 13, ACCENT if w == "Project" else MUTED,
                      700 if w == "Project" else 400)
                    for k, w in enumerate(("Overview", "Project", "Container", "Image")))
-    yaml = [("services:", MUTED), ("  net:", MUTED), ("    image: registry.k8s.io/pause:3.10", MUTED),
-            ("  tailscale:", MUTED),
-            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-tailscale…", MUTED), ("    environment:", MUTED),
+    yaml = [("services:", MUTED), ("  wuwa:", MUTED),
+            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-server…", MUTED), ("    environment:", MUTED),
             ("      TS_AUTHKEY: ${TS_AUTHKEY:-tskey-auth-PUT-YOURS-HERE}", ACCENT),
-            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}", MUTED), ("  wuwa:", MUTED),
-            ("    image: ghcr.io/oguessyky/wuwa-inventory-vision-server…", MUTED)]
+            ("      TS_HOSTNAME: ${TS_HOSTNAME:-wuwa-server}", MUTED), ("    volumes:", MUTED),
+            ("      - ${WUWA_DATA:-./data}:/app/data", MUTED),
+            ("      - ./tailscale-state:/var/lib/tailscale", MUTED)]
     editor = box(160, 176, 440, 30 + len(yaml) * 17, "#07090b", LINE, 6)
     for k, (line, colour) in enumerate(yaml):
         editor += t(170, 196 + k * 17, line, 11, colour, 600 if colour == ACCENT else 400,
                     mono=True)
-    lit = 196 + 6 * 17                 # the key's line (D215 put net: above it)
+    lit = 196 + 4 * 17                 # the key's line
     return svg(window(20, 16, 600, 430, "Docker")
                + f'<path d="M140 44v402" stroke="{LINE}"/>' + side
                + t(160, 72, "Create project · 创建项目", 15, INK, 700)
@@ -364,14 +369,101 @@ def pic_move() -> str:
                640, 200, "the old server's data folder copied into seed-data in the new project's folder")
 
 
-#: Said in the first step on a PC (D184): a zip from a browser marks every file in it.
-UNBLOCK = ('<p class="tip" lang="zh-CN">解压之前：右键下载的压缩包 → <b>属性</b> → 勾选最下面的 '
-           '<b>解除锁定</b> → 确定。否则 Windows 会对每个文件问一次（“打开文件 - 安全警告 … 未知发布者 / '
-           'Unknown Publisher”）。真的问了也没关系，按“运行”：这些都是这个包自己的文件。</p>'
-           '<p class="tip" lang="en">Before unzipping: right-click the downloaded zip → '
-           '<b>Properties</b> → tick <b>Unblock</b> at the bottom → OK. Otherwise Windows asks '
-           'about each file ("Open File - Security Warning ... Unknown Publisher"); if it does, '
-           '<b>Run</b> is safe: the files are this package\'s own.</p>')
+def titled(caption: str, body: str, w: int, h: int, label: str) -> str:
+    """A drawing with a line above it saying what it is."""
+    return svg(t(20, 20, caption, 14, ACCENT, 700)
+               + f'<g transform="translate(0 28)">{body}</g>', w, h + 28, label)
+
+
+def pic_unblock(caption: str, folder: str, item: str, title: str, label: str) -> str:
+    return titled(caption, window(20, 8, 270, 216, folder)
+                  + box(42, 50, 226, 30, PANEL, ACCENT, 7)
+                  + t(54, 70, item, 12, INK, 600, mono=True)
+                  + box(92, 88, 176, 106, PANEL, LINE, 8)
+                  + t(108, 112, "打开 · Open", 13, MUTED)
+                  + t(108, 140, "发送到 · Send to", 13, MUTED)
+                  + t(108, 174, "属性 · Properties", 13, INK, 700)
+                  + ring(98, 154, 164, 32)
+                  + t(32, 174, "右键", 13, ACCENT, 700)
+                  + arrow(296, 116, 334, 116)
+                  + window(340, 8, 280, 216, title)
+                  + t(360, 64, "常规 · General", 12, MUTED)
+                  + t(360, 96, "安全 · Security", 13, INK, 600)
+                  + t(360, 120, "此文件来自其他计算机", 12, MUTED)
+                  + t(360, 138, "This file came from another computer", 11, MUTED)
+                  + box(360, 150, 16, 16, ACCENT, ACCENT, 3)
+                  + '<path d="M363 158l4 4 7-8" stroke="#111" stroke-width="2.2" fill="none"/>'
+                  + t(384, 163, "解除锁定 · Unblock", 13, INK, 700)
+                  + ring(352, 144, 200, 28)
+                  + button(526, 184, 80, "确定 · OK"), 640, 232, label)
+
+
+def pic_blocked() -> str:
+    """As the user's photo of it shows it, on a Windows set to English (D256)."""
+    return titled("被拦下时是这样 · What the block looks like",
+                  box(20, 8, 600, 232, "#0d0f12", "#e9ebee", 8, 1.5)
+                  + t(46, 46, "Smart App Control blocked a file that may be unsafe", 18, INK, 700)
+                  + t(46, 74, "This file was blocked because files of this type from the internet "
+                              "can be", 13, INK)
+                  + t(46, 92, "dangerous.", 13, INK)
+                  + t(46, 120, "Learn more about Smart App Control", 13, "#a9a4f5")
+                  + t(46, 146, "智能应用控制阻止了可能不安全的文件：只有这两个按钮，没有“运行”", 12.5, ACCENT, 700)
+                  + box(46, 164, 274, 40, "#8f8be0", "#8f8be0", 3)
+                  + t(183, 189, "Okay", 14, "#fff", 600, anchor="middle")
+                  + box(320, 164, 274, 40, "#8b8d91", "#8b8d91", 3)
+                  + t(457, 189, "Get apps from the Store", 14, "#fff", 600, anchor="middle")
+                  + t(46, 226, "There is no Run button. 中文版 Windows 上的文字可能不同", 11, MUTED),
+                  640, 248, "Smart App Control's block: Okay, Get apps from the Store, and no "
+                  "Run button")
+
+
+def way(n: int, zh: str, en: str) -> str:
+    """One way out of a block: a card, its two languages together."""
+    return (f'<div class="way"><span class="n">{n}</span><div><p lang="zh-CN">{zh}</p>'
+            f'<p lang="en">{en}</p></div></div>')
+
+
+def step_unblock() -> str:
+    """The first step on a PC (D184, D255, D256): a zip from a browser marks every file in it."""
+    return step(
+        1, "解压之前，先解除锁定", "Before unzipping, unblock the zip",
+        "右键下载的压缩包 → <b>属性</b> → 勾选最下面的 <b>解除锁定</b> → 确定。只做这一次，里面的文件就全都解开了，"
+        "不用一个一个弄。没有这个勾选框，就是已经解开了。",
+        "Right-click the downloaded zip → <b>Properties</b> → tick <b>Unblock</b> at the bottom → "
+        "OK. Once is enough: every file in it is then clear, with none to do by hand. No such box "
+        "means it is clear already.",
+        pic_unblock("解压之前 · Before unzipping", "下载 · Downloads", "wuwa-inventory-vision….zip",
+                    "….zip 属性 · Properties", "right-click the zip, Properties, tick Unblock, OK"))
+
+
+def step_blocked(n: int) -> str:
+    """What to do when step 1 was missed (D255, D256): the block, and the ways out as cards."""
+    return step(
+        n, "如果文件被拦下（没有就跳过）", "If a file is blocked (skip this if not)",
+        "没解除锁定就运行 .cmd，新版 Windows 11 的「智能应用控制」(Smart App Control) 才会弹出下图。它没有“运行”按钮，"
+        "也不用关掉它。旧一点的 Windows 只问一句（“未知发布者 / Unknown Publisher”），按“运行”就行。下面任选一种：",
+        "Running a .cmd without unblocking it is what brings up Smart App Control on a new Windows "
+        "11, drawn here. It has no Run button, and it need not be turned off. Older Windows only "
+        'asks ("Open File - Security Warning ... Unknown Publisher"): <b>Run</b> is safe there. '
+        "Any one of these:",
+        pic_blocked(),
+        '<div class="ways">'
+        + way(1, "重来，最省事：还没扫描过的话，里面没有你的数据。删掉解压出来的文件夹，解除锁定压缩包，再解压一次。",
+              "Start again, the easiest. No scan done yet means nothing of yours is in there: "
+              "delete the unzipped folder, unblock the zip and unzip again.")
+        + way(2, "一个一个来：右键被拦下的文件 → 属性 → 勾选解除锁定 → 确定，每个 .cmd 都做一次。",
+              "One at a time: right-click the blocked file → Properties → tick Unblock → OK, for "
+              "each .cmd.")
+        + pic_one_file()
+        + "</div>"
+        '<p class="tip" lang="zh-CN">还是不放心？代码是公开的，可以让 Codex 这类 AI 编程工具帮你看一遍'
+        '（免费的 ChatGPT 账号也能用，额度有限，以 OpenAI 的说明为准）。请在<b>第一次扫描之前</b>，对刚解压的文件夹做：'
+        '这类工具会把读到的内容发给它的公司，而这时文件夹里还没有你的数据。</p>'
+        '<p class="tip" lang="en">Still not sure? The code is public, so an AI coding tool such as '
+        'Codex can read it for you (a free ChatGPT account can use it, within limits that change: '
+        'see OpenAI\'s page). Do it on the freshly unzipped folder, <b>before the first scan</b>: '
+        'such a tool sends what it reads to its company, and nothing of yours is in the folder '
+        'yet.</p>')
 
 
 # --- the three guides -----------------------------------------------------------------------
@@ -435,11 +527,19 @@ def guide_server() -> str:
              "然后双击 <b>2 连接服务器 Connect server</b>：地址和钥匙都直接按回车，钥匙会从「下载」里自己找。连接后会先下载图鉴（约 50 MB），等它显示 <code>fetched</code> 再关窗口。",
              "In the NAS's file manager, download <code>data/server.key</code> from the storage path "
              "to the PC with the scanner (it lands in Downloads). Then double-click "
-             "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()),
+             "<b>2 连接服务器 Connect server</b> and press Enter at both questions: the key is taken from Downloads. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect(),
+             '<p class="tip" lang="zh-CN">Windows 拦下了 .cmd？解压扫描器之前，先右键压缩包 → 属性 → 勾选解除锁定。'
+             '智能应用控制 (Smart App Control) 没有“运行”按钮，做法和图见扫描器指南的第 1、3 步，也在帮助里。</p>'
+             '<p class="tip" lang="en">Windows blocked a .cmd? Before unzipping the scanner, '
+             'right-click the zip → Properties → tick Unblock. Smart App Control has no Run button: '
+             'steps 1 and 3 of the scanner\'s guide show what to do, and so does Help.</p>'),
         step(7, "更新", "Updating",
-             "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。",
+             "在 Docker 应用里对这个项目按 <b>Update</b>：拉下新镜像，数据不动。扫描器也更新到同一版本。"
+             "项目还有三个容器（旧配置文件）？先按 <b>Update</b>，再<b>停止项目</b>，把新的配置文件粘贴覆盖、部署，然后删掉留下的 <code>…-net-1</code> 和 <code>…-tailscale-1</code>。数据和名字都不变。",
              "Press <b>Update</b> on the project in the Docker app: the new image is pulled and "
-             "the data stays. Update the scanner to the same version.", pic_update()),
+             "the data stays. Update the scanner to the same version. Still three containers (the older file)? "
+             "Press <b>Update</b>, <b>stop the project</b>, paste the new file over it and deploy, then delete the "
+             "<code>…-net-1</code> and <code>…-tailscale-1</code> left over. The data and the name stay.", pic_update()),
         step(8, "在旁边试新版", "Try a version beside the one you have",
              "再建一个项目，名称 <code>wuwa-inventory-vision-test</code>、另一个空文件夹，粘贴同一个文件，"
              "只改一个词：<code>TS_HOSTNAME</code> 那行的 <code>wuwa-server</code> 改成 <code>wuwa-server-test</code>。"
@@ -480,7 +580,8 @@ def guide_server() -> str:
 
 def guide_scanner() -> str:
     steps = [
-        step(1, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
+        step_unblock(),
+        step(2, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
              "例如 <code>C:\\wuwa-scanner</code>。安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
              "Such as <code>C:\\wuwa-scanner</code>. The setup builds on the Python inside it, so a "
              "folder moved later means setting up again.",
@@ -489,27 +590,28 @@ def guide_scanner() -> str:
                  ("3 扫描 Scan.cmd", ""), ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
                  ("python/", "已带 Python · Python included"),
                  ("START-HERE.html", "这一页 · this page")],
-                 ("1 安装 Setup.cmd", "2 连接服务器 Connect server.cmd", "3 扫描 Scan.cmd")), UNBLOCK),
-        step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
+                 ("1 安装 Setup.cmd", "2 连接服务器 Connect server.cmd", "3 扫描 Scan.cmd"))),
+        step_blocked(3),
+        step(4, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）。装依赖、显卡对应的 PyTorch 和识别模型；"
              "图鉴由服务器发过来，这里不用下。最后分别问要不要在桌面、开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
              "PyTorch for your GPU and the recognition model. The catalogue comes from the server. "
              "Last, it asks about shortcuts, one place at a time: the Desktop, the Start menu.",
              pic_setup(True)),
-        step(3, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
+        step(5, "双击 2 连接服务器 Connect server", "Double-click 2 连接服务器 Connect server",
              "先从 NAS 下载服务器的 <code>data/server.key</code>（放在「下载」文件夹）。地址直接按回车就是 <code>wuwa-server</code>，"
              "钥匙也直接按回车：会从「下载」里自己找。也可以贴上钥匙那一行。只要做一次。连接后会先下载图鉴（约 50 MB），等它显示 <code>fetched</code> 再关窗口。",
              "First download the server's <code>data/server.key</code> from the NAS (it lands in Downloads). "
              "For the address, Enter alone takes <code>wuwa-server</code>; for the key, Enter alone takes "
              "server.key from Downloads (pasting its one line works too). Once. After connecting it fetches the catalogue (about 50 MB): wait for <code>fetched</code> before closing the window.", pic_connect()),
-        step(4, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
+        step(6, "双击 3 扫描 Scan", "Double-click 3 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。每个标签扫完就发到服务器。",
              "Then alt-tab into the game, open the bag and scroll each tab a page at a time; click "
              "an item to read its name and count. <b>F9</b> stops, and everything read is kept. "
              "Each tab goes to the server as soon as it is finished.", pic_scan()),
-        step(5, "在服务器上看结果", "See it on the server",
+        step(7, "在服务器上看结果", "See it on the server",
              "在手机上打开服务器的地址：总览、库存、材料……都是刚扫的。",
              "Open the server's address on your phone: 总览, 库存, 材料… as just scanned.",
              pic_open()),
@@ -522,7 +624,8 @@ def guide_scanner() -> str:
 
 def guide_full() -> str:
     steps = [
-        step(1, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
+        step_unblock(),
+        step(2, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
              "例如 <code>C:\\wuwa-vision</code>。安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
              "Such as <code>C:\\wuwa-vision</code>. The setup builds on the Python inside it, so a "
              "folder moved later means setting up again.",
@@ -530,8 +633,9 @@ def guide_full() -> str:
                  ("1 安装 Setup.cmd", ""), ("2 扫描 Scan.cmd", ""), ("3 总览 Dashboard.cmd", ""),
                  ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
                  ("python/", "已带 Python · Python included"), ("START-HERE.html", "这一页 · this page")],
-                 ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd")), UNBLOCK),
-        step(2, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
+                 ("1 安装 Setup.cmd", "2 扫描 Scan.cmd", "3 总览 Dashboard.cmd"))),
+        step_blocked(3),
+        step(4, "双击 1 安装 Setup", "Double-click 1 安装 Setup",
              "它会说找到了什么，每一步都先问（按 Enter 就是“是”）：依赖、显卡对应的 PyTorch、识别模型，"
              "还有从库洛官方 Wiki 下载的图鉴（几分钟）。最后分别问要不要在桌面、开始菜单放快捷方式。",
              "It says what it found and asks before each step (Enter is yes): the packages, the "
@@ -539,13 +643,13 @@ def guide_full() -> str:
              "few minutes). Last, it asks about shortcuts, one place at a time: the Desktop, the Start "
              "menu.",
              pic_setup(False)),
-        step(3, "双击 2 扫描 Scan", "Double-click 2 扫描 Scan",
+        step(5, "双击 2 扫描 Scan", "Double-click 2 扫描 Scan",
              "然后 Alt-Tab 切到游戏，打开背包，一页一页慢慢滚；点一下物品，名字和数量从详情读。"
              "按 <b>F9</b> 结束，读到的都会留下。",
              "Then alt-tab into the game, open the bag and scroll each tab a page at a time; click "
              "an item to read its name and count. <b>F9</b> stops, and everything read is kept.",
              pic_scan("2 扫描 Scan")),
-        step(4, "双击 3 总览 Dashboard", "Double-click 3 总览 Dashboard",
+        step(6, "双击 3 总览 Dashboard", "Double-click 3 总览 Dashboard",
              "在浏览器打开 <code>http://127.0.0.1:4000</code>。窗口开着页面就在；关掉窗口就停。",
              "Open <code>http://127.0.0.1:4000</code> in a browser. The pages run while its window "
              "is open; close it to stop them.", pic_dashboard()),
@@ -688,6 +792,19 @@ def guide_mac(scanner: bool) -> str:
                 "".join(steps))
 
 
+def pic_one_file() -> str:
+    return pic_unblock("一个一个来 · One at a time", "C:\\wuwa-scanner", "1 安装 Setup.cmd",
+                       "….cmd 属性 · Properties",
+                       "right-click a .cmd file, Properties, tick Unblock, OK")
+
+
+def drawings_ts() -> str:
+    """The drawings 帮助 shows in the app, as the guides have them (D256)."""
+    return ("// Written by tools/make_guides.py: the guides' drawings, for 帮助 (D256). Do not edit.\n"
+            f"export const BLOCKED = {json.dumps(pic_blocked(), ensure_ascii=False)};\n"
+            f"export const ONE_FILE = {json.dumps(pic_one_file(), ensure_ascii=False)};\n")
+
+
 def pages() -> dict[str, str]:
     return {"full": guide_full(), "scanner": guide_scanner(), "server": guide_server(),
             "mac-full": guide_mac(False), "mac-scanner": guide_mac(True)}
@@ -698,6 +815,8 @@ def main() -> int:
     for kind, text in pages().items():
         (OUT / f"{kind}.html").write_text(text, encoding="utf-8", newline="\n")
         print(f"{kind}.html  {len(text) // 1024} KB")
+    (ROOT / "web" / "src" / "features" / "help" / "drawings.ts").write_text(
+        drawings_ts(), encoding="utf-8", newline="\n")
     return 0
 
 

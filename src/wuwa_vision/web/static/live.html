@@ -77,6 +77,15 @@
   .sync{flex-basis:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;
         background:var(--bg);font-size:13.5px}
   .sync[hidden]{display:none}
+  /* Where the phone's page is (D246). */
+  .phone{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;
+         padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);
+         font-size:13.5px;overflow-wrap:anywhere}
+  .phone[hidden],.phone [hidden]{display:none}
+  .phone a{color:var(--accent);font-weight:650;font-variant-numeric:tabular-nums}
+  .phone .said,.phone .port{color:var(--muted);font-variant-numeric:tabular-nums}
+  .phone .said:empty,.phone .port:empty{display:none}
+  .phone code{font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;user-select:all}
   /* The view is the main monitor: the live game grid with every tile's scores. */
   main{padding:16px 20px 60px;display:grid;gap:16px;
        grid-template-columns:minmax(0,1080px) minmax(260px,1fr);max-width:1800px}
@@ -92,6 +101,12 @@
   .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .sel b{font-size:18px;display:block}
   .sel .own{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  /* Stop the scan (D254). */
+  .stop{font:inherit;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;
+        background:transparent;color:var(--bad);border:1px solid var(--bad)}
+  .stop[hidden]{display:none}
+  .stop[data-state="armed"],.stop[data-state="failed"]{background:#b3261e;border-color:#b3261e;color:#fff}
+  .stop:disabled{color:var(--muted);border-color:var(--line);cursor:default}
   .log{font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow:auto;
        margin:0;padding:0;list-style:none}
   .log li{padding:2px 0;border-bottom:1px dashed var(--line);word-break:break-word}
@@ -122,10 +137,14 @@
 <header>
   <h1>Live scan</h1>
   <div class="phase" id="phase" role="status" aria-live="polite"><span class="dot"></span><span>connecting…</span></div>
+  <button class="stop" id="stop" type="button" data-state="idle" hidden>Stop the scan</button>
   <div class="tabs" id="tabs"></div>
   <div class="sync" id="sync" role="status" hidden>
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
     <div class="meter" role="progressbar" aria-label="Sync with the server" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+  </div>
+  <div class="phone" id="phone" hidden>
+    <b></b><a target="_blank" rel="noopener" hidden></a><span class="said"></span><code hidden>uv run python -m wuwa_vision live --identify --share</code><span class="port"></span>
   </div>
 </header>
 <main>
@@ -336,16 +355,62 @@ function renderSync(s){
   else meter.setAttribute('aria-valuenow', Math.round(100 * s.fraction));
 }
 
+// Where the phone's page is (D246). The terminal says so too, but the terminal is behind
+// this page. Words only: a reason comes from Tailscale, and is not ours to trust as markup.
+function renderPhone(p){
+  const el = document.getElementById('phone');
+  el.hidden = !p?.port;
+  if(el.hidden) return;
+  const state = p.url ? 'shared' : p.why ? 'failed' : 'off';
+  el.dataset.state = state;
+  el.querySelector('b').textContent = state === 'failed' ? 'Not shared with your phone' : 'On your phone';
+  const link = el.querySelector('a');
+  link.hidden = state !== 'shared';
+  if(p.url && link.getAttribute('href') !== p.url){ link.href = p.url; link.textContent = p.url; }
+  el.querySelector('.said').textContent = state === 'failed' ? p.why
+    : state === 'off' ? 'not shared. To watch a scan there, start it with' : '';
+  el.querySelector('code').hidden = state !== 'off';
+  el.querySelector('.port').textContent = state === 'failed' ? '' : `port ${p.port}`;
+}
+
+// Stop the scan (D254): the panic key, for where there is none to press. Two presses, so that one
+// made in passing ends nothing; the first goes back by itself.
+const stop = document.getElementById('stop');
+const UNARM = 4000;
+let unarm = null, posting = false;
+function stopSays(state, text){
+  stop.dataset.state = state; stop.textContent = text; stop.disabled = state === 'stopping';
+}
+function renderStop(d){
+  stop.hidden = !d?.can_stop;
+  if(d?.stopping) stopSays('stopping', 'Stopping…');
+  else if(!posting && stop.dataset.state === 'stopping') stopSays('idle', 'Stop the scan');
+}
+stop.addEventListener('click', async () => {
+  clearTimeout(unarm);
+  if(stop.dataset.state === 'idle'){
+    stopSays('armed', 'Press again to stop');
+    unarm = setTimeout(() => stopSays('idle', 'Stop the scan'), UNARM);
+    return;
+  }
+  stopSays('stopping', 'Stopping…');
+  posting = true;
+  const sent = await fetch('api/live/stop', {method: 'POST', headers: {'X-Wuwa-Stop': '1'}})
+    .catch(() => null);
+  posting = false;
+  if(!sent?.ok) stopSays('failed', 'Not stopped. Press again');
+});
+
 async function tick(){
   try{
     const d = await (await fetch('api/live', {cache:'no-store'})).json();
-    renderPhase(d); fadeBoxes(d); renderSync(d.sync);
+    renderPhase(d); fadeBoxes(d); renderSync(d.sync); renderPhone(d.phone); renderStop(d);
     if(d.status !== 'offline' && d.version !== lastVersion){
       lastVersion = d.version;
       renderTabs(d); renderView(d); renderSelected(d); renderLog(d); renderItems(d);
     }
   }catch(e){
-    renderPhase({status: 'offline'}); renderSync(null);
+    renderPhase({status: 'offline'}); renderSync(null); renderPhone(null); renderStop(null);
   }
   setTimeout(tick, 250);
 }

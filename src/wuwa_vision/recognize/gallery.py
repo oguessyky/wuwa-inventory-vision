@@ -31,7 +31,14 @@ from datetime import UTC, datetime
 import numpy as np
 
 from ..store.db import Store
-from .appearance import HUE_BINS, MIN_HUE_MASS, describe, hue_signature, is_the_other
+from .appearance import (
+    HUE_BINS,
+    LOOK_GAP,
+    MIN_HUE_MASS,
+    describe,
+    hue_signature,
+    is_the_other,
+)
 from .encoder import IconEncoder
 from .reference import RARITY_ANY
 
@@ -97,12 +104,6 @@ SAME_TILE = 0.98
 #: dish drawn differently (雾茗 / 喜凌茶) differs in colour everywhere, and the picture
 #: model tells those apart already; colour renamed 40 of them on this PC's scans.
 DRAWN_ALIKE = 0.90
-#: Two catalogue pictures tied (within MIN_MARGIN): the tile's `describe` must be at least this
-#: much nearer one of them to name it (D201). 奇幻变奏 / 今州守望 tied at 0.83 / 0.82 on the
-#: picture model and were 0.2 apart on the look; on this PC's scans the rule named 78 tiles
-#: the panel had named, all right, and left the closest pairs (锅盔 / 糖心锅盔) as they were.
-LOOK_GAP = 0.10
-
 
 @dataclass(frozen=True, slots=True)
 class Match:
