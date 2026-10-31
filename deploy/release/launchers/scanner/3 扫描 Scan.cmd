@@ -7,6 +7,6 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-uv run python -m wuwa_vision live --identify
+uv run python -m wuwa_vision live --identify --share
 rem the window stays only when something went wrong, to be read (D184)
 if errorlevel 1 pause

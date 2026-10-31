@@ -83,11 +83,12 @@ ends -- then open the server's address on your phone. [docs/scanning.md](docs/sc
 details.
 
 **One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
-this computer and the phone, run this in the program's folder instead of the double-click, then
-open the `phone page:` address it prints (port 8713) on the phone:
+this computer and the phone, `扫描 Scan` shares the scan's status with your own devices: open the
+`phone page:` address it prints (port 8713) on the phone. To keep a scan to this computer, start it
+from the program's folder with:
 
 ```
-uv run python -m wuwa_vision live --identify --share
+uv run python -m wuwa_vision live --identify
 ```
 
 If the server cannot be reached, the scan still runs and is kept on this PC; it is sent with the

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective 30 October 2026.
+Effective 31 October 2026.
 
 This Privacy Policy is provided in English and may be translated into other languages for your
 convenience. In the event of any conflict or discrepancy between the English version and a
@@ -53,9 +53,11 @@ up, on your own server -- section 3). None of it is sent to the author.
 - **Setting up.** The installer downloads the software the app needs (Python packages, PyTorch, the
   recognition model and the catalogue pack) from their hosts, including a file hosted on Google
   Drive. This happens when you install, not while you use the app.
-- **Sharing with your own devices.** `serve` (unless `--local`) and `wuwa live --share` make the
-  pages reachable from devices on your own Tailscale network, through Tailscale. The app's server
-  itself listens only on this computer. Tailscale's own privacy policy covers its service.
+- **Sharing with your own devices.** `serve` (unless `--local`), `扫描 Scan` and its shortcuts, and
+  `wuwa live --share` make the pages reachable from devices on your own Tailscale network, through
+  Tailscale, when Tailscale is installed and connected on this computer. A scan shares its status
+  only, never a picture of the game, and only while it runs. The app's server itself listens only
+  on this computer. Tailscale's own privacy policy covers its service.
 - **Your own server.** If you connect a scanner to a server (`wuwa server set`), the scanner fetches
   the catalogue from it and sends each finished scan to it: the rows that were read and the item
   pictures, never a full picture of the screen. The server must be on your own Tailscale network or

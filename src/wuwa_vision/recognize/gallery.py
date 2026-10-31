@@ -40,7 +40,6 @@ from .appearance import (
     is_the_other,
 )
 from .encoder import IconEncoder
-from .pack import NO_PICTURE
 from .reference import RARITY_ANY
 
 #: Minimum cosine similarity for the top hit to be considered at all.
@@ -456,17 +455,14 @@ class Gallery:
         old, D42; an item renamed). Crops learned from scans are never touched. Cheap
         when nothing changed, so a scan can do it before it reads anything: a wiki
         update's new weapon is then known to the very next scan, not the one after.
-        An item the catalogue never drew keeps its entry until the catalogue draws it (D249).
         """
         from .appearance import hue_signature
         from .reference import reference_key
 
         keys = [reference_key(i.image, i.name) for i in icons]
         wanted = set(keys)
-        drawn = {i.name for i in icons}
         gone = [r[0] for r in self.store.conn.execute(
-            "SELECT icon_hash, item_name FROM gallery WHERE tab = 'reference'")
-            if r[0] not in wanted and not (r[0].startswith(NO_PICTURE) and r[1] not in drawn)]
+            "SELECT icon_hash FROM gallery WHERE tab = 'reference'") if r[0] not in wanted]
         self.store.conn.executemany("DELETE FROM gallery WHERE icon_hash = ?",
                                     [(h,) for h in gone])
         self.store.conn.commit()

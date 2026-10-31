@@ -148,6 +148,15 @@
     .tab .l{font-size:13.5px} .meter{height:4px;margin-top:4px}
     .view-card{display:block}
   }
+  /* Stop the scan (D254): always in reach of a thumb, however far down the page is. */
+  .stop{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;
+        min-height:48px;padding:0 18px;border-radius:24px;font:inherit;font-weight:650;
+        background:var(--panel);color:var(--bad);border:1.5px solid var(--bad);
+        box-shadow:0 2px 10px rgba(0,0,0,.25)}
+  .stop[hidden]{display:none}
+  .stop[data-state="armed"],.stop[data-state="failed"]{background:#b3261e;border-color:#b3261e;color:#fff}
+  .stop:disabled{color:var(--muted);border-color:var(--line)}
+  body:has(.stop:not([hidden])) main{padding-bottom:84px}
   /* A wide window is the PC, which has live.html: here, the same column, not stretched. */
   @media (orientation:landscape) and (min-width:1000px){ main{max-width:1100px;margin:0 auto} }
 </style>
@@ -159,6 +168,7 @@
   </div>
   <div class="tabs" id="tabs"></div>
 </header>
+<button class="stop" id="stop" type="button" data-state="idle" hidden>Stop the scan</button>
 <main>
   <section class="card sync" id="sync" role="status" hidden>
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
@@ -239,7 +249,7 @@ const NEEDS = {
   'click-there': n => [`${n.items} item${n.items > 1 ? 's' : ''} in ${n.tab} still need a click`,
                        'They look identical to other items.'],
   done: n => [`${n.tab} is complete${n.total ? `: all ${n.total} seen` : ''}`,
-              'Switch tab to keep going, or press the panic key to finish.'],
+              'Switch tab to keep going, or stop the scan to finish.'],
 };
 function renderNeeds(d){
   const needs = (d.needs || []).filter(n => NEEDS[n.kind]);
@@ -369,6 +379,34 @@ function renderSync(s){
   else meter.setAttribute('aria-valuenow', Math.round(100 * s.fraction));
 }
 
+// Stop the scan (D254): the panic key, for where there is none to press. Two presses, so that one
+// made in passing ends nothing; the first goes back by itself.
+const stop = document.getElementById('stop');
+const UNARM = 4000;
+let unarm = null, posting = false;
+function stopSays(state, text){
+  stop.dataset.state = state; stop.textContent = text; stop.disabled = state === 'stopping';
+}
+function renderStop(d){
+  stop.hidden = !d?.can_stop;
+  if(d?.stopping) stopSays('stopping', 'Stopping…');
+  else if(!posting && stop.dataset.state === 'stopping') stopSays('idle', 'Stop the scan');
+}
+stop.addEventListener('click', async () => {
+  clearTimeout(unarm);
+  if(stop.dataset.state === 'idle'){
+    stopSays('armed', 'Press again to stop');
+    unarm = setTimeout(() => stopSays('idle', 'Stop the scan'), UNARM);
+    return;
+  }
+  stopSays('stopping', 'Stopping…');
+  posting = true;
+  const sent = await fetch('api/live/stop', {method: 'POST', headers: {'X-Wuwa-Stop': '1'}})
+    .catch(() => null);
+  posting = false;
+  if(!sent?.ok) stopSays('failed', 'Not stopped. Press again');
+});
+
 // One missed answer is a phone changing cell towers, not a scan that ended: the
 // page says so only after a few, and keeps showing what it last heard.
 const EVERY = 500, PATIENCE = 4, GIVE_UP = 4000;
@@ -387,13 +425,13 @@ async function tick(){
     if(!d.same){
       version = d.version;
       renderPhase(d); renderTabs(d); renderNeeds(d); renderSelected(d);
-      renderView(d); fadeBoxes(d); renderLog(d); renderItems(d);
+      renderView(d); fadeBoxes(d); renderLog(d); renderItems(d); renderStop(d);
       document.body.dataset.version = d.version;
     }
   }catch(e){
     if(++missed >= PATIENCE){
       version = -1;  // whatever answers next is drawn in full
-      renderSync(null);
+      renderSync(null); renderStop(null);
       renderPhase({status: 'offline',
                    note: heard ? `last heard from the scan at ${heard.toLocaleTimeString()}` : ''});
     }

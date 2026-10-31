@@ -36,11 +36,12 @@ macOS is passive-only: nothing is ever clicked or typed for you. [docs/setup.md]
 has what differs on a Mac (Screen Recording, the focus click).
 
 **One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
-this computer and the phone, run this in the program's folder instead of the double-click, then
-open the `phone page:` address it prints (port 8713) on the phone:
+this computer and the phone, `扫描 Scan` shares the scan's status with your own devices: open the
+`phone page:` address it prints (port 8713) on the phone. To keep a scan to this computer, start it
+from the program's folder with:
 
 ```
-uv run python -m wuwa_vision live --identify --share
+uv run python -m wuwa_vision live --identify
 ```
 
 ## 3. The dashboard

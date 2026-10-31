@@ -63,11 +63,12 @@ Press **F9** when you are done -- everything read so far is kept. A live page,
 [docs/scanning.md](docs/scanning.md) has the details.
 
 **One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
-this computer and the phone, run this in the program's folder instead of the double-click, then
-open the `phone page:` address it prints (port 8713) on the phone:
+this computer and the phone, `扫描 Scan` shares the scan's status with your own devices: open the
+`phone page:` address it prints (port 8713) on the phone. To keep a scan to this computer, start it
+from the program's folder with:
 
 ```
-uv run python -m wuwa_vision live --identify --share
+uv run python -m wuwa_vision live --identify
 ```
 
 ## 3. Use the dashboard

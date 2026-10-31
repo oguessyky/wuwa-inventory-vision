@@ -101,6 +101,12 @@
   .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .sel b{font-size:18px;display:block}
   .sel .own{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  /* Stop the scan (D254). */
+  .stop{font:inherit;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;
+        background:transparent;color:var(--bad);border:1px solid var(--bad)}
+  .stop[hidden]{display:none}
+  .stop[data-state="armed"],.stop[data-state="failed"]{background:#b3261e;border-color:#b3261e;color:#fff}
+  .stop:disabled{color:var(--muted);border-color:var(--line);cursor:default}
   .log{font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow:auto;
        margin:0;padding:0;list-style:none}
   .log li{padding:2px 0;border-bottom:1px dashed var(--line);word-break:break-word}
@@ -131,6 +137,7 @@
 <header>
   <h1>Live scan</h1>
   <div class="phase" id="phase" role="status" aria-live="polite"><span class="dot"></span><span>connecting…</span></div>
+  <button class="stop" id="stop" type="button" data-state="idle" hidden>Stop the scan</button>
   <div class="tabs" id="tabs"></div>
   <div class="sync" id="sync" role="status" hidden>
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
@@ -366,16 +373,44 @@ function renderPhone(p){
   el.querySelector('.port').textContent = state === 'failed' ? '' : `port ${p.port}`;
 }
 
+// Stop the scan (D254): the panic key, for where there is none to press. Two presses, so that one
+// made in passing ends nothing; the first goes back by itself.
+const stop = document.getElementById('stop');
+const UNARM = 4000;
+let unarm = null, posting = false;
+function stopSays(state, text){
+  stop.dataset.state = state; stop.textContent = text; stop.disabled = state === 'stopping';
+}
+function renderStop(d){
+  stop.hidden = !d?.can_stop;
+  if(d?.stopping) stopSays('stopping', 'Stopping…');
+  else if(!posting && stop.dataset.state === 'stopping') stopSays('idle', 'Stop the scan');
+}
+stop.addEventListener('click', async () => {
+  clearTimeout(unarm);
+  if(stop.dataset.state === 'idle'){
+    stopSays('armed', 'Press again to stop');
+    unarm = setTimeout(() => stopSays('idle', 'Stop the scan'), UNARM);
+    return;
+  }
+  stopSays('stopping', 'Stopping…');
+  posting = true;
+  const sent = await fetch('api/live/stop', {method: 'POST', headers: {'X-Wuwa-Stop': '1'}})
+    .catch(() => null);
+  posting = false;
+  if(!sent?.ok) stopSays('failed', 'Not stopped. Press again');
+});
+
 async function tick(){
   try{
     const d = await (await fetch('api/live', {cache:'no-store'})).json();
-    renderPhase(d); fadeBoxes(d); renderSync(d.sync); renderPhone(d.phone);
+    renderPhase(d); fadeBoxes(d); renderSync(d.sync); renderPhone(d.phone); renderStop(d);
     if(d.status !== 'offline' && d.version !== lastVersion){
       lastVersion = d.version;
       renderTabs(d); renderView(d); renderSelected(d); renderLog(d); renderItems(d);
     }
   }catch(e){
-    renderPhase({status: 'offline'}); renderSync(null); renderPhone(null);
+    renderPhase({status: 'offline'}); renderSync(null); renderPhone(null); renderStop(null);
   }
   setTimeout(tick, 250);
 }

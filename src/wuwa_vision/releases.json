@@ -14,16 +14,24 @@
      "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
     },
     {
-     "zh": "压扁的糖果 在图鉴里没有图片，现在也放进了内置数据：第一次扫描就能认出，不用再确认一次",
-     "en": "压扁的糖果, which the catalogue has no picture of, now comes with the tool: the first scan names it, with no 可能认错 to clear"
-    },
-    {
      "zh": "修复：详情面板里选中物品的大图，偶尔会被当成一个多出来的物品，分页就显示成 175/174 这样，一直算不上扫全",
      "en": "fixed: the big picture in the detail panel could be read as one more item, so a tab said 175 of 174 and never counted as complete"
     },
     {
+     "zh": "修复：画面上下两排都被滚动区域切掉一截时，被切的格子可能被当成物品，多出 1 星、数量不对的假物品。现在只读完整的格子",
+     "en": "fixed: when the scroll view cut a row at both the top and the bottom of the screen, the cut tiles could be read as items, giving false 1-star items with wrong counts. Only whole tiles are read now"
+    },
+    {
      "zh": "扫描页顶部现在会显示手机能打开的网址和端口；没有分享时，会告诉你怎么打开",
      "en": "the top of the scan page now shows the address and port your phone can open, or how to turn that on"
+    },
+    {
+     "zh": "有 Tailscale 时，双击 扫描 Scan 或用它的快捷方式，手机就能看扫描进度，不用再输命令。只有你自己的 Tailscale 设备能打开；没有 Tailscale 时，扫描和以前一样",
+     "en": "with Tailscale, 扫描 Scan and its shortcuts now share the scan's status with your phone, with no command to type. Only your own Tailscale devices can open it. Without Tailscale a scan runs as before"
+    },
+    {
+     "zh": "扫描页和手机页都有「Stop the scan」按钮，按两下结束扫描，和 F9 一样，读到的都会保存。Mac 和手机上不用再找快捷键",
+     "en": "the scan page and the phone's page now have a Stop the scan button: two presses end the scan just as F9 does, and everything read is kept. A Mac or a phone no longer needs a key for it"
     },
     {
      "zh": "只留下「服务器」这个名字：旧的 wuwa-home 和 wuwa home 命令已移除，旧文件会自动改名，已连接的服务器不用重新设置",
@@ -46,10 +54,6 @@
     {
      "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
      "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
-    },
-    {
-     "zh": "压扁的糖果 在图鉴里没有图片，现在也放进了内置数据：第一次扫描就能认出，不用再确认一次",
-     "en": "压扁的糖果, which the catalogue has no picture of, now comes with the tool: the first scan names it, with no 可能认错 to clear"
     }
    ]
   },

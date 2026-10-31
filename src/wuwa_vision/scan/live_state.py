@@ -24,6 +24,7 @@ from __future__ import annotations
 import threading
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -129,6 +130,9 @@ class LiveState:
     phone: dict[str, Any] = field(default_factory=dict)
     """Where the phone's page is, for the PC's page (D246): its `port`, with the `url` it
     was shared at or `why` it could not be. Told with every answer, like `sync`."""
+    stopping: bool = False
+    """A page pressed stop (D254), and the scan has yet to say it stopped."""
+    _stopper: Callable[[], None] | None = field(default=None, repr=False)
     _asks: int = 0
     _bye: tuple[float, int] | None = None
     preview_jpeg: bytes | None = None
@@ -273,6 +277,25 @@ class LiveState:
         with self._lock:
             self.phone = said
 
+    def set_stopper(self, stop: Callable[[], None]) -> None:
+        """What a page's stop button does: press the panic key (D254)."""
+        with self._lock:
+            self._stopper = stop
+            self.version += 1
+
+    def ask_stop(self) -> bool:
+        """A page pressed stop. False with no scan to stop; pressed twice, it stops once."""
+        with self._lock:
+            stop = None if self.status == "stopped" else self._stopper
+            if stop is None:
+                return False
+            first = not self.stopping
+            self.stopping = True
+            self.version += 1
+        if first:
+            stop()
+        return True
+
     # ------------------------------------------------- is the PC's page open (D156)
 
     def asked(self) -> None:
@@ -319,6 +342,8 @@ class LiveState:
                 "panel": self.panel,
                 "sync": self.sync,
                 "phone": dict(self.phone),
+                "can_stop": self._stopper is not None and self.status != "stopped",
+                "stopping": self.stopping,
                 "log": [{"t": t, "msg": m} for t, m in self.log],
             }
 
