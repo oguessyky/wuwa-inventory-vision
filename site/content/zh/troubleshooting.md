@@ -70,6 +70,10 @@ uv run python -m wuwa_vision platform
 
 电脑（或服务器）和手机都要装好 Tailscale，并登录同一个账号。只有一台电脑的话，启动页面时不要加 `--local`，然后在手机上打开它印出的网址。
 
+### 手机打不开扫描页
+
+看终端里 `phone page:` 这一行。如果是 `phone page: not shared`，括号里就是原因，比如没装 Tailscale 或没登录；这时扫描照常进行，只是手机看不到。如果印出了网址，就看手机上的 Tailscale 有没有连上。这个网址只在扫描开着时能打开。
+
 ### 服务器的地址打不开
 
 看 Tailscale 容器的日志有没有登录成功：`TS_AUTHKEY` 还是 `tskey-auth-PUT-YOURS-HERE`，或者密钥已经用过了，都不行。在 Tailscale 管理后台，`wuwa-server` 要显示为已连接。

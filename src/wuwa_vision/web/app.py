@@ -1309,7 +1309,7 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         known = {*cat.names(), *weapons} if (cat.directory / "index.json").exists() else None
         st = Store(db())
         try:
-            crops = review.learned(st, known)
+            crops = review.learned(st, known, cat.directory)
         finally:
             st.close()
         by_name: dict[str, list] = {}

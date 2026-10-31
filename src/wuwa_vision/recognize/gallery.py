@@ -31,8 +31,16 @@ from datetime import UTC, datetime
 import numpy as np
 
 from ..store.db import Store
-from .appearance import HUE_BINS, MIN_HUE_MASS, describe, hue_signature, is_the_other
+from .appearance import (
+    HUE_BINS,
+    LOOK_GAP,
+    MIN_HUE_MASS,
+    describe,
+    hue_signature,
+    is_the_other,
+)
 from .encoder import IconEncoder
+from .pack import NO_PICTURE
 from .reference import RARITY_ANY
 
 #: Minimum cosine similarity for the top hit to be considered at all.
@@ -97,12 +105,6 @@ SAME_TILE = 0.98
 #: dish drawn differently (雾茗 / 喜凌茶) differs in colour everywhere, and the picture
 #: model tells those apart already; colour renamed 40 of them on this PC's scans.
 DRAWN_ALIKE = 0.90
-#: Two catalogue pictures tied (within MIN_MARGIN): the tile's `describe` must be at least this
-#: much nearer one of them to name it (D201). 奇幻变奏 / 今州守望 tied at 0.83 / 0.82 on the
-#: picture model and were 0.2 apart on the look; on this PC's scans the rule named 78 tiles
-#: the panel had named, all right, and left the closest pairs (锅盔 / 糖心锅盔) as they were.
-LOOK_GAP = 0.10
-
 
 @dataclass(frozen=True, slots=True)
 class Match:
@@ -454,14 +456,17 @@ class Gallery:
         old, D42; an item renamed). Crops learned from scans are never touched. Cheap
         when nothing changed, so a scan can do it before it reads anything: a wiki
         update's new weapon is then known to the very next scan, not the one after.
+        An item the catalogue never drew keeps its entry until the catalogue draws it (D249).
         """
         from .appearance import hue_signature
         from .reference import reference_key
 
         keys = [reference_key(i.image, i.name) for i in icons]
         wanted = set(keys)
+        drawn = {i.name for i in icons}
         gone = [r[0] for r in self.store.conn.execute(
-            "SELECT icon_hash FROM gallery WHERE tab = 'reference'") if r[0] not in wanted]
+            "SELECT icon_hash, item_name FROM gallery WHERE tab = 'reference'")
+            if r[0] not in wanted and not (r[0].startswith(NO_PICTURE) and r[1] not in drawn)]
         self.store.conn.executemany("DELETE FROM gallery WHERE icon_hash = ?",
                                     [(h,) for h in gone])
         self.store.conn.commit()

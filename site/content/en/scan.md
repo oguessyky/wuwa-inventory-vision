@@ -23,3 +23,21 @@ Tiles marked **to confirm** (items drawn identically, or new in a patch) want on
 Press **F9** (Ctrl+C in Terminal on a Mac). Everything read is kept. If F9 is taken, see [Troubleshooting](/troubleshooting).
 
 With a server, each tab is sent as it is done; if the server cannot be reached it scans anyway and sends it next time.
+
+## Watch the scan on your phone
+
+With one screen, the game hides the scan page. Follow it on your phone instead.
+
+Install [Tailscale](https://tailscale.com) on the PC and the phone, signed in to the same account.
+
+Don't double-click `扫描 Scan` this time. Open a terminal in the program's folder (Windows: right-click in the folder → **Open in Terminal**) and run:
+
+```
+uv run python -m wuwa_vision live --identify --share
+```
+
+It prints `phone page:` and an address like `http://your-pc.your-tailnet.ts.net:8713`, also at the top of the scan page. Open it on the phone and bookmark it: it never changes.
+
+Scan as usual. Upright, the phone shows the progress and what the scan needs from you; turned sideways it adds the boxes.
+
+The phone can only look, never shows a picture of the game, and the address opens only while the scan runs. Set a long screen timeout. Trouble? See [Troubleshooting](/troubleshooting).

@@ -126,6 +126,9 @@ class LiveState:
     """How the talk with the home is going right now (`sync.Transfer.said`), or
     None when nothing is crossing (D156). Not part of `version`: it changes ten
     times a second, and a page is told it with every answer instead."""
+    phone: dict[str, Any] = field(default_factory=dict)
+    """Where the phone's page is, for the PC's page (D246): its `port`, with the `url` it
+    was shared at or `why` it could not be. Told with every answer, like `sync`."""
     _asks: int = 0
     _bye: tuple[float, int] | None = None
     preview_jpeg: bytes | None = None
@@ -266,6 +269,10 @@ class LiveState:
         with self._lock:
             self.sync = said
 
+    def set_phone(self, said: dict[str, Any]) -> None:
+        with self._lock:
+            self.phone = said
+
     # ------------------------------------------------- is the PC's page open (D156)
 
     def asked(self) -> None:
@@ -311,6 +318,7 @@ class LiveState:
                 "items": list(self.items),
                 "panel": self.panel,
                 "sync": self.sync,
+                "phone": dict(self.phone),
                 "log": [{"t": t, "msg": m} for t, m in self.log],
             }
 

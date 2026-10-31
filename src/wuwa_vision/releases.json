@@ -10,6 +10,22 @@
      "en": "fixed: a scanner with a lot of data moved to a new server stopped with \"上传的内容太大\", and every push after failed too. It now sends in parts, and picks up where it stopped"
     },
     {
+     "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
+     "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
+    },
+    {
+     "zh": "压扁的糖果 在图鉴里没有图片，现在也放进了内置数据：第一次扫描就能认出，不用再确认一次",
+     "en": "压扁的糖果, which the catalogue has no picture of, now comes with the tool: the first scan names it, with no 可能认错 to clear"
+    },
+    {
+     "zh": "修复：详情面板里选中物品的大图，偶尔会被当成一个多出来的物品，分页就显示成 175/174 这样，一直算不上扫全",
+     "en": "fixed: the big picture in the detail panel could be read as one more item, so a tab said 175 of 174 and never counted as complete"
+    },
+    {
+     "zh": "扫描页顶部现在会显示手机能打开的网址和端口；没有分享时，会告诉你怎么打开",
+     "en": "the top of the scan page now shows the address and port your phone can open, or how to turn that on"
+    },
+    {
      "zh": "只留下「服务器」这个名字：旧的 wuwa-home 和 wuwa home 命令已移除，旧文件会自动改名，已连接的服务器不用重新设置",
      "en": "only the name server is left: the old wuwa-home and the wuwa home command are gone. Old files take their new names by themselves, so a scanner keeps its server"
     }
@@ -26,6 +42,14 @@
     {
      "zh": "修复：从零开始的服务器上，识别页的「可能认错」永远是空的。现在服务器自带图鉴的参考数据，可以核对学到的名字",
      "en": "fixed: on a server started from nothing, 识别's 可能认错 stayed empty however wrong a name was. A server now has the catalogue's reference data to check learned names against"
+    },
+    {
+     "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
+     "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
+    },
+    {
+     "zh": "压扁的糖果 在图鉴里没有图片，现在也放进了内置数据：第一次扫描就能认出，不用再确认一次",
+     "en": "压扁的糖果, which the catalogue has no picture of, now comes with the tool: the first scan names it, with no 可能认错 to clear"
     }
    ]
   },

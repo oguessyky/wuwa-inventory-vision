@@ -62,6 +62,14 @@ Press **F9** when you are done -- everything read so far is kept. A live page,
 <http://127.0.0.1:8711/live>, opens in your browser and shows what it is reading.
 [docs/scanning.md](docs/scanning.md) has the details.
 
+**One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
+this computer and the phone, run this in the program's folder instead of the double-click, then
+open the `phone page:` address it prints (port 8713) on the phone:
+
+```
+uv run python -m wuwa_vision live --identify --share
+```
+
 ## 3. Use the dashboard
 
 **Double-click `3 总览 Dashboard`** (the pages run while its window is open), or run:

@@ -70,6 +70,10 @@ uv run python -m wuwa_vision platform
 
 The PC (or the server) and the phone both need Tailscale, signed in to the same account. With one PC only, start the pages without `--local`, then open the address it prints on the phone.
 
+### The phone cannot open the scan page
+
+Look at the `phone page:` line in the terminal. `phone page: not shared` gives the reason in brackets, such as Tailscale not installed or not signed in; the scan runs as usual, the phone just cannot see it. If it printed an address, check that Tailscale is connected on the phone. The address opens only while the scan runs.
+
 ### The server's address does not open
 
 Check the Tailscale container's log for a login: a `TS_AUTHKEY` left as `tskey-auth-PUT-YOURS-HERE`, or a key already used up, will not do. In the Tailscale admin console, `wuwa-server` must show as connected.

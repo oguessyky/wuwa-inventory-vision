@@ -63,7 +63,9 @@ is behind it. `live --share` puts the scan's status on your phone instead, over
 uv run wuwa live --identify --share
 ```
 
-It prints an address like `http://your-pc.your-tailnet.ts.net:8713`. Open it on the phone and
+It prints an address like `http://your-pc.your-tailnet.ts.net:8713`, and the top of the PC's live
+page shows it with its port; a scan that was not shared says there how to share one. Open it on
+the phone and
 bookmark it: it is the same for every scan. Held upright the page shows the banner, filled with
 its colour so it reads from arm's length, then each tab's progress, what the scan needs from you
 (items to click apart, a view that did not overlap the one before, a tab that is complete), the

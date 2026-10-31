@@ -32,6 +32,16 @@ def describe(icon: np.ndarray) -> np.ndarray:
     return vec / (float(np.linalg.norm(vec)) + 1e-6)
 
 
+#: Two catalogue pictures tied (within MIN_MARGIN): the tile's `describe` must be at least this
+#: much nearer one of them to name it (D201). 奇幻变奏 / 今州守望 tied at 0.83 / 0.82 on the
+#: picture model and were 0.2 apart on the look; on this PC's scans the rule named 78 tiles
+#: the panel had named, all right, and left the closest pairs (锅盔 / 糖心锅盔) as they were.
+#: A doubt on a learned picture needs the same lead to go (D248): every sure picture on this PC
+#: learned under each of the 613 other names, 1,712,722 slips, came no closer than 0.075, the
+#: flags on right names cleared by 0.22 and 0.27, and the slip of 2026-10-12 stands at -0.44.
+LOOK_GAP = 0.10
+
+
 #: Hue bins of the signature (OpenCV hue is 0-179).
 HUE_BINS = 24
 #: Below this much vivid colour (weighted pixel fraction) an icon is effectively

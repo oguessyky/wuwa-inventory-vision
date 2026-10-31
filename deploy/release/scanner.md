@@ -82,6 +82,14 @@ at a time; click an item to have its name and count read from the game's own pan
 ends -- then open the server's address on your phone. [docs/scanning.md](docs/scanning.md) has the
 details.
 
+**One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
+this computer and the phone, run this in the program's folder instead of the double-click, then
+open the `phone page:` address it prints (port 8713) on the phone:
+
+```
+uv run python -m wuwa_vision live --identify --share
+```
+
 If the server cannot be reached, the scan still runs and is kept on this PC; it is sent with the
 next scan, or now with:
 

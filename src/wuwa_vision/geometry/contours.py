@@ -134,6 +134,18 @@ def _cluster(values: list[int], gap: int) -> list[int]:
 #: A real grid column holds tiles from most rows. A lone box in the detail panel
 #: does not, and passes the area/aspect filters on its own.
 MIN_COLUMN_OCCUPANCY = 0.5
+#: A real column stands one pitch from the next. The panel's big picture of the selected
+#: item stands off to the right of the grid, and with two rows on screen one tile is half
+#: of them, so it is not sparse (D244). 1.5: a column missed whole is two pitches away.
+MAX_COLUMN_GAP = 1.5
+
+
+def _without_a_column_far_off(cols: list[int]) -> list[int]:
+    """Drop the last column when it stands well past the pitch of the others (D244)."""
+    if len(cols) < 3:
+        return cols
+    pitch = min(b - a for a, b in zip(cols, cols[1:], strict=False))
+    return cols[:-1] if cols[-1] - cols[-2] > pitch * MAX_COLUMN_GAP else cols
 
 
 def detect_grid(rgb: np.ndarray) -> ContourGrid:
@@ -164,9 +176,11 @@ def detect_grid(rgb: np.ndarray) -> ContourGrid:
 
     best = max((len(v) for v in occupancy.values()), default=0)
     keep = {i for i, v in occupancy.items() if len(v) >= best * MIN_COLUMN_OCCUPANCY}
-    cols = [c for i, c in enumerate(cols) if i in keep]
+    cols = _without_a_column_far_off([c for i, c in enumerate(cols) if i in keep])
     boxes = [b for b in boxes if nearest(b.x, cols) is not None and
              min(abs(c - b.x) for c in cols) <= median_w * 0.5] if cols else boxes
+    # what went with a column may have been a row of its own: it would number the rest wrong
+    rows = _cluster(sorted(b.y for b in boxes), gap=int(median_h * 0.5))
 
     if len(cols) < MIN_COLUMNS:
         return ContourGrid((), (), ())

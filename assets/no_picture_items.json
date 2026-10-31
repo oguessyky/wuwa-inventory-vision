@@ -1,0 +1,6 @@
+{
+  "about": "Items the game has and no catalogue draws, so the wiki gives no picture of them (PLAN.md D249). 'wuwa pack' computes their entry from a tile saved from the game, the numbers only, never the tile. 'rarity' and 'tab' are the game's. Take an item off when the catalogue has it: its own picture then replaces the entry by itself.",
+  "items": {
+    "压扁的糖果": {"rarity": 2, "tab": "补给"}
+  }
+}

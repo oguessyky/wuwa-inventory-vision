@@ -406,7 +406,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     # The live page (D25): wucv's boxes-and-labels view, served locally instead
     # of drawn over the game. Started first, so it can be opened while waiting --
     # and before the home is asked anything, whose answer it shows arriving (D156).
-    state = LiveState(picture=args.preview)
+    state = LiveState(picture=args.preview, phone={"port": args.share_port})
     if args.web:
         url = _start_live_server(Path(args.db), state, args.port)
         # Opened for the user (D153). It takes the front, which costs nothing:
@@ -685,8 +685,10 @@ def _share_with_phone(db: Path, state, port: int):  # noqa: ANN001, ANN202 -- Li
     shared, why = tailnet.open_share(port)
     if shared is None:
         print(f"phone page: not shared ({why})")
+        state.set_phone({"port": port, "why": why})
         return None
     _serve_in_background(create_phone_app(db, state), port, "phone-page")
+    state.set_phone({"port": port, "url": shared.url})
     print(f"phone page: {shared.url}  (your own Tailscale devices only; it shows the")
     print("            scan's progress, changes nothing, and never a picture of the game)")
     return shared

@@ -42,6 +42,14 @@ would need the Accessibility permission, which this project never asks for).
 macOS is passive-only: nothing is ever clicked or typed for you. [docs/setup.md](docs/setup.md)
 has what differs on a Mac (Screen Recording, the focus click).
 
+**One screen?** Follow the scan on your phone. With [Tailscale](https://tailscale.com) signed in on
+this computer and the phone, run this in the program's folder instead of the double-click, then
+open the `phone page:` address it prints (port 8713) on the phone:
+
+```
+uv run python -m wuwa_vision live --identify --share
+```
+
 ## Later
 
 - **Updating**: when this Mac scans for a server and the server is newer, **double-click
