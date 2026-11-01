@@ -77,6 +77,7 @@ def resonator_summary(catalogue: Catalogue, name: str, build: dict) -> dict:
         "card": _art(catalogue, build.get("card")),
         "version": build.get("version"),
         "has_costs": bool(build.get("materials")),
+        "upcoming": catalogue.upcoming("resonators", name),
     }
 
 
@@ -379,6 +380,8 @@ def weapon_summary(catalogue: Catalogue, name: str, build: dict, copies: int = 0
         "type_icon": catalogue.avatars["weapons"].get(build.get("type") or ""),
         "rarity": rarity,
         "icon_file": catalogue.icon_file(name),
+        "has_costs": bool(build.get("materials")),
+        "upcoming": catalogue.upcoming("weapons", name),
         "copies": [1] * copies,
         "rank_reachable": reachable_rank([1] * copies) if copies else None,
         # 3-star and lower are often fed as EXP: pulled is not what is left

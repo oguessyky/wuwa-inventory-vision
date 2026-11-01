@@ -89,6 +89,13 @@ def clamp(catalogue: Catalogue, kind: str, name: str, state: dict) -> dict:
     return out
 
 
+def block(catalogue: Catalogue, kind: str, name: str) -> bool:
+    """Known only as a total (a build by hand, D74): there are no steps to count, so a plan
+    takes all of it or nothing (D260)."""
+    build = catalogue.builds.get(f"{kind}s", {}).get(name) or {}
+    return bool(build.get("materials")) and not build.get("ascension") and not build.get("skills")
+
+
 def _add(total: dict[str, int], cost: dict[str, int]) -> None:
     for name, n in cost.items():
         total[name] = total.get(name, 0) + n
@@ -99,6 +106,9 @@ def cost(catalogue: Catalogue, kind: str, name: str, current: dict, target: dict
     build = catalogue.builds.get(f"{kind}s", {}).get(name) or {}
     now, want = clamp(catalogue, kind, name, current), clamp(catalogue, kind, name, target)
     total: dict[str, int] = {}
+    behind = (want["ascension"], want["level"]) > (now["ascension"], now["level"])
+    if block(catalogue, kind, name) and behind:
+        total.update(build["materials"])
     steps = build.get("ascension") or []
     for step in steps[now["ascension"]:want["ascension"]]:
         _add(total, step)
@@ -131,6 +141,17 @@ def exp_points(catalogue: Catalogue, kind: str, name: str, current: dict, target
                       want["level"])
 
 
+def _with_skills(catalogue: Catalogue, name: str, current: dict, target: dict) -> tuple[dict, dict]:
+    """A plan made from a total saved no skills: it was "ready this one fully", and must not
+    fall to level 1 of everything when the wiki brings the tables (D260)."""
+    lim = limits(catalogue, "resonator", name) or {}
+    if target.get("skills") != {} or not lim.get("skills"):
+        return current, target
+    top = full(catalogue, "resonator", name, top=True)
+    filled = {**target, "skills": top["skills"], "nodes": top["nodes"]}
+    return (filled if current == target else current), filled
+
+
 def _rows(catalogue: Catalogue, inventory: list[Item], need: dict[str, int],
           complete_tabs: set[str] | frozenset[str]) -> list[dict]:
     groups = build_materials(catalogue, inventory, complete_tabs, need=need)
@@ -149,18 +170,23 @@ def view(catalogue: Catalogue, inventory: list[Item], plans: list[dict],
     for plan in plans:
         kind, name = plan["kind"], plan["name"]
         known = (people if kind == "resonator" else arms).get(name)
-        need = cost(catalogue, kind, name, plan.get("current") or {}, plan.get("target") or {})
+        current, target = plan.get("current") or {}, plan.get("target") or {}
+        if kind == "resonator":
+            current, target = _with_skills(catalogue, name, current, target)
+        need = cost(catalogue, kind, name, current, target)
         _add(total, need)
-        xp = exp_points(catalogue, kind, name, plan.get("current") or {}, plan.get("target") or {})
+        xp = exp_points(catalogue, kind, name, current, target)
         points[kind] += xp
         who = (avatar(catalogue, name, known) if kind == "resonator"
                else weapon_summary(catalogue, name, known)) if known else {"name": name}
         out.append({
             "id": plan["id"], "kind": kind, "name": name, "known": known is not None,
             "who": who,
-            "current": clamp(catalogue, kind, name, plan.get("current") or {}),
-            "target": clamp(catalogue, kind, name, plan.get("target") or {}),
+            "current": clamp(catalogue, kind, name, current),
+            "target": clamp(catalogue, kind, name, target),
             "limits": limits(catalogue, kind, name),
+            "block": block(catalogue, kind, name),
+            "upcoming": catalogue.upcoming(f"{kind}s", name),
             "need": sorted(
                 ({"name": n, "amount": k, "icon_file": catalogue.icon_file(n),
                   "rarity": (catalogue.entry(n) or {}).get("rarity") or 0}

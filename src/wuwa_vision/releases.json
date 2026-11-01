@@ -2,6 +2,33 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.4.0",
+   "date": "2026-11-01",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "修复：「这是谁」选错了没地方改。现在「武器」页的扫描信息里有「认错了？改名字」，武器详情里的持有者也能点开改",
+     "en": "fixed: a wrong pick in 这是谁 could not be changed. The 武器 page's scan line now has 认错了？改名字, and the holder in a weapon's panel opens the same picker"
+    },
+    {
+     "zh": "修复：手动填的新角色在「规划」里算不出材料，会显示不需要材料。现在会把你填的全部材料算进合计",
+     "en": "fixed: a new character filled in by hand counted for nothing in 规划, which said no materials were needed. Everything you entered now counts in the total"
+    },
+    {
+     "zh": "「规划」的选人列表最上面多了「即将实装」：填好的可以直接加，还没填的可以一键去「手动修改」",
+     "en": "规划's picker has a 即将实装 group on top: ready to add once filled in, with a link to 手动修改 if not"
+    },
+    {
+     "zh": "手动提前填的角色、武器和材料，等 Wiki 有了完整数据，点「更新」就会自动换成 Wiki 的，并提示一次；你改过的已上线内容不受影响",
+     "en": "characters, weapons and materials you added ahead of a patch switch to the wiki's data on 更新 once it has them all, and it says so once. Your fixes to anything already released stay"
+    },
+    {
+     "zh": "「帮助」的第一步和第三步改成双击文件，不用再打命令；背包是空的时候也这样提示",
+     "en": "帮助's first steps are double-clicks now, with no commands to type, and an empty 库存 says the same"
+    }
+   ]
+  },
+  {
    "version": "1.3.0",
    "date": "2026-11-01",
    "scanner": [

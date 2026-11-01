@@ -9,7 +9,8 @@ The only outbound requests the main app ever makes, and only when the user click
 (resonators, weapons) -- each incremental, as separate processes, exactly as they
 run from the command line. Nothing runs on start-up or on a timer.
 
-What changed is reported as names added, compared before and after.
+What changed is reported as names added, compared before and after, and a stand-in the
+wiki now has is removed and reported the same way (D260).
 Headless: the web app starts a job and polls its state.
 """
 
@@ -113,6 +114,22 @@ def snapshot(directory: Path | None = None) -> dict[str, set[str]]:
     }
 
 
+standins = catalogue_mod.standins
+
+
+def take_over(before: dict[str, set[str]], directory: Path | None = None) -> list[str]:
+    """Remove the stand-ins the wiki has by now (D260), and say which. Compared before and
+    after an update, so a fix saved once the wiki has a thing is never touched."""
+    root = Path(directory or _catalogue_dir())
+    now = standins(root)
+    mine = catalogue_mod.read_overrides(root)
+    gone = [name for kind in ("resonators", "weapons", "items")
+            for name in sorted(before[kind] - now[kind]) if mine[kind].pop(name, None) is not None]
+    if gone:
+        catalogue_mod.write_overrides(mine, root)
+    return gone
+
+
 def can_seed() -> bool:
     """Is there a recogniser on this machine to rebuild the gallery with? A home
     that only shows the dashboard has none (D145): its scanners embed the new
@@ -130,6 +147,8 @@ class UpdateJob:
     step: str = ""
     log: list[str] = field(default_factory=list)
     added: dict[str, list[str]] = field(default_factory=dict)
+    replaced: list[str] = field(default_factory=list)
+    """Stand-ins the wiki took over in this run (D260)."""
     started_at: float | None = None
     finished_at: float | None = None
     first: bool | None = None
@@ -151,7 +170,8 @@ class UpdateJob:
             else:
                 left = 0.0 if self.state in ("done", "failed") else sum(expected)
             return {"state": self.state, "step": self.step, "log": self.log[-MAX_LOG_LINES:],
-                    "added": self.added, "started_at": self.started_at,
+                    "added": self.added, "replaced": self.replaced,
+                    "started_at": self.started_at,
                     "finished_at": self.finished_at, "seed": self.seed,
                     "can_seed": can_seed(),
                     # how far, and how long (D192)
@@ -170,7 +190,7 @@ class UpdateJob:
         with self._lock:
             if self.state == "running":
                 return False
-            self.state, self.log, self.added = "running", [], {}
+            self.state, self.log, self.added, self.replaced = "running", [], {}, []
             self.started_at, self.finished_at = time.time(), None
             self.first, self.step_no, self.step_started = needs_catalogue(), 0, None
         threading.Thread(target=self._run, daemon=True, name="catalogue-update").start()
@@ -182,6 +202,7 @@ class UpdateJob:
         if self.started_at is None:
             self.started_at = time.time()
         before = snapshot()
+        stood_in = standins(_catalogue_dir())
         steps = [(label, [sys.executable, "-u", str(TOOLS / tool), *args])
                  for label, tool, args in STEPS]
         if self.seed and can_seed():
@@ -209,7 +230,11 @@ class UpdateJob:
             took[label] = round(time.time() - (self.step_started or time.time()), 1)
         self._keep_times(took)
         after = snapshot()
+        replaced = take_over(stood_in, _catalogue_dir())
+        for name in replaced:
+            self._say(f"{name}：已换成 Wiki 的数据")
         with self._lock:
+            self.replaced = replaced
             self.added = {k: sorted(after[k] - before.get(k, set())) for k in after
                           if after[k] - before.get(k, set())}
             self.state = "done" if ok else "failed"

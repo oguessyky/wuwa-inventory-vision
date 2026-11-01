@@ -190,6 +190,32 @@ def write_overrides(data: dict, directory: Path | None = None) -> None:
     path.write_text(json.dumps(clean, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+def has_tables(kind: str, build: dict) -> bool:
+    """Does the wiki have this one (D260)? Its total and the level tables 规划 counts from: a
+    page with only some of them is half written, and does not replace a hand build."""
+    if not build.get("materials") or not build.get("ascension"):
+        return False
+    return kind == "weapons" or bool(build.get("skills"))
+
+
+def standins(directory: Path | None = None) -> dict[str, set[str]]:
+    """What the user added by hand that the wiki does not have yet (D260): these give way to
+    the wiki when it does. A hand edit of something the wiki has is a fix, and stays."""
+    root = Path(directory or CATALOGUE_DIR)
+    found: dict[str, set[str]] = {"resonators": set(), "weapons": set(), "items": set()}
+    index, builds = root / "index.json", root / "builds.json"
+    if not index.exists():
+        return found                        # no catalogue yet: nothing to tell apart
+    mine = read_overrides(root)
+    wiki = json.loads(builds.read_text(encoding="utf-8")) if builds.exists() else {}
+    for kind in ("resonators", "weapons"):
+        known = wiki.get(kind) or {}
+        found[kind] = {n for n in mine[kind] if not has_tables(kind, known.get(n) or {})}
+    named = {e["name"] for e in json.loads(index.read_text(encoding="utf-8"))}
+    found["items"] = set(mine["items"]) - named
+    return found
+
+
 #: The weapon-type icons. The app ships five drawings of its own (web/static/icons/)
 #: and none of the game's (D140). Whoever would rather see other pictures -- the
 #: game's own, say -- puts them, under the same names, in this machine's
@@ -353,6 +379,15 @@ class Catalogue:
         return self._recipe_data.get("items", [])
 
     # ----------------------------------------------------------------- lookup
+
+    @cached_property
+    def standins(self) -> dict[str, set[str]]:
+        return standins(self.directory)
+
+    def upcoming(self, kind: str, name: str) -> bool:
+        """Not out yet as far as the wiki goes (D260): held by a stand-in, or blank."""
+        build = self.builds.get(kind, {}).get(name) or {}
+        return name in self.standins[kind] or not build.get("materials")
 
     def page(self, name: str) -> dict:
         """The item's own wiki page fields (类型, 功能, 获取途径 ...), or {}."""
