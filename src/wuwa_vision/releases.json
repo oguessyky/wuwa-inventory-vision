@@ -2,7 +2,7 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
-   "version": "1.4.0",
+   "version": "1.3.1",
    "date": "2026-11-01",
    "scanner": [],
    "home": [
