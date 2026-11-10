@@ -2,6 +2,21 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.3.2",
+   "date": "2026-11-10",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "「总览」的「规划还缺的材料」里，点头像会打开那个角色或武器的详情",
+     "en": "on 总览, a click on a face under 规划还缺的材料 opens that resonator's or weapon's panel"
+    },
+    {
+     "zh": "鼠标停在头像上会显示这个规划还缺哪些材料、各要多少；都够了就显示「材料都够了」",
+     "en": "resting on a face shows the materials its plan is still short of, with this plan's amount of each, or 材料都够了 when nothing is"
+    }
+   ]
+  },
+  {
    "version": "1.3.1",
    "date": "2026-11-01",
    "scanner": [],

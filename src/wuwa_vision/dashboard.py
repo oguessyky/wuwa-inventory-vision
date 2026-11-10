@@ -73,6 +73,7 @@ def short(to_buy: list[dict], dishes: list[dict], plans: dict,
                    key=lambda d: (-d["shortfall"], d["name"]))
     lacking = sorted((m for m in plans.get("materials") or [] if m["shortfall"] > 0),
                      key=lambda m: (-m["rarity"], -m["shortfall"], m["name"]))
+    stock = {m["name"]: m for m in plans.get("materials") or []}
     return {
         "buy": {**_cut(to_buy), "trips": shops.trips(to_buy)},
         "dishes": _cut([{k: d[k] for k in ("name", "rarity", "icon_file", "owned", "target",
@@ -82,10 +83,23 @@ def short(to_buy: list[dict], dishes: list[dict], plans: dict,
         "plans": {**_cut([{k: m[k] for k in ("name", "rarity", "icon_file", "owned", "target",
                                              "shortfall")} for m in lacking]),
                   "plans": len(plans.get("plans") or []),
-                  # who the plans are for, as the page draws them: a face or a weapon
-                  "who": [{"kind": p["kind"], "name": p["name"], **(p.get("who") or {})}
+                  # who the plans are for, as the page draws them: a face or a weapon,
+                  # with what its own plan takes that is not enough (D264, D265) -- the
+                  # amount is this plan's, what there is and what is short are all the
+                  # plans' together
+                  "who": [{"kind": p["kind"], "name": p["name"], **(p.get("who") or {}),
+                           "need": [{"name": m["name"], "rarity": m["rarity"],
+                                     "icon_file": m["icon_file"], "amount": m["amount"],
+                                     **_held(stock.get(m["name"]))}
+                                    for m in p.get("need") or []
+                                    if _held(stock.get(m["name"]))["shortfall"] > 0]}
                           for p in (plans.get("plans") or [])[:ROWS]]},
     }
+
+
+def _held(row: dict | None) -> dict:
+    """What there is of a material and what the plans together are short of it."""
+    return {"owned": (row or {}).get("owned") or 0, "shortfall": (row or {}).get("shortfall") or 0}
 
 
 def trust(tabs: list[dict], inventory: list, unsent: dict | None) -> dict:
