@@ -134,6 +134,21 @@ export function guideSteps(kind: string, lang: Lang): GuideStep[] {
   return steps;
 }
 
+/** Each package's guide steps from the zip to its first double-click (D267): what the pop-up
+ * after a download shows. On a PC the "if a file is blocked" step is left to the guide. */
+const FIRST: Record<string, number[]> = {
+  full: [1, 2, 4],
+  scanner: [1, 2, 4],
+  'mac-full': [1, 2, 3],
+  'mac-scanner': [1, 2, 3],
+  server: [1, 2, 3],
+};
+
+export function firstSteps(kind: string, lang: Lang): GuideStep[] {
+  const want = FIRST[kind] ?? [];
+  return guideSteps(kind, lang).filter(s => want.includes(s.n));
+}
+
 /** The server's compose file as it ships (D219), for the step that pastes it into the NAS's Docker
  * app: read from deploy/server/ at build, so the page never holds a copy that drifts. Its opening
  * notes say what the page around it says, so it starts at `services:`. */

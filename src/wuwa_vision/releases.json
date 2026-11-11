@@ -2,6 +2,21 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.3.3",
+   "date": "2026-11-11",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "「总览」的规划改成一个规划一张卡：头像、名字、从几级到几级、几种材料已经够了，下面是还不够的材料和要去打的首领，不用再把鼠标停在头像上",
+     "en": "on 总览, each plan is a card of its own: the face, the name, the levels it goes between, how many of its materials are there, then what is still short and the boss each drops from -- nothing waits behind a hover"
+    },
+    {
+     "zh": "卡上每个材料角上是这个规划要的数量，红色标签是所有规划合计还缺多少；点头像打开角色或武器，点材料打开材料",
+     "en": "each material on a card shows this plan's amount in the corner and, on the red tag, what all the plans together still lack; the face opens the resonator or weapon, a material its own panel"
+    }
+   ]
+  },
+  {
    "version": "1.3.2",
    "date": "2026-11-10",
    "scanner": [],

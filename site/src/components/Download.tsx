@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { GuideStep, Lang } from '@/lib/content';
 
 // The download button's icon (D214), traced from Gemini's frames in the app's icon family: a tray,
 // an arrow, and a check, drawn in one frame so each can move on its own. On hover the arrow drops
@@ -19,13 +20,96 @@ export function DownloadIcon() {
   );
 }
 
-/** A download link whose icon plays when pressed: the browser's download starts as the arrow lands. */
-export function DownloadLink({ href, className, children, download = true }: { href: string; className?: string; children: ReactNode; download?: boolean }) {
+/** What comes after a download (D267): the package's zip, its guide, and the guide's steps from
+ * the zip to the first double-click. */
+export interface After { lang: Lang; file: string; guide: string; steps: GuideStep[] }
+
+/** A download link whose icon plays when pressed: the browser's download starts as the arrow lands.
+ * Given `after`, the same click opens the steps that get from the zip to START-HERE (D267). */
+export function DownloadLink({ href, className, children, download = true, after }: {
+  href: string; className?: string; children: ReactNode; download?: boolean; after?: After;
+}) {
   const [done, setDone] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
-    <a className={`dlb${done ? ' done' : ''}${className ? ' ' + className : ''}`} href={href} download={download || undefined}
-       onClick={() => { setDone(true); setTimeout(() => setDone(false), 2200); }}>
-      <DownloadIcon />{children}
-    </a>
+    <>
+      <a className={`dlb${done ? ' done' : ''}${className ? ' ' + className : ''}`} href={href} download={download || undefined}
+         onClick={() => { setDone(true); setTimeout(() => setDone(false), 2200); if (after?.steps.length) setOpen(true); }}>
+        <DownloadIcon />{children}
+      </a>
+      {after?.steps.length ? <AfterDownload after={after} open={open} onClose={() => setOpen(false)} /> : null}
+    </>
+  );
+}
+
+const AFTER = {
+  zh: {
+    started: '下载开始了', next: (n: number) => `下载好以后，照这 ${n} 步打开它`,
+    step: (i: number, n: number) => `第 ${i} / ${n} 步`, back: '上一步', on: '下一步', got: '知道了',
+    guide: '整份图文指南', here: '解压后的文件夹里有 START-HERE.html，就是这份指南。', close: '关闭',
+  },
+  en: {
+    started: 'Your download has started', next: (n: number) => `Once it is down, these ${n} steps open it`,
+    step: (i: number, n: number) => `Step ${i} of ${n}`, back: 'Back', on: 'Next', got: 'Got it',
+    guide: 'The whole guide', here: 'The unzipped folder has START-HERE.html: this same guide.', close: 'Close',
+  },
+};
+
+/**
+ * The pop-up after a download (D267). The user, 2026-11-11: "after click download it should
+ * have pop up or redirect the step to get to the start here there, else people are easy to
+ * always require unzip at least two times." The zip holds one folder, so Extract All leaves a
+ * folder in a folder: these are the guide's own steps and drawings, one at a time, from the
+ * zip to the first double-click, and the whole guide a click away.
+ */
+function AfterDownload({ after, open, onClose }: { after: After; open: boolean; onClose: () => void }) {
+  const w = AFTER[after.lang];
+  const ref = useRef<HTMLDialogElement>(null);
+  const [at, setAt] = useState(0);
+  useEffect(() => {
+    const d = ref.current;
+    if (open && d && !d.open) { setAt(0); d.showModal(); }
+  }, [open]);
+  const close = () => ref.current?.close();
+  const steps = after.steps;
+  const s = steps[at];
+  const last = at === steps.length - 1;
+  return (
+    <dialog ref={ref} className="after" aria-labelledby={`after-${after.file}`} onClose={onClose}
+            onClick={e => { if (e.target === ref.current) close(); }}>
+      <div className="after-in">
+        <header className="after-h">
+          <span className="after-ok" aria-hidden="true"><DownloadIcon /></span>
+          <div>
+            <h2 id={`after-${after.file}`}>{w.started}</h2>
+            <p><code>{after.file}</code><span>{w.next(steps.length)}</span></p>
+          </div>
+          <button type="button" className="after-x" onClick={close} aria-label={w.close}>×</button>
+        </header>
+        <ol className="after-dots">
+          {steps.map((st, i) => (
+            <li key={st.n}>
+              <button type="button" aria-current={i === at ? 'step' : undefined} className={i < at ? 'past' : ''} onClick={() => setAt(i)}>
+                <span>{i + 1}</span><b dangerouslySetInnerHTML={{ __html: st.title }} />
+              </button>
+            </li>
+          ))}
+        </ol>
+        <section className="after-step" data-step={s.n}>
+          <p className="after-n">{w.step(at + 1, steps.length)}</p>
+          <h3 dangerouslySetInnerHTML={{ __html: s.title }} />
+          {s.text.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p }} />)}
+          <div className="gpic" dangerouslySetInnerHTML={{ __html: s.picture }} />
+        </section>
+        <footer className="after-f">
+          <p>{w.here} <a href={after.guide}>{w.guide} ›</a></p>
+          <div>
+            {at ? <button type="button" className="btn line" onClick={() => setAt(at - 1)}>{w.back}</button> : null}
+            {last ? <button type="button" className="btn gold" onClick={close}>{w.got}</button>
+              : <button type="button" className="btn gold" onClick={() => setAt(at + 1)}>{w.on} ›</button>}
+          </div>
+        </footer>
+      </div>
+    </dialog>
   );
 }

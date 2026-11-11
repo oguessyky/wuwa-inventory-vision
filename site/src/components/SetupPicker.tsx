@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import type { Lang } from '@/lib/content';
-import { DownloadLink } from './Download';
+import { DownloadLink, type After } from './Download';
 import { Icon } from './Icons';
 
 // Which package (D219), and since D228 the downloads too. The user, 2026-10-27: "decision of
@@ -14,7 +14,11 @@ import { Icon } from './Icons';
 // package it takes as a card -- what it is for, its download, its guide, and its steps.
 
 /** One package, as the answer shows it: its zip, its guide, and its guide's steps in a line. */
-export interface Pack { kind: string; name: string; for: string; url: string; file: string; guide: string; steps: string[] }
+export interface Pack {
+  kind: string; name: string; for: string; url: string; file: string; guide: string; steps: string[];
+  /** what the pop-up after its download shows (D267) */
+  first: After;
+}
 
 type Computer = 'windows' | 'mac';
 type Where = 'alone' | 'server';
@@ -123,7 +127,7 @@ export function SetupPicker({ lang, packs, hrefs, all, sums }: {
                 {p.steps.map((s, i) => <li key={i}><span>{i + 1}</span>{s}</li>)}
               </ol>
               <div className="pack-a">
-                <DownloadLink className="btn gold" href={p.url}>{w.download}<small>.zip</small></DownloadLink>
+                <DownloadLink className="btn gold" href={p.url} after={p.first}>{w.download}<small>.zip</small></DownloadLink>
                 <a className="pack-g" href={p.guide}><Icon name="planner" />{w.guide}</a>
               </div>
             </li>

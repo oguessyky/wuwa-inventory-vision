@@ -202,6 +202,24 @@ def pic_unzip(folder: str, rows: list[tuple[str, str]], lit: tuple[str, ...]) ->
                + files(46, 72, rows, lit), 640, 76 + len(rows) * 26, f"the folder {folder}")
 
 
+#: The one folder each zip holds (make_release.TOPS): Extract All puts it inside the folder named.
+INNER = "wuwa-inventory-vision-{version}"
+
+
+def pic_extract(folder: str, rows: list[tuple[str, str]], lit: tuple[str, ...]) -> str:
+    """Windows' Extract All, as it leaves it (D267): the folder named, the zip's own folder in
+    it, and the files in that -- opened, not unzipped a second time."""
+    low = 152
+    return svg(window(20, 16, 600, 84, folder)
+               + files(46, 72, [(INNER + "/", "双击打开 · double-click it")], (INNER + "/",))
+               + arrow(160, 106, 160, low - 6)
+               + t(176, 132, "里面还有一层：打开它，不用再解压 · One more folder: open it, no second unzip",
+                   12, ACCENT, 600)
+               + window(20, low, 600, 50 + len(rows) * 26, f"{folder}\\{INNER}")
+               + files(46, low + 56, rows, lit),
+               640, low + 60 + len(rows) * 26, f"{folder}, the folder {INNER} in it, and the files in that")
+
+
 def pic_setup(scanner: bool, mac: bool = False) -> str:
     machine = ([("machine   : macOS arm64", MUTED), ("  gpu     : Apple Silicon", MUTED),
                 ("torch     : mps", MUTED)] if mac else
@@ -582,10 +600,15 @@ def guide_scanner() -> str:
     steps = [
         step_unblock(),
         step(2, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
-             "例如 <code>C:\\wuwa-scanner</code>。安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
-             "Such as <code>C:\\wuwa-scanner</code>. The setup builds on the Python inside it, so a "
-             "folder moved later means setting up again.",
-             pic_unzip("C:\\wuwa-scanner", [
+             "右键压缩包 → <b>全部解压缩</b>，路径改成 <code>C:\\wuwa-scanner</code>。里面还有一层文件夹 "
+             f"<code>{INNER}</code>：双击打开它，<b>1 安装 Setup</b> 就在里面，不用再解压一次。"
+             "安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
+             "Right-click the zip → <b>Extract All</b>, and change the path to "
+             f"<code>C:\\wuwa-scanner</code>. In it is one more folder, <code>{INNER}</code>: "
+             "double-click to open it, and <b>1 安装 Setup</b> is there -- nothing to unzip a second "
+             "time. The setup builds on the Python inside it, so a folder moved later means setting "
+             "up again.",
+             pic_extract("C:\\wuwa-scanner", [
                  ("1 安装 Setup.cmd", ""), ("2 连接服务器 Connect server.cmd", ""),
                  ("3 扫描 Scan.cmd", ""), ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
                  ("python/", "已带 Python · Python included"),
@@ -626,10 +649,15 @@ def guide_full() -> str:
     steps = [
         step_unblock(),
         step(2, "解压到一个不会再动的地方", "Unzip it somewhere it stays",
-             "例如 <code>C:\\wuwa-vision</code>。安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
-             "Such as <code>C:\\wuwa-vision</code>. The setup builds on the Python inside it, so a "
-             "folder moved later means setting up again.",
-             pic_unzip("C:\\wuwa-vision", [
+             "右键压缩包 → <b>全部解压缩</b>，路径改成 <code>C:\\wuwa-vision</code>。里面还有一层文件夹 "
+             f"<code>{INNER}</code>：双击打开它，<b>1 安装 Setup</b> 就在里面，不用再解压一次。"
+             "安装会用到里面的 Python，以后搬走文件夹就要重新安装。",
+             "Right-click the zip → <b>Extract All</b>, and change the path to "
+             f"<code>C:\\wuwa-vision</code>. In it is one more folder, <code>{INNER}</code>: "
+             "double-click to open it, and <b>1 安装 Setup</b> is there -- nothing to unzip a second "
+             "time. The setup builds on the Python inside it, so a folder moved later means setting "
+             "up again.",
+             pic_extract("C:\\wuwa-vision", [
                  ("1 安装 Setup.cmd", ""), ("2 扫描 Scan.cmd", ""), ("3 总览 Dashboard.cmd", ""),
                  ("5 卸载 Uninstall.cmd", "不用时 · to remove it"),
                  ("python/", "已带 Python · Python included"), ("START-HERE.html", "这一页 · this page")],

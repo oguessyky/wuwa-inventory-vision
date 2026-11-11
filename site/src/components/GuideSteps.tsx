@@ -1,4 +1,4 @@
-import { compose, downloads, guideSteps, type Lang } from '@/lib/content';
+import { compose, downloads, firstSteps, guideSteps, type Lang } from '@/lib/content';
 import { Code } from './Code';
 import { DownloadLink } from './Download';
 import { Icon } from './Icons';
@@ -38,7 +38,8 @@ export function GuideSteps({ lang, parts }: { lang: Lang; parts: Part[] }) {
             <div className="gpart-h">
               {part.title ? <h2>{part.title[lang]}</h2> : null}
               <div className="gpart-a">
-                <DownloadLink className="btn gold" href={zips[part.kind].url}>
+                <DownloadLink className="btn gold" href={zips[part.kind].url}
+                              after={{ lang, file: zips[part.kind].file, guide: `${BASE}/guides/${part.kind}.html`, steps: firstSteps(part.kind, lang) }}>
                   <span className="nw">{t.download}</span> <code>{zips[part.kind].file}</code>
                 </DownloadLink>
                 <a className="gpart-g" href={`${BASE}/guides/${part.kind}.html`}><Icon name="planner" />{t.guide}</a>

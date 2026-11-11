@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { address, downloads, guideSteps, packages, version, type Lang } from '@/lib/content';
+import { address, downloads, firstSteps, guideSteps, packages, version, type Lang } from '@/lib/content';
 import { BASE, Frame, REPO } from './Doc';
 import { Icons } from './Icons';
 import { SetupPicker, type Pack } from './SetupPicker';
@@ -135,6 +135,8 @@ export function Landing({ lang }: { lang: Lang }) {
     // and connecting a scanner, which the scanner's card has (as the server page shows it, D219)
     steps: guideSteps(p.kind, lang).filter(st => p.kind !== 'server' || st.n <= 5)
       .map(st => st.title.replace(/<[^>]+>/g, '')),
+    // the pop-up after its download (D267): from the zip to the first double-click
+    first: { lang, file: zips[p.kind].file, guide: `${BASE}/guides/${p.kind}.html`, steps: firstSteps(p.kind, lang) },
   }]));
   const hrefs = { install: address(lang, 'install'), server: address(lang, 'server'), mac: address(lang, 'mac') };
   const icons = [Icons.bag, Icons.tiles, Icons.plan];

@@ -83,11 +83,14 @@ def short(to_buy: list[dict], dishes: list[dict], plans: dict,
         "plans": {**_cut([{k: m[k] for k in ("name", "rarity", "icon_file", "owned", "target",
                                              "shortfall")} for m in lacking]),
                   "plans": len(plans.get("plans") or []),
-                  # who the plans are for, as the page draws them: a face or a weapon,
-                  # with what its own plan takes that is not enough (D264, D265) -- the
-                  # amount is this plan's, what there is and what is short are all the
-                  # plans' together
+                  # a card per plan (D266): whom it is for, the levels it goes between,
+                  # how many kinds of material it takes, and what its own plan takes that
+                  # is not enough (D264, D265) with where each drops -- the amount is this
+                  # plan's, what there is and what is short are all the plans' together
                   "who": [{"kind": p["kind"], "name": p["name"], **(p.get("who") or {}),
+                           "level": {"from": (p.get("current") or {}).get("level"),
+                                     "to": (p.get("target") or {}).get("level")},
+                           "takes": len(p.get("need") or []),
                            "need": [{"name": m["name"], "rarity": m["rarity"],
                                      "icon_file": m["icon_file"], "amount": m["amount"],
                                      **_held(stock.get(m["name"]))}
@@ -98,8 +101,11 @@ def short(to_buy: list[dict], dishes: list[dict], plans: dict,
 
 
 def _held(row: dict | None) -> dict:
-    """What there is of a material and what the plans together are short of it."""
-    return {"owned": (row or {}).get("owned") or 0, "shortfall": (row or {}).get("shortfall") or 0}
+    """What there is of a material, what the plans together are short of it, and where
+    it drops (D266)."""
+    row = row or {}
+    return {"owned": row.get("owned") or 0, "shortfall": row.get("shortfall") or 0,
+            "role": row.get("role"), "drop": row.get("drop"), "drop_icon": row.get("drop_icon")}
 
 
 def trust(tabs: list[dict], inventory: list, unsent: dict | None) -> dict:
