@@ -43,6 +43,13 @@ _WHOSE = re.compile(r"(.+?)的?特色料理")
 #: and nobody can get it now (D172).
 COLLAB = "联动"
 ALWAYS_LEARNED = "默认解锁"
+#: app_setting key: how the user answered 料理's question, which recipes they have learned
+#: (D271). ANSWERED: the learned recipes are the truth, and a dish whose recipe is not among
+#: them is not tracked. LATER: put off -- not asked again by itself, and nothing changes.
+#: Not set: not asked yet.
+LEARNED_ASKED = "cooking.learned"
+ANSWERED = "answered"
+LATER = "later"
 
 
 @dataclass
@@ -65,6 +72,9 @@ class Craftable:
     """{"character", "base"} for a 特色料理: cook `base` as `character` for a chance."""
     limited: bool = False
     """Its recipe came from a collaboration (D172): not tracked unless it was learned."""
+    excluded: bool = False
+    """The user said its recipe -- for a resonator's own dish, its base dish's -- is not
+    learned (D271): not tracked unless they give it a target of their own."""
     source: str | None = None
     icon_file: str | None = None
     known: bool = False
@@ -166,10 +176,26 @@ def build_cooking(
     # the ordinary dish each 食谱 teaches: a resonator's dish that names only whose it is
     # (是否为特色料理) is that dish, cooked by them (D172)
     ordinary: dict[str, str] = {}
+    taught_by: dict[str, str] = {}
     for page in catalogue.craftables():
         teaches = page.get("食谱解锁") or page.get("配方解锁")
+        if teaches:
+            taught_by[page["name"]] = teaches
         if teaches and not _whose(page) and not _SIGNATURE.search(page.get("获取途径") or ""):
             ordinary.setdefault(teaches, page["name"])
+    answered = store.setting(LEARNED_ASKED) == ANSWERED
+
+    def source_of(recipe: str, dish: str) -> str | None:
+        found = catalogue.recipe_source(recipe)
+        if found is None:
+            # the dish's page names it shorter than its own page does: "“街角邂逅”食谱" for
+            # "“街角邂逅”巧克力礼盒食谱" (D172)
+            found = catalogue.recipe_source(dish + recipe[-2:])
+        return found
+
+    def by_default(recipe: str | None, dish: str) -> bool:
+        """"默认解锁", or a recipe found "默认学习" / "默认获得": everyone knows it."""
+        return recipe == ALWAYS_LEARNED or "默认" in (source_of(recipe, dish) or "")
 
     out = []
     for page in catalogue.craftables():
@@ -205,13 +231,17 @@ def build_cooking(
         # when they cook the base dish, and the 食谱 its page names is the base
         # dish's. So it has none of its own -- no 未学会 on it, nothing to tick (D123).
         recipe = None if signature else page.get("食谱解锁") or page.get("配方解锁") or None
-        recipe_source = catalogue.recipe_source(recipe) if recipe else None
-        if recipe and recipe_source is None:
-            # the dish's page names it shorter than its own page does: "“街角邂逅”食谱" for
-            # "“街角邂逅”巧克力礼盒食谱" (D172)
-            recipe_source = catalogue.recipe_source(name + recipe[-2:])
+        recipe_source = source_of(recipe, name) if recipe else None
         # "默认学习" / "默认获得": everyone knows it from the start.
-        default = recipe == ALWAYS_LEARNED or "默认" in (recipe_source or "")
+        default = recipe is not None and by_default(recipe, name)
+        # what has to be learned before it can come out at all: its own recipe, or for a
+        # resonator's dish the base dish's (D271). Only a recipe the question asked about --
+        # one an ordinary dish names (`recipe_sheet`) -- can leave a dish out: some resonators'
+        # pages name a recipe their base dish's page does not, and nobody was asked about it.
+        base = signature["base"] if signature else None
+        taught = page.get("食谱解锁") or page.get("配方解锁") or taught_by.get(base or "")
+        excluded = (answered and taught in ordinary and taught not in learned
+                    and not by_default(taught, ordinary[taught]))
         entry = catalogue.entry(name) or {}
         rarity = entry.get("rarity") or int((page.get("品质") or "0")[:1] or 0)
         cook = signature["character"] if signature else None
@@ -220,7 +250,9 @@ def build_cooking(
         limited = COLLAB in (recipe_source or "")
         # nobody to cook it, or a collaboration's recipe never learned: not something to stock
         # up on, unless the user says so
-        target = overrides.get(name, 0 if missing or (limited and not knows) else defaults[kind])
+        # ... or a recipe the user said they have not learned (D271)
+        target = overrides.get(
+            name, 0 if missing or (limited and not knows) or excluded else defaults[kind])
         effect = (page.get("功能") or "").strip() or None
         parts = effects.parse(effect)
         out.append(Craftable(
@@ -231,7 +263,51 @@ def build_cooking(
             recipe=None if default else recipe,
             learned=knows,
             recipe_source=recipe_source,
-            signature=signature, limited=limited, source=source, missing=missing,
+            signature=signature, limited=limited, excluded=excluded, source=source,
+            missing=missing,
             icon_file=catalogue.icon_file(name), known=mine is not None or tab_complete,
         ))
     return out
+
+
+def asked(store: Store) -> bool:
+    """料理 has had its answer about the recipes, or was told to wait (D271)."""
+    return store.setting(LEARNED_ASKED) in (ANSWERED, LATER)
+
+
+def recipe_sheet(store: Store, items: list[Craftable]) -> list[dict]:
+    """The recipes 料理's question asks about (D271), one row each, as the dish it teaches.
+
+    Asked about: every 食谱/配方 someone could be without -- not one everyone has (默认), and
+    no resonator's own dish, which has none of its own (D123). `ticked` is how the sheet
+    starts: what was answered; before an answer, every one but a collaboration's -- unless it
+    was already ticked by hand (D59).
+    """
+    answered = store.setting(LEARNED_ASKED) == ANSWERED
+    rows: dict[str, dict] = {}
+    for dish in items:
+        if dish.recipe is None or dish.recipe in rows:
+            continue
+        rows[dish.recipe] = {
+            "recipe": dish.recipe, "dish": dish.name, "type": dish.type, "rarity": dish.rarity,
+            "icon_file": dish.icon_file, "collab": dish.limited, "learned": dish.learned,
+            "ticked": dish.learned if answered else dish.learned or not dish.limited,
+        }
+    return list(rows.values())
+
+
+def answer_sheet(store: Store, items: list[Craftable], learned: list[str]) -> None:
+    """The user's answer (D271): exactly `learned` of the sheet's recipes are learned.
+    A name not on the sheet is a ValueError, and nothing is written."""
+    sheet = [row["recipe"] for row in recipe_sheet(store, items)]
+    stray = set(learned) - set(sheet)
+    if stray:
+        raise ValueError(f"not a recipe to ask about: {sorted(stray)}")
+    store.set_learned_many({recipe: recipe in learned for recipe in sheet})
+    store.set_setting(LEARNED_ASKED, ANSWERED)
+
+
+def put_off(store: Store) -> None:
+    """「以后再说」: not asked again by itself; an earlier answer stands (D271)."""
+    if not asked(store):
+        store.set_setting(LEARNED_ASKED, LATER)

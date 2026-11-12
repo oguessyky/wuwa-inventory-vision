@@ -18,6 +18,22 @@ anything listed in sections 2 to 4. Its patent clause is about patents of the pe
 contribute code to this project; it says nothing about, and gives nothing in, anything of Kuro
 Games'.
 
+### Thanks
+
+- **leongiscoding** (<https://github.com/leongiscoding>): thanks for testing the scanner on a Mac
+  and for improving the Mac side. The macOS capture (`src/wuwa_vision/capture/macos.py`,
+  `src/wuwa_vision/capture/quartz_backend.py`) carries their changes, and says so under its
+  licence header.
+- **BaconCoding74** (<https://github.com/BaconCoding74>): thanks for the first help on the
+  scanner's base. It began in **wucv**, a personal project of BaconCoding74 and oguessyky:
+  recognising icons with DINOv2 against a gallery of reference pictures, masking the 新 badge,
+  and skipping frames that have not changed. Everything since has been improvements and new pages
+  built on top of that start.
+
+wucv has no licence of its own. What this project took from it is here under this project's
+Apache License 2.0, with the agreement of both its authors; this repository and its public one,
+<https://github.com/oguessyky/wuwa-inventory-vision>, are where that licence lives.
+
 ## 2. Wuthering Waves — Kuro Games
 
 *Wuthering Waves* (鸣潮) is developed and published by Kuro Games (库洛游戏). Everything that comes
@@ -65,9 +81,15 @@ None of this is bundled. The app fetches it when the user runs setup or presses 
 
 | Source | What is taken from it |
 |---|---|
-| **Kuro Games' wiki** — 库街区 鸣潮WIKI, <https://wiki.kurobbs.com> (through its API at `api.kurobbs.com`) | The catalogue: names, rarities and icons of items, dishes, weapons and resonators; recipes; what each build costs; resonator art and head icons (the wiki's 头像 list); the six element icons the wiki's own pages use; the 贝币 icon; boss portraits; the pictures of the shops it has a page for. |
+| **Kuro Games' wiki** — 库街区 鸣潮WIKI, <https://wiki.kurobbs.com> (through its API at `api.kurobbs.com`) | The catalogue: names, rarities and icons of items, dishes, weapons and resonators; recipes; what each build costs; resonator art and head icons (the wiki's 头像 list); the six element icons the wiki's own pages use; the 贝币 icon; boss portraits; the pictures of the shops it has a page for; for 计算, the pictures of every echo and sonata set (`tools/fetch_echoes.py`). |
 | **wuwatracker.com** — an unofficial fan-made site | **Nothing is downloaded from it.** The app can read the pull-history file that a user exports from that site themselves; the shape of that file is wuwatracker's. Which weapon a pull is, the app knows from `assets/pull_names.json`: pairings made by hand by people naming their own pulls (not taken from any site), and, for the weapons nobody has named yet, the game's own English name beside its Chinese one, checked in the game by hand. |
-| **Arikatsu/WutheringWaves_Data** — <https://github.com/Arikatsu/WutheringWaves_Data>, which describes itself as "A repository containing datamined data for the game Wuthering Waves" | The experience tables for resonator, weapon and echo levels. The shops' tables -- what each sells, its limits and prices, and where its map mark is -- (`tools/fetch_shops.py`). The English names: the game's English text table paired with its Chinese one (`tools/fetch_english.py`), which every search box finds things by. And the check on what each build costs: where Kuro's wiki has a row wrong, `assets/build_fixes.json` has the row as the game charges it, confirmed there (ten builds; a row the wiki has right is not in it). The repository states no licence; the data in it is the game's. |
+| **Arikatsu/WutheringWaves_Data** — <https://github.com/Arikatsu/WutheringWaves_Data>, which describes itself as "A repository containing datamined data for the game Wuthering Waves" | The experience tables for resonator, weapon and echo levels. The shops' tables -- what each sells, its limits and prices, and where its map mark is -- (`tools/fetch_shops.py`). The English names: the game's English text table paired with its Chinese one (`tools/fetch_english.py`), which every search box finds things by. And the check on what each build costs: where Kuro's wiki has a row wrong, `assets/build_fixes.json` has the row as the game charges it, confirmed there (ten builds; a row the wiki has right is not in it). For 计算 (`tools/fetch_calc.py`): every resonator's base stats, skills, multipliers, nodes and 共鸣链, and the words their buffs are read from; the weapons and their passives; the echoes, their main stats and sonata sets; the sets the game recommends; the 全息 and their words; the enemies. The repository states no licence; the data in it is the game's. |
+
+计算's substat ranges -- each roll's eight tiers, such as 暴击伤害 from 12.6% to 21% -- are written
+into the app (`calc_data.SUB_TIERS`) from what the community compiled: **WutheringInsight**
+(<https://christopherklay.github.io/WutheringInsight>) and **Buffget**
+(<https://buffget.com/news/wuthering-waves-sub-stats-guide-12-crit-and-min-maxing>). Its damage
+formula is the community's tested one: Kuro has not published one, and the page says so.
 
 The English names of the game's places and factions on the 猜谜 page are the game's own words,
 checked in the game by hand.
@@ -77,7 +99,7 @@ maintain these sources, and to wuwatracker for a pull history that can be export
 
 ## 4. Interface icons
 
-The thirteen page icons in the navigation and the phone's drawer, each with a solid twin for the
+The fourteen page icons in the navigation and the phone's drawer, each with a solid twin for the
 page you are on (`web/src/components/pages.svg`), the help site's icons (`site/src/components/icons.svg`:
 those page icons, a PC, a home server, a laptop, a phone, a crossed-out ID card and the download
 button's tray, arrow and check) and the five weapon-type icons (长刃, 迅刀, 佩枪, 臂铠, 音感仪;

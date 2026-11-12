@@ -12,7 +12,7 @@ run at once. Every page is a view of the same database, so a correction made any
 everywhere.
 
 The pages are in a column down the left, in two groups: the ones you look at daily (总览, 规划,
-料理, 材料, 共鸣者) and the ones for managing things (武器, 商店, 库存, 猜谜, 更新).
+料理, 材料, 共鸣者) and the ones for managing things (武器, 计算, 商店, 库存, 猜谜, 更新).
 总览 already says what is short and what waits for a name, so 库存 is where you go to look an item
 up or fix it, not every day (D182). The app's icon at
 the top leads back to 总览. The button at the column's foot folds it to a rail of icons, and the
@@ -355,6 +355,40 @@ nodes; a weapon's level cap), and it totals the materials the steps between take
 all plans together against your stock with synthesis, as on 材料. A resonator's "current" is shared
 with the rest of the app, so levelling one here updates 材料 and 库存 too. Plans are saved. EXP
 materials and a weapon's per-ascension 贝币 are not in the wiki's tables and are not counted.
+
+## 计算 — the calculator
+
+![计算](screens/calc.png)
+
+One resonator's numbers from their build (D268-D275). Pick them with **换人** or a click on their
+face; the picker runs from the highest rarity and newest version down, dims only who you do not
+have, and ticks who is at 大毕业. The setup starts from what the app knows -- the levels and skills
+you recorded, the weapon a scan saw them hold, their 共鸣链 -- and every part of it can be changed
+here: level, skills and nodes, weapon and its rank, five echoes (each with its COST, main stat and
+substats, a set picked from pictures, with chips for the sets the game recommends and for what a
+set gives, such as 导电), and the enemy -- a 全息 at 难度六, grouped as the game groups them
+(今州, 黎那汐塔), whose words are shown and whose buffs for the player can be switched on, an
+overworld boss, or one of your own.
+
+- **Every skill's rows**: the 倍率, a bar, then 不暴击, 暴击 and 期望 -- or the amount healed or
+  shielded. Every skill's table puts its columns in the same places.
+- **The panel**: the stats worked out, with the scanned game panel under each; type your own to
+  skip a scan, ↺ puts one back.
+- **Buffs**: every buff the resonator can get, by where it comes from (固有一 / 固有二, 共鸣链,
+  weapon, sets, 全息), each a switch, its number editable and resettable; and what they give the
+  team.
+- **小毕业 / 大毕业**: the same resonator at their best -- level 90, every skill and node, the
+  same weapon at 90 and the same sets, the best main stats and five 有效词条 at their top roll --
+  and how far this build is from it: 大毕业 at 90%, 小毕业 at 80%. A healer counts heals, worked
+  from the stat their heals use (维里奈 ATK, 守岸人 HP) with 治疗效果加成; a cap in their own
+  words, such as 守岸人's 250% 共鸣效率, is a line of its own. The box says what the grade is
+  built on. There is no official standard: this only compares them with themselves.
+- **Each echo rated**: every substat's tier out of 8, its range, and whether it is one of this
+  resonator's 有效词条.
+- **A against B**: change a few echoes, the weapon, or the 共鸣链, and every row is shown again
+  with its change.
+
+The formula is the community's; Kuro has not published one, and the page says so.
 
 ## 猜谜 — guess the resonator
 

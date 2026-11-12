@@ -40,6 +40,7 @@ if TYPE_CHECKING:  # importing the gallery pulls in torch; keep it off the M1 pa
     from ..ocr.panel import Panel
     from ..recognize.gallery import Gallery, Match
     from ..safety.panic import PanicKey
+    from .character import CharacterScreens
 
 #: Counts below this OCR confidence are flagged for hover fallback, never trusted.
 MIN_COUNT_CONFIDENCE = 0.70
@@ -872,6 +873,7 @@ def run_live_scan(
     on_phase: Callable[[str], None] | None = None,
     on_frame: Callable[[Frame], None] | None = None,
     on_event: Callable[[str, dict[str, object]], None] | None = None,
+    screens: CharacterScreens | None = None,
 ) -> LiveResult:
     """Drive the pipeline from live capture.
 
@@ -914,6 +916,12 @@ def run_live_scan(
 
     Losing focus PAUSES rather than aborts (D22); focus gone past `focus_grace`
     stops the scan. `focus_grace=0` restores the strict D15 reading.
+
+    **A resonator's own screens (D270).** With `screens`, a still frame that is one of them
+    (属性详情, 技能, 武器, the echo bag's panel) is read and kept for that resonator instead of
+    looked at as the bag; `on_event` gets ("character", {kind, resonator}). Another echo
+    clicked in the bag changes too little for the gate, so on that screen a still frame is also
+    compared with the panel last read.
     """
     from ..capture.gating import FrameGate as _FrameGate
 
@@ -973,6 +981,10 @@ def run_live_scan(
         before = (gate.stats.moving, gate.stats.settling, gate.stats.repeat)
         gated = gate.offer(frame)
         probed: list[Tile] | None = None
+        if (gated is None and screens is not None and gate.stats.repeat > before[2]
+                and screens.panel_changed(frame.rgb)):
+            gated = frame
+            gate.accept(frame)
         if gated is None and gate.stats.repeat > before[2] and read_panel:
             # Still and unchanged. A click changes too little of the screen for
             # the gate (the outline, a strip of the panel), so look for it: is a
@@ -997,6 +1009,13 @@ def run_live_scan(
                 set_phase("ready")
             continue
         set_phase("reading")
+        if screens is not None and probed is None:
+            said = screens.look(gated.rgb)
+            if said is not None:
+                if on_event is not None:
+                    on_event("character", said)
+                set_phase("ready")
+                continue
         watch = Stopwatch(gate.moved_at)
         scrolled = probed is None
         tiles = probed if probed is not None else _detect(gated, result.current.report)

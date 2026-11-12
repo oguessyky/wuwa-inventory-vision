@@ -129,6 +129,25 @@ CREATE TABLE IF NOT EXISTS plan (
     created_at TEXT NOT NULL
 );
 
+-- 计算's setups (D268): what was entered for a resonator, kept per resonator. `setup` is JSON
+-- as calc.py reads it.
+CREATE TABLE IF NOT EXISTS calc_setups (
+    name       TEXT PRIMARY KEY,
+    setup      TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+-- A resonator's own screens, as the scan read them (D270): the newest of each screen, and each
+-- equipped echo under its own key (its name). `data` is JSON as ocr/character.py reads it.
+CREATE TABLE IF NOT EXISTS character_reads (
+    resonator  TEXT NOT NULL,
+    screen     TEXT NOT NULL,
+    key        TEXT NOT NULL DEFAULT '',
+    data       TEXT NOT NULL,
+    read_at    TEXT NOT NULL,
+    PRIMARY KEY (resonator, screen, key)
+);
+
 -- The bag's currency counters, read off the top bar during a scan (D48).
 CREATE TABLE IF NOT EXISTS wallet (
     id         INTEGER PRIMARY KEY,
@@ -761,6 +780,14 @@ class Store:
             else:
                 self.conn.execute("DELETE FROM learned_recipe WHERE name = ?", (name,))
 
+    def set_learned_many(self, learned: dict[str, bool]) -> None:
+        """`set_learned` for each, in one go: 料理's answer about every recipe (D271)."""
+        with self.conn:
+            self.conn.executemany("INSERT OR IGNORE INTO learned_recipe (name) VALUES (?)",
+                                  [(n,) for n, on in learned.items() if on])
+            self.conn.executemany("DELETE FROM learned_recipe WHERE name = ?",
+                                  [(n,) for n, on in learned.items() if not on])
+
     # ------------------------------------------------------------ wallet (D48)
 
     def add_wallet(self, shells: int | None, astrite: int | None, confidence: float) -> None:
@@ -885,6 +912,66 @@ class Store:
         )) as cur:
             return [{"id": r["id"], "kind": r["kind"], "name": r["name"],
                      **json.loads(r["state"])} for r in cur.fetchall()]
+
+    def calc_setup(self, name: str) -> dict | None:
+        """What 计算 kept for this resonator (D268), or None."""
+        with closing(self.conn.execute(
+            "SELECT setup FROM calc_setups WHERE name = ?", (name,)
+        )) as cur:
+            row = cur.fetchone()
+        return json.loads(row[0]) if row else None
+
+    def calc_setup_at(self, name: str) -> str | None:
+        """When 计算's setup for this resonator was last kept (D270), or None."""
+        with closing(self.conn.execute(
+            "SELECT updated_at FROM calc_setups WHERE name = ?", (name,)
+        )) as cur:
+            row = cur.fetchone()
+        return row[0] if row else None
+
+    def character_read_at(self, resonator: str) -> str | None:
+        """When the scan last read one of this resonator's screens (D270), or None."""
+        with closing(self.conn.execute(
+            "SELECT MAX(read_at) FROM character_reads WHERE resonator = ?", (resonator,)
+        )) as cur:
+            row = cur.fetchone()
+        return row[0] if row else None
+
+    def save_calc_setup(self, name: str, setup: dict) -> None:
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO calc_setups (name, setup, updated_at) VALUES (?, ?, ?) "
+                "ON CONFLICT(name) DO UPDATE SET setup = excluded.setup, "
+                "updated_at = excluded.updated_at",
+                (name, json.dumps(setup, ensure_ascii=False),
+                 datetime.now(UTC).isoformat(timespec="microseconds")))
+
+    def save_character_read(self, resonator: str, screen: str, data: dict, key: str = "") -> None:
+        """Keep the newest reading of this resonator's screen (D270)."""
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO character_reads (resonator, screen, key, data, read_at) "
+                "VALUES (?, ?, ?, ?, ?) ON CONFLICT(resonator, screen, key) DO UPDATE SET "
+                "data = excluded.data, read_at = excluded.read_at",
+                (resonator, screen, key, json.dumps(data, ensure_ascii=False),
+                 datetime.now(UTC).isoformat(timespec="microseconds")))
+
+    def character_reads(self, resonator: str, echoes: int = 5) -> dict:
+        """What the scan read of this resonator (D270): each screen's newest reading, and the
+        newest `echoes` echoes seen equipped on them, newest first."""
+        out: dict = {"echoes": []}
+        with closing(self.conn.execute(
+            "SELECT screen, data FROM character_reads WHERE resonator = ? "
+            "ORDER BY read_at DESC", (resonator,)
+        )) as cur:
+            for row in cur.fetchall():
+                data = json.loads(row["data"])
+                if row["screen"] == "echo":
+                    if len(out["echoes"]) < echoes:
+                        out["echoes"].append(data)
+                else:
+                    out.setdefault(row["screen"], data)
+        return out
 
     def add_plan(self, kind: str, name: str, state: dict) -> int:
         with self.conn:

@@ -42,6 +42,10 @@ STEPS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     # after the shops: their names, and the places they are in, are named too (D163)
     ("英文名", "fetch_english.py", ()),
     ("首领头像", "fetch_bosses.py", ()),
+    # 计算's tables (D268): skill multipliers, base stats, weapons, echoes and sets
+    ("伤害计算数据", "fetch_calc.py", ()),
+    # every echo's and set's picture, for 计算 (D269)
+    ("声骸图片", "fetch_echoes.py", ()),
 )
 #: The steps as shipped: `STEPS` may be swapped in tests, these stay (D192).
 STEPS_REAL = STEPS
@@ -51,10 +55,12 @@ STEPS_REAL = STEPS
 FIRST_SECONDS: dict[str, float] = {
     "物品与图标": 120, "料理与物品资料": 150, "共鸣者与武器": 240, "共鸣者头像": 30,
     "等级经验表": 10, "商店货品": 90, "英文名": 45, "首领头像": 20,
+    "伤害计算数据": 120, "声骸图片": 90,
 }
 LATER_SECONDS: dict[str, float] = {
     "物品与图标": 20, "料理与物品资料": 25, "共鸣者与武器": 40, "共鸣者头像": 10,
     "等级经验表": 10, "商店货品": 60, "英文名": 30, "首领头像": 10,
+    "伤害计算数据": 5, "声骸图片": 10,
 }
 #: Beside the catalogue: how long each step took, the first time and since.
 TIMES_NAME = "update-times.json"

@@ -37,8 +37,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
+from .. import calc as calc_mod
+from .. import calc_data, demo, exp, guess, planner, roster, versions, web_icons
+from .. import cooking as cooking_mod
 from .. import dashboard as dashboard_mod
-from .. import demo, exp, guess, planner, roster, versions, web_icons
 from .. import shops as shops_mod
 from .. import weapons as weapons_mod
 from ..catalogue import Catalogue, read_overrides, write_overrides
@@ -111,6 +113,13 @@ class Learned(BaseModel):
 
     recipe: str = Field(min_length=1, max_length=80)
     learned: bool
+
+
+class RecipeAnswer(BaseModel):
+    """料理's question (D271): the recipes learned, out of those it asked about; or put off."""
+
+    learned: list[str] | None = Field(default=None, max_length=1000)
+    later: bool = False
 
 
 class ItemOverride(BaseModel):
@@ -266,6 +275,11 @@ class PlanNew(BaseModel):
     name: str = Field(min_length=1, max_length=40)
 
 
+class CalcSave(BaseModel):
+    """计算's setup for one resonator (D268), as calc.py reads it."""
+    setup: dict
+
+
 class PlanState(BaseModel):
     """A plan's two states (D47); the core clamps them to what exists."""
 
@@ -304,7 +318,7 @@ SHOP_MARKERS = frozenset(f"shop-{kind}.webp" for kind in (
 UPDATE_PARTS = ("wiki", "mine", "hand", "english", "recognized", "data")
 #: The pages besides 总览, by their addresses: /inventory, and /en/inventory in English (D164).
 PAGE_NAMES = ("inventory", "shops", "cooking", "materials", "resonators", "weapons", "planner",
-              "update", "guess", "about", "help", "privacy")
+              "update", "guess", "about", "help", "privacy", "calc")
 PART_ICONS = frozenset(f"upd-{part}.png"
                        for part in ("wiki", "hand", "english", "recognized", "data"))
 # and the language button's two cards and the card's outline (D164), drawn with Gemini too
@@ -911,6 +925,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
     def planner_page() -> HTMLResponse:
         return _page("planner.html")
 
+    @app.get("/calc", response_class=HTMLResponse)
+    def calc_page() -> HTMLResponse:
+        return _page("calc.html")
+
     @app.get("/update", response_class=HTMLResponse)
     def update_page() -> HTMLResponse:
         return _page("update.html")
@@ -1484,6 +1502,160 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                             headers={"Cache-Control": "max-age=86400"})
 
     # ------------------------------------------------------------ planner (D47)
+    def calc_tables() -> dict | None:
+        from ..catalogue import CATALOGUE_DIR
+
+        return calc_data.cached(CATALOGUE_DIR)
+
+    def calc_role(data: dict, name: str) -> str:
+        found = calc_mod.find_role(data["roles"], name)
+        if found is None:
+            raise HTTPException(404, f"计算 has no {name}")
+        return found
+
+    def echo_pictures() -> dict:
+        """The echoes' and the sets' pictures (D269): fetch_echoes.py's index, or nothing."""
+        from ..catalogue import CATALOGUE_DIR
+
+        try:
+            return json.loads((CATALOGUE_DIR / "echoes.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+
+    @app.get("/api/echo/{file}")
+    def echo_picture(file: str) -> FileResponse:
+        from ..catalogue import CATALOGUE_DIR
+
+        if not re.fullmatch(r"[0-9A-Za-z_-]+\.webp", file):
+            raise HTTPException(404, "no such picture")
+        path = CATALOGUE_DIR / "echoes" / file
+        if not path.is_file():
+            raise HTTPException(404, "no such picture")
+        return FileResponse(path, media_type="image/webp",
+                            headers={"Cache-Control": "max-age=86400"})
+
+    @app.get("/api/calc")
+    def calc_lists() -> dict:
+        """What 计算 can be given (D268): every resonator, weapon, echo and set the data has,
+        with the echoes' and sets' pictures (D269)."""
+        data = calc_tables()
+        if data is None:
+            return {"have": False}
+        pictures = echo_pictures()
+        echo_icons, set_icons = pictures.get("echoes") or {}, pictures.get("sets") or {}
+        # 大毕业, from each one's kept setup (D273)
+        st = Store(db())
+        try:
+            kept = {n: st.calc_setup(n) for n in data["roles"]}
+        finally:
+            st.close()
+        return {
+            "have": True, "version": data.get("version"),
+            # each one's modes and the game's recommended sets (D272)
+            "resonators": [{"name": n, "rarity": r["rarity"], "element": r["element"],
+                            "weapon_type": r["weapon_type"], "modes": r.get("modes") or [],
+                            "recommended": r.get("recommended") or [],
+                            # the picker's tick: 大毕业 on the kept setup (D274)
+                            "graduated": bool(kept.get(n)) and calc_mod.compute(
+                                data, kept[n], n)["grade"]["grade"] == "大毕业",
+                            "tags": r.get("tags") or [],
+                            # the six chain nodes by name, once each (a mode's paragraph is
+                            # the same node)
+                            "chain": list({b["n"]: {"n": b["n"], "title": b["title"]}
+                                           for b in r.get("buffs") or []
+                                           if b["source"] == "chain"}.values())}
+                           for n, r in data["roles"].items()],
+            "weapons": [{"name": n, "id": w.get("id"), "rarity": w["rarity"], "type": w["type"],
+                         "text": w.get("text"), "params": w.get("params")}
+                        for n, w in data["weapons"].items()],
+            "sets": [{"name": n, "text": s.get("text") or {}, "icon": set_icons.get(n),
+                      "element": s.get("element"),
+                      # what its 2-piece gives, for the picker's 套装效果 (D273)
+                      "gives": calc_mod.set_gives(s)}
+                     for n, s in data["sets"].items()],
+            # an echo's other form (异相·) is drawn as the echo it is a form of
+            "echoes": [{"name": n, "cost": e["cost"], "sets": e["sets"],
+                        "element": e.get("element"), "main_buff": e.get("main_buff"),
+                        "icon": echo_icons.get(n) or echo_icons.get(n.removeprefix("异相·"))}
+                       for n, e in (data.get("echoes") or {}).items()],
+            # each 全息 drawn as its own echo, or the form of it the wiki has (梦魇·凯尔匹, D274)
+            "holograms": [{**h, "icon": echo_icons.get(h["name"]) or next(
+                (v for k, v in echo_icons.items() if k.endswith(f"·{h['name']}")), None)}
+                for h in data.get("holograms") or []],
+            "sub_tiers": calc_data.SUB_TIERS,
+            "echo_main": data["echo"]["main"], "stats": data.get("stats") or {},
+            "elements": data.get("elements") or {}, "buffs": list(calc_mod.BUFFS),
+        }
+
+    def calc_reply(data: dict, name: str, setup: dict, saved: bool,
+                   known: dict | None = None) -> dict:
+        return {"name": name, "saved": saved, "setup": setup, "known": known or {"from": []},
+                "result": calc_mod.compute(data, setup, name, game=(known or {}).get("panel"))}
+
+    def calc_known(data: dict, found: str, asked: str) -> dict:
+        """What the app already knows of this resonator (D269): their saved progress, the
+        weapon the newest scan saw them hold, their chain."""
+        st = Store(db())
+        try:
+            cat = catalogue.get()
+            progress = progress_of(st)
+            rover = found.startswith(roster.ROVER)
+            app_name = asked if asked in progress else next(
+                (k for k in progress if rover and roster.is_rover(k)
+                 and k.endswith(found.split("·")[-1])), found)
+            state = (progress.get(app_name) or {}).get("state")
+            rows = roster.resonators(cat, build_inventory(st, cat), done_tabs(st), progress,
+                                     read_pulls(st), skip=hidden(st))
+            row = next((r for r in rows if r["name"] == app_name), None)
+            scanned = st.character_reads(found)
+            held = [{"name": c.name, "level": c.level, "rank": c.rank,
+                     "holder": found if who in (app_name, roster.ROVER if rover else None) else who}
+                    for who, c in weapons_mod.held(st).items()]
+        finally:
+            st.close()
+        return calc_mod.known(data, found, state, held, (row or {}).get("chain"), scanned=scanned)
+
+    @app.get("/api/calc/{name}")
+    def calc_open(name: str) -> dict:
+        """A resonator's kept setup -- or, never set up, what the app knows of them (D269) --
+        with its numbers worked out."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        st = Store(db())
+        try:
+            kept = st.calc_setup(found)
+            kept_at, scanned_at = st.calc_setup_at(found), st.character_read_at(found)
+        finally:
+            st.close()
+        known = calc_known(data, found, name)
+        # when the scan read their screens after the setup was kept, the page offers it (D270)
+        known["scanned_at"], known["kept_at"] = scanned_at, kept_at
+        start = {k: v for k, v in known.items()
+                 if k not in ("from", "panel", "scanned_at", "kept_at")}
+        setup = {**calc_mod.default_setup(data, found), **start, **(kept or {})}
+        return calc_reply(data, found, setup, kept is not None, known)
+
+    @app.post("/api/calc/{name}")
+    def calc_save(name: str, body: CalcSave) -> dict:
+        """Keep what was entered for this resonator, and work it out."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        setup = {**calc_mod.default_setup(data, found), **body.setup}
+        try:
+            reply = calc_reply(data, found, setup, True)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise HTTPException(400, f"setup not understood: {exc}") from exc
+        st = Store(db())
+        try:
+            st.save_calc_setup(found, setup)
+        finally:
+            st.close()
+        return reply
+
     @app.get("/api/plans")
     def plans() -> dict:
         """Every plan with its cost, and all of them against the stock."""
@@ -2042,6 +2214,40 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         finally:
             st.close()
         return {"recipe": fix.recipe, "learned": fix.learned}
+
+    @app.get("/api/cooking/recipes")
+    def recipe_sheet() -> dict:
+        """料理's question, which recipes are learned (D271): whether it was asked, and each
+        recipe it asks about, as the dish it teaches, ticked as the sheet starts."""
+        st = Store(db())
+        try:
+            cat = catalogue.get()
+            items = dishes_of(st, cat, build_inventory(st, cat))
+            return {"asked": cooking_mod.asked(st),
+                    "answered": st.setting(cooking_mod.LEARNED_ASKED) == cooking_mod.ANSWERED,
+                    "recipes": cooking_mod.recipe_sheet(st, items)}
+        finally:
+            st.close()
+
+    @app.post("/api/cooking/recipes")
+    def answer_recipes(answer: RecipeAnswer) -> dict:
+        """The answer: these recipes learned and the sheet's others not; or 「以后再说」 (D271)."""
+        st = Store(db())
+        try:
+            if answer.later:
+                cooking_mod.put_off(st)
+                return {"later": True}
+            if answer.learned is None:
+                raise HTTPException(400, "say which recipes are learned, or later")
+            cat = catalogue.get()
+            try:
+                cooking_mod.answer_sheet(st, dishes_of(st, cat, build_inventory(st, cat)),
+                                         answer.learned)
+            except ValueError as e:
+                raise HTTPException(400, str(e)) from None
+            return {"learned": answer.learned}
+        finally:
+            st.close()
 
     @app.get("/api/inventory")
     def inventory(show_all: bool = False) -> dict:
