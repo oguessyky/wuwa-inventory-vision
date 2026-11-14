@@ -16,6 +16,7 @@ Headless: the web app starts a job and polls its state.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -25,8 +26,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import calc_data, web_icons
 from . import catalogue as catalogue_mod
-from . import web_icons
 
 #: The repository root, where tools/ lives (a source checkout).
 ROOT = Path(__file__).resolve().parents[2]
@@ -39,9 +40,16 @@ STEPS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("共鸣者头像", "fetch_icons.py", ()),
     ("等级经验表", "fetch_levels.py", ()),
     ("商店货品", "fetch_shops.py", ()),
-    # after the shops: their names, and the places they are in, are named too (D163)
-    ("英文名", "fetch_english.py", ()),
     ("首领头像", "fetch_bosses.py", ()),
+    # 计算's tables (D268): skill multipliers, base stats, weapons, echoes and sets
+    ("伤害计算数据", "fetch_calc.py", ()),
+    # after the shops and 计算's tables: the shops' names and places, and 计算's own words
+    # -- skills, their rows, chain titles -- are named too (D163, D322)
+    ("英文名", "fetch_english.py", ()),
+    # every echo's and set's picture, for 计算 (D269)
+    ("声骸图片", "fetch_echoes.py", ()),
+    # Kuro's official guide: each resonator's echo plans and weapons (D313)
+    ("官方攻略", "fetch_guides.py", ()),
 )
 #: The steps as shipped: `STEPS` may be swapped in tests, these stay (D192).
 STEPS_REAL = STEPS
@@ -51,10 +59,12 @@ STEPS_REAL = STEPS
 FIRST_SECONDS: dict[str, float] = {
     "物品与图标": 120, "料理与物品资料": 150, "共鸣者与武器": 240, "共鸣者头像": 30,
     "等级经验表": 10, "商店货品": 90, "英文名": 45, "首领头像": 20,
+    "伤害计算数据": 120, "声骸图片": 90, "官方攻略": 120,
 }
 LATER_SECONDS: dict[str, float] = {
     "物品与图标": 20, "料理与物品资料": 25, "共鸣者与武器": 40, "共鸣者头像": 10,
     "等级经验表": 10, "商店货品": 60, "英文名": 30, "首领头像": 10,
+    "伤害计算数据": 5, "声骸图片": 10, "官方攻略": 40,
 }
 #: Beside the catalogue: how long each step took, the first time and since.
 TIMES_NAME = "update-times.json"
@@ -104,6 +114,7 @@ def snapshot(directory: Path | None = None) -> dict[str, set[str]]:
     index = load("index.json") or []
     recipes = load("recipes.json") or {}
     builds = load("builds.json") or {}
+    calc = load(calc_data.NAME) or {}
     return {
         "items": {e["name"] for e in index if e.get("tab") != "武器"},
         "weapons": set(builds.get("weapons") or {}) | {e["name"] for e in index
@@ -111,7 +122,54 @@ def snapshot(directory: Path | None = None) -> dict[str, set[str]]:
         "resonators": set(builds.get("resonators") or {}),
         "dishes": {e["name"] for e in recipes.get("items", [])},
         "recipes": {e["name"] for e in recipes.get("recipes", [])},
+        # 计算's echoes and sets (D307)
+        "echoes": set(calc.get("echoes") or {}),
+        "sets": set(calc.get("sets") or {}),
     }
+
+
+def pictures(directory: Path | None = None) -> dict[str, dict[str, str]]:
+    """Each picture the catalogue has, by kind, by name, as a key of its bytes (D307): an update
+    tells from these which are new and which were drawn again -- a picture saved again as it was
+    is neither."""
+    root = Path(directory or _catalogue_dir())
+
+    def load(name: str) -> object:
+        try:
+            return json.loads((root / name).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+
+    files: dict[str, dict[str, Path]] = {
+        "items": {e["name"]: root / e["file"] for e in load("index.json") or [] if e.get("file")},
+        "avatars": {n: root / "avatars" / f for part in (load("avatars.json") or {}).values()
+                    if isinstance(part, dict) for n, f in part.items()},
+        "bosses": {n: root / "bosses" / f for n, f in (load("bosses.json") or {}).items()},
+        "echoes": {n: root / "echoes" / f"{e['id']}.webp"
+                   for n, e in ((load(calc_data.NAME) or {}).get("echoes") or {}).items()
+                   if e.get("id")},
+    }
+    out: dict[str, dict[str, str]] = {}
+    for kind, named in files.items():
+        out[kind] = {}
+        for name, path in named.items():
+            try:
+                out[kind][name] = hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+            except OSError:
+                continue
+    return out
+
+
+def _changed(before: dict[str, dict[str, str]], after: dict[str, dict[str, str]]) -> dict:
+    """The pictures new and drawn again, by kind; a kind with neither left out (D307)."""
+    out = {}
+    for kind, now in after.items():
+        was = before.get(kind) or {}
+        new = sorted(n for n in now if n not in was)
+        redrawn = sorted(n for n in now if n in was and was[n] != now[n])
+        if new or redrawn:
+            out[kind] = {"new": new, "redrawn": redrawn}
+    return out
 
 
 standins = catalogue_mod.standins
@@ -149,6 +207,8 @@ class UpdateJob:
     added: dict[str, list[str]] = field(default_factory=dict)
     replaced: list[str] = field(default_factory=list)
     """Stand-ins the wiki took over in this run (D260)."""
+    pictures: dict[str, dict[str, list[str]]] = field(default_factory=dict)
+    """The pictures this run brought or drew again, by kind (D307)."""
     started_at: float | None = None
     finished_at: float | None = None
     first: bool | None = None
@@ -171,6 +231,9 @@ class UpdateJob:
                 left = 0.0 if self.state in ("done", "failed") else sum(expected)
             return {"state": self.state, "step": self.step, "log": self.log[-MAX_LOG_LINES:],
                     "added": self.added, "replaced": self.replaced,
+                    "pictures": self.pictures,
+                    # what 计算 counts by the reader, not read by hand (D307)
+                    "unchecked": calc_data.unchecked(calc_data.cached(_catalogue_dir()) or {}),
                     "started_at": self.started_at,
                     "finished_at": self.finished_at, "seed": self.seed,
                     "can_seed": can_seed(),
@@ -191,6 +254,7 @@ class UpdateJob:
             if self.state == "running":
                 return False
             self.state, self.log, self.added, self.replaced = "running", [], {}, []
+            self.pictures = {}
             self.started_at, self.finished_at = time.time(), None
             self.first, self.step_no, self.step_started = needs_catalogue(), 0, None
         threading.Thread(target=self._run, daemon=True, name="catalogue-update").start()
@@ -202,6 +266,7 @@ class UpdateJob:
         if self.started_at is None:
             self.started_at = time.time()
         before = snapshot()
+        drawn = pictures()
         stood_in = standins(_catalogue_dir())
         steps = [(label, [sys.executable, "-u", str(TOOLS / tool), *args])
                  for label, tool, args in STEPS]
@@ -237,6 +302,7 @@ class UpdateJob:
             self.replaced = replaced
             self.added = {k: sorted(after[k] - before.get(k, set())) for k in after
                           if after[k] - before.get(k, set())}
+            self.pictures = _changed(drawn, pictures())
             self.state = "done" if ok else "failed"
             self.step = ""
             self.step_no = len(steps)

@@ -546,9 +546,15 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
         if recorder is not None:
             recorder.event("phase", phase=phase)
 
+    screen_words = {"attributes": "属性详情", "skills": "技能", "weapon": "武器", "echo": "声骸",
+                    "echoes": "声骸", "chain": "共鸣链"}
+
     def gate_event(kind: str, data: dict) -> None:
         if recorder is not None:
             recorder.event(kind, **data)
+        if kind == "character":  # a resonator's own screen, read (D270)
+            who = data.get("resonator") or "?"
+            say(f"  -> {who}: {screen_words.get(str(data.get('kind')), data.get('kind'))} read")
 
     def tab_skipped(label: str) -> None:
         say(f"  -> tab {label}: skipped, nothing here is read or saved")
@@ -556,6 +562,8 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     def tab_changed(tab) -> None:  # noqa: ANN001 -- TabScan
         total = tab.report.header_total
         say(f"  -> tab {tab.label}" + (f" (game says {total} items)" if total else ""))
+
+    from .scan.character import CharacterScreens
 
     capture = live_capture(window)
     gate = FrameGate.live()
@@ -588,6 +596,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
             on_phase=phase_changed,
             on_frame=(lambda f: state.offer_preview(f.rgb)) if args.web and args.preview else None,
             on_event=gate_event,
+            screens=CharacterScreens(store),
         )
     finally:
         capture.stop()

@@ -61,6 +61,7 @@ def _post(endpoint: str, fields: dict, attempts: int = 3) -> dict:
         headers={"User-Agent": UA, "wiki_type": WIKI_TYPE,
                  "Content-Type": "application/x-www-form-urlencoded"},
     )
+    attempts = fetch_pool.attempts(attempts)  # in the pool: once, and it asks again later (D324)
     for attempt in range(1, attempts + 1):
         try:  # large pages now and then arrive cut short (IncompleteRead): ask again
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:

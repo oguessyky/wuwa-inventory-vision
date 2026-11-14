@@ -79,12 +79,13 @@ def _request(url: str, data: bytes | None = None) -> bytes:
         headers.update({"Content-Type": "application/x-www-form-urlencoded",
                         "wiki_type": WIKI_TYPE})
     request = urllib.request.Request(url, data=data, headers=headers)
-    for attempt in range(1, ATTEMPTS + 1):
+    tries = fetch_pool.attempts(ATTEMPTS)  # in the pool: once, and it asks again later (D324)
+    for attempt in range(1, tries + 1):
         try:
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 return response.read()
         except NETWORK_ERRORS:
-            if attempt == ATTEMPTS:
+            if attempt == tries:
                 raise
             time.sleep(attempt)  # 1 s, then 2 s: still one request at a time
     raise AssertionError("unreachable")

@@ -32,13 +32,23 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    Response,
+    StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
+from .. import calc as calc_mod
+from .. import calc_data, demo, exp, guess, planner, roster, versions, web_icons
+from .. import cooking as cooking_mod
 from .. import dashboard as dashboard_mod
-from .. import demo, exp, guess, planner, roster, versions, web_icons
+from .. import echo_sets as echo_sets_mod
 from .. import shops as shops_mod
 from .. import weapons as weapons_mod
 from ..catalogue import Catalogue, read_overrides, write_overrides
@@ -63,6 +73,7 @@ from ..recognize.reference import name_to_file, reference_dir
 from ..scan.live_state import LiveState, needs_you
 from ..store.db import Store
 from ..update import UpdateJob
+from . import nav
 
 #: The scan monitor's page (`live.html`): hand-written, and not part of the build.
 STATIC = Path(__file__).parent / "static"
@@ -71,6 +82,14 @@ LIVE_PORT, MAIN_PORT = 8711, 4000
 PHONE_PORT = 8713
 #: A pull export is ~1 MB for 4,500 pulls; this leaves room for years of pulls.
 MAX_PULLS_BYTES = 20_000_000
+
+
+class NavOrder(BaseModel):
+    """The pages' order from 设置 (D321): 日常, 管理, and which are hidden."""
+
+    daily: list[str]
+    manage: list[str]
+    hidden: list[str] = Field(default_factory=list)
 
 
 class NameFix(BaseModel):
@@ -111,6 +130,13 @@ class Learned(BaseModel):
 
     recipe: str = Field(min_length=1, max_length=80)
     learned: bool
+
+
+class RecipeAnswer(BaseModel):
+    """料理's question (D271): the recipes learned, out of those it asked about; or put off."""
+
+    learned: list[str] | None = Field(default=None, max_length=1000)
+    later: bool = False
 
 
 class ItemOverride(BaseModel):
@@ -266,6 +292,33 @@ class PlanNew(BaseModel):
     name: str = Field(min_length=1, max_length=40)
 
 
+class CalcSave(BaseModel):
+    """计算's setup for one resonator (D268), as calc.py reads it."""
+    setup: dict
+
+
+class CalcTeam(BaseModel):
+    """配队's team (D287): the members by name, the rotation, what is switched off per member."""
+    members: list[str]
+    rotation: list[dict] = []
+    toggles: list[dict] = []
+    #: each member's 共鸣模态 for the team, or None for the one kept on 单人 (D293)
+    modes: list[int | None] = []
+
+
+class CalcTeamKeep(BaseModel):
+    """A team kept under a name (D287); with an id, that one kept again."""
+    name: str
+    team: dict
+    id: int | None = None
+
+
+class CalcWeapons(BaseModel):
+    """计算's setup, and whether to rank only the weapons owned (D285)."""
+    setup: dict
+    owned: bool = False
+
+
 class PlanState(BaseModel):
     """A plan's two states (D47); the core clamps them to what exists."""
 
@@ -301,10 +354,11 @@ SHOP_MARKERS = frozenset(f"shop-{kind}.webp" for kind in (
 #: The pictures of 更新's parts the app ships (D162), white on clear, drawn in the
 #: colour of their link: "upd-wiki.png".
 #: 更新's parts, each at an address of its own (D164): /update/wiki.
-UPDATE_PARTS = ("wiki", "mine", "hand", "english", "recognized", "data")
+#: 数据 was the sixth until it moved to 设置 (D321): /update/data leads there.
+UPDATE_PARTS = ("wiki", "mine", "hand", "english", "recognized")
 #: The pages besides 总览, by their addresses: /inventory, and /en/inventory in English (D164).
 PAGE_NAMES = ("inventory", "shops", "cooking", "materials", "resonators", "weapons", "planner",
-              "update", "guess", "about", "help", "privacy")
+              "update", "guess", "about", "help", "privacy", "calc", "sets", "settings")
 PART_ICONS = frozenset(f"upd-{part}.png"
                        for part in ("wiki", "hand", "english", "recognized", "data"))
 # and the language button's two cards and the card's outline (D164), drawn with Gemini too
@@ -371,13 +425,18 @@ def _scanner_versions(st: Store, home: bool) -> dict:
     return {"this": this, "home": home, "scanners": scanners}
 
 
-def _page(name: str) -> HTMLResponse:
+def _page(name: str, extra: str = "") -> HTMLResponse:
     """A page of the main app. Revalidated on every load, so a rebuilt page is
-    picked up at once; the scripts and styles it names are hashed and can be kept."""
+    picked up at once; the scripts and styles it names are hashed and can be kept.
+    `extra`: put before `</body>` (the user's order of the pages, D321)."""
     page = UI / name
     if not page.is_file():
         raise HTTPException(503, "the pages are not built: run `npm run build` in web/")
-    return HTMLResponse(page.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
+    text = page.read_text(encoding="utf-8")
+    if extra:
+        at = text.rfind("</body>")
+        text = text[:at] + extra + text[at:] if at >= 0 else text + extra
+    return HTMLResponse(text, headers={"Cache-Control": "no-cache"})
 
 
 def _shared_routes(app: FastAPI, db_path: Path, live: LiveState | None) -> None:
@@ -878,85 +937,126 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         # the pages' scripts and styles (hashed names: safe to serve always)
         app.mount("/_next", StaticFiles(directory=UI / "_next"), name="next")
 
+    def read_nav() -> dict:
+        """The pages' order (D321): the user's own, always from their database (not the walk's
+        sample), so every page is drawn with it."""
+        st = Store(db_path)
+        try:
+            return nav.read(st.setting(nav.SETTING))
+        finally:
+            st.close()
+
+    def page(name: str) -> HTMLResponse:
+        """A page, carrying the user's order of the pages when it is their own (D321)."""
+        return _page(name, nav.script(read_nav()))
+
     @app.get("/", response_class=HTMLResponse)
     def dashboard_page() -> HTMLResponse:
         # The dashboard is what opens first (D159); 库存 has an address of its own.
-        return _page("index.html")
+        return page("index.html")
 
     @app.get("/inventory", response_class=HTMLResponse)
     def inventory_page() -> HTMLResponse:
-        return _page("inventory.html")
+        return page("inventory.html")
 
     @app.get("/shops", response_class=HTMLResponse)
     def shops_page() -> HTMLResponse:
-        return _page("shops.html")
+        return page("shops.html")
 
     @app.get("/cooking", response_class=HTMLResponse)
     def cooking_page() -> HTMLResponse:
-        return _page("cooking.html")
+        return page("cooking.html")
 
     @app.get("/materials", response_class=HTMLResponse)
     def materials_page() -> HTMLResponse:
-        return _page("materials.html")
+        return page("materials.html")
 
     @app.get("/resonators", response_class=HTMLResponse)
     def resonators_page() -> HTMLResponse:
-        return _page("resonators.html")
+        return page("resonators.html")
 
     @app.get("/weapons", response_class=HTMLResponse)
     def weapons_page() -> HTMLResponse:
-        return _page("weapons.html")
+        return page("weapons.html")
 
     @app.get("/planner", response_class=HTMLResponse)
     def planner_page() -> HTMLResponse:
-        return _page("planner.html")
+        return page("planner.html")
+
+    @app.get("/calc", response_class=HTMLResponse)
+    def calc_page() -> HTMLResponse:
+        return page("calc.html")
+
+    @app.get("/calc/team", response_class=HTMLResponse)
+    def calc_team_page() -> HTMLResponse:
+        """配队 (D287): 计算 for a team, under 计算 in the column."""
+        return page("calc/team.html")
+
+    @app.get("/sets", response_class=HTMLResponse)
+    def sets_page() -> HTMLResponse:
+        """套装 (D319): every echo set, after 计算."""
+        return page("sets.html")
 
     @app.get("/update", response_class=HTMLResponse)
     def update_page() -> HTMLResponse:
-        return _page("update.html")
+        return page("update.html")
 
     @app.get("/update/{part}", response_class=HTMLResponse)
-    def update_part_page(part: str) -> HTMLResponse:
-        """One of 更新's parts at its own address (D164): /update/wiki … /update/data."""
+    def update_part_page(part: str) -> Response:
+        """One of 更新's parts at its own address (D164): /update/wiki … /update/recognized.
+        数据 is 设置's now (D321): its old address leads there."""
+        if part == "data":
+            return RedirectResponse("/settings#data", status_code=308)
         if part not in UPDATE_PARTS:
             raise HTTPException(404, "更新 has no such part")
-        return _page(f"update/{part}.html")
+        return page(f"update/{part}.html")
+
+    @app.get("/settings", response_class=HTMLResponse)
+    def settings_page() -> HTMLResponse:
+        """设置 (D321): the pages' order, 显示, the 漂泊者 and 数据."""
+        return page("settings.html")
 
     @app.get("/guess", response_class=HTMLResponse)
     def guess_page() -> HTMLResponse:
-        return _page("guess.html")
+        return page("guess.html")
 
     @app.get("/about", response_class=HTMLResponse)
     def about_page() -> HTMLResponse:
         """Whose everything is: the licence, Kuro Games' copyright, the sources (D132)."""
-        return _page("about.html")
+        return page("about.html")
 
     @app.get("/help", response_class=HTMLResponse)
     def help_page() -> HTMLResponse:
         """How to start, what each page is for, what to do when something fails (D162)."""
-        return _page("help.html")
+        return page("help.html")
 
     @app.get("/privacy", response_class=HTMLResponse)
     def privacy_page() -> HTMLResponse:
         """What the app keeps and what leaves the machine (D162)."""
-        return _page("privacy.html")
+        return page("privacy.html")
 
     # The same pages in English (D164), under /en: built in English, each its own file.
     @app.get("/en", response_class=HTMLResponse)
     def english_dashboard() -> HTMLResponse:
-        return _page("en.html")
+        return page("en.html")
 
     @app.get("/en/{name}", response_class=HTMLResponse)
     def english_page(name: str) -> HTMLResponse:
         if name not in PAGE_NAMES:
             raise HTTPException(404, "no such page")
-        return _page(f"en/{name}.html")
+        return page(f"en/{name}.html")
+
+    @app.get("/en/calc/team", response_class=HTMLResponse)
+    def english_calc_team() -> HTMLResponse:
+        return page("en/calc/team.html")
 
     @app.get("/en/update/{part}", response_class=HTMLResponse)
-    def english_update_part(part: str) -> HTMLResponse:
+    def english_update_part(part: str) -> Response:
+        if part == "data":
+            return RedirectResponse("/en/settings#data", status_code=308)
         if part not in UPDATE_PARTS:
             raise HTTPException(404, "更新 has no such part")
-        return _page(f"en/update/{part}.html")
+        return page(f"en/update/{part}.html")
 
     @app.get("/api/privacy")
     def privacy_text() -> dict:
@@ -1046,6 +1146,38 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         finally:
             st.close()
         return {"gender": body.gender}
+
+    @app.get("/api/nav")
+    def nav_order() -> dict:
+        """The pages' order (D321) and whether it is the user's own."""
+        return read_nav()
+
+    @app.post("/api/nav")
+    def set_nav_order(order: NavOrder) -> dict:
+        """Keep the order 设置 sends, whole: every page once, one to five in 日常 (D321)."""
+        try:
+            kept = nav.check(order.model_dump())
+        except nav.NavError as exc:
+            raise HTTPException(400, _said(exc.zh, exc.en)) from exc
+        st = Store(db_path)
+        try:
+            if kept == nav.default():
+                st.forget_setting(nav.SETTING)        # the shipped one: nothing of the user's
+            else:
+                st.set_setting(nav.SETTING, json.dumps(kept))
+        finally:
+            st.close()
+        return read_nav()
+
+    @app.post("/api/nav/reset")
+    def reset_nav_order() -> dict:
+        """恢复默认: the order the app ships with (D321)."""
+        st = Store(db_path)
+        try:
+            st.forget_setting(nav.SETTING)
+        finally:
+            st.close()
+        return read_nav()
 
     def done_tabs(st: Store) -> set[str]:
         return {t["tab"] for t in tab_summary(st) if t["complete"]}
@@ -1484,6 +1616,367 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                             headers={"Cache-Control": "max-age=86400"})
 
     # ------------------------------------------------------------ planner (D47)
+    def calc_tables() -> dict | None:
+        from ..catalogue import CATALOGUE_DIR
+
+        return calc_data.cached(CATALOGUE_DIR)
+
+    def calc_role(data: dict, name: str) -> str:
+        found = calc_mod.find_role(data["roles"], name)
+        if found is None:
+            raise HTTPException(404, f"计算 has no {name}")
+        return found
+
+    def echo_pictures() -> dict:
+        """The echoes' and the sets' pictures (D269): fetch_echoes.py's index, or nothing."""
+        from ..catalogue import CATALOGUE_DIR
+
+        try:
+            return json.loads((CATALOGUE_DIR / "echoes.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+
+    @app.get("/api/echo/{file}")
+    def echo_picture(file: str) -> FileResponse:
+        from ..catalogue import CATALOGUE_DIR
+
+        if not re.fullmatch(r"[0-9A-Za-z_-]+\.webp", file):
+            raise HTTPException(404, "no such picture")
+        path = CATALOGUE_DIR / "echoes" / file
+        if not path.is_file():
+            raise HTTPException(404, "no such picture")
+        return FileResponse(path, media_type="image/webp",
+                            headers={"Cache-Control": "max-age=86400"})
+
+    def sets_worn() -> dict[str, list[dict]]:
+        """The sets on the user's resonators (D319): the echoes 计算 kept for each, else the ones
+        the scan read on them -- what 计算 opens them on (D269)."""
+        st = Store(db())
+        try:
+            names = {*st.calc_setup_names(), *st.character_read_names()}
+            echoes = {}
+            for name in names:
+                kept = st.calc_setup(name) or {}
+                echoes[name] = (kept["echoes"] if "echoes" in kept
+                                else st.character_reads(name)["echoes"])
+        finally:
+            st.close()
+        return echo_sets_mod.worn(echoes)
+
+    @app.get("/api/sets")
+    def sets_list() -> dict:
+        """套装 (D319): every echo set, with what the grid and its filters need."""
+        data = calc_tables()
+        if data is None:
+            return {"have": False}
+        return {"have": True, "version": data.get("version"),
+                "elements": data.get("elements") or {}, "stats": data.get("stats") or {},
+                "tags": list(echo_sets_mod.TAGS),
+                "sets": echo_sets_mod.listing(data, echo_pictures(), sets_worn())}
+
+    def set_people(rows: list[dict]) -> list[dict]:
+        """Each resonator a set names, as the app draws them (D319): their face, whether they
+        are owned, and the name their panel opens on -- a 漂泊者 form as this save's own."""
+        cat = catalogue.get()
+        st = Store(db())
+        try:
+            progress, away, faces = progress_of(st), hidden(st), faces_by_name(st)
+        finally:
+            st.close()
+        people = cat.builds.get("resonators", {})
+        out = []
+        for row in rows:
+            name = row["name"]
+            app_name = name if name in people else next(
+                (n for n in people if name.startswith(roster.ROVER) and roster.is_rover(n)
+                 and n not in away and n.endswith(name.rsplit("·", 1)[-1])), None)
+            if app_name is None:
+                out.append({**row, "avatar": None, "open": None, "owned": False})
+                continue
+            face = wear_faces([roster.avatar(cat, app_name, people[app_name])], faces)[0]
+            out.append({**row, "avatar": {**face, "name": name}, "open": app_name,
+                        "owned": bool((progress.get(app_name) or {}).get("owned"))})
+        return out
+
+    @app.get("/api/set")
+    def set_detail(name: str) -> dict:
+        """One echo set, everything the panel says of it (D319)."""
+        data = calc_tables()
+        said = None if data is None else echo_sets_mod.detail(
+            data, name, echo_pictures(), sets_worn())
+        if said is None:
+            raise HTTPException(404, f"no set {name}")
+        return {**said, "recommended": set_people(said["recommended"]),
+                "mine": set_people(said["mine"]), "elements": data.get("elements") or {},
+                "stats": data.get("stats") or {}}
+
+    @app.get("/api/calc")
+    def calc_lists() -> dict:
+        """What 计算 can be given (D268): every resonator, weapon, echo and set the data has,
+        with the echoes' and sets' pictures (D269)."""
+        data = calc_tables()
+        if data is None:
+            return {"have": False}
+        pictures = echo_pictures()
+        echo_icons, set_icons = pictures.get("echoes") or {}, pictures.get("sets") or {}
+        # 大毕业, from each one's kept setup (D273)
+        st = Store(db())
+        try:
+            kept = {n: st.calc_setup(n) for n in data["roles"]}
+        finally:
+            st.close()
+        return {
+            "have": True, "version": data.get("version"),
+            # each one's modes and the game's recommended sets (D272)
+            "resonators": [{"name": n, "rarity": r["rarity"], "element": r["element"],
+                            "weapon_type": r["weapon_type"], "modes": r.get("modes") or [],
+                            "recommended": r.get("recommended") or [],
+                            # the picker's tick: 大毕业 on the kept setup (D274)
+                            "graduated": bool(kept.get(n)) and calc_mod.compute(
+                                data, kept[n], n)["grade"]["grade"] == "大毕业",
+                            "tags": r.get("tags") or [],
+                            # the six chain nodes by name, once each (a mode's paragraph is
+                            # the same node)
+                            "chain": list({b["n"]: {"n": b["n"], "title": b["title"]}
+                                           for b in r.get("buffs") or []
+                                           if b["source"] == "chain"}.values())}
+                           for n, r in data["roles"].items()],
+            "weapons": [{"name": n, "id": w.get("id"), "rarity": w["rarity"], "type": w["type"],
+                         "text": w.get("text"), "params": w.get("params")}
+                        for n, w in data["weapons"].items()],
+            "sets": [{"name": n, "text": s.get("text") or {}, "icon": set_icons.get(n),
+                      "element": s.get("element"),
+                      # what its 2-piece gives, for the picker's 套装效果 (D273)
+                      "gives": calc_mod.set_gives(s)}
+                     for n, s in data["sets"].items()],
+            # an echo's other form (异相·) is drawn as the echo it is a form of
+            "echoes": [{"name": n, "cost": e["cost"], "sets": e["sets"],
+                        "element": e.get("element"), "main_buff": e.get("main_buff"),
+                        "icon": echo_icons.get(n) or echo_icons.get(n.removeprefix("异相·"))}
+                       for n, e in (data.get("echoes") or {}).items()],
+            # each 全息 drawn as its own echo, or the form of it the wiki has (梦魇·凯尔匹, D274)
+            "holograms": [{**h, "icon": echo_icons.get(h["name"]) or next(
+                (v for k, v in echo_icons.items() if k.endswith(f"·{h['name']}")), None),
+                # the element of the echo boss it is, whose own 抗性 it starts from (D281)
+                "element": _base_element(data, h["name"])}
+                for h in data.get("holograms") or []],
+            "sub_tiers": calc_data.SUB_TIERS,
+            "echo_main": data["echo"]["main"], "stats": data.get("stats") or {},
+            "elements": data.get("elements") or {}, "buffs": list(calc_mod.BUFFS),
+        }
+
+    def _base_element(data: dict, name: str) -> int | None:
+        """The element of the echo boss a 全息 is (D281): by its name, or a form of it."""
+        echoes = data.get("echoes") or {}
+        found = echoes.get(name) or next(
+            (e for k, e in echoes.items() if k.endswith(f"·{name}")), None)
+        return (found or {}).get("element")
+
+    def calc_reply(data: dict, name: str, setup: dict, saved: bool,
+                   known: dict | None = None) -> dict:
+        """The setup worked out, with what is known of the resonator and each field changed
+        from it by hand (D284); the game's panel is the grade's only while it is still this
+        setup's."""
+        known = known or {"from": []}
+        changed = calc_mod.edited(setup, known)
+        game = known.get("panel") if calc_mod.panel_holds(changed) else None
+        return {"name": name, "saved": saved, "setup": setup, "known": known, "edited": changed,
+                "tuned": calc_mod.own_changes(data, name, setup),
+                "default_enemy": calc_mod.default_setup(data, name)["enemy"],
+                "result": calc_mod.compute(data, setup, name, game=game)}
+
+    def calc_known_at(data: dict, found: str, asked: str) -> dict:
+        """What is known of them, and when the scan read them and the setup was kept (D270)."""
+        st = Store(db())
+        try:
+            kept_at, scanned_at = st.calc_setup_at(found), st.character_read_at(found)
+        finally:
+            st.close()
+        known = calc_known(data, found, asked)
+        known["scanned_at"], known["kept_at"] = scanned_at, kept_at
+        return known
+
+    def calc_known(data: dict, found: str, asked: str) -> dict:
+        """What the app already knows of this resonator (D269): their saved progress, the
+        weapon the newest scan saw them hold, their chain."""
+        st = Store(db())
+        try:
+            cat = catalogue.get()
+            progress = progress_of(st)
+            rover = found.startswith(roster.ROVER)
+            app_name = asked if asked in progress else next(
+                (k for k in progress if rover and roster.is_rover(k)
+                 and k.endswith(found.split("·")[-1])), found)
+            state = (progress.get(app_name) or {}).get("state")
+            rows = roster.resonators(cat, build_inventory(st, cat), done_tabs(st), progress,
+                                     read_pulls(st), skip=hidden(st))
+            row = next((r for r in rows if r["name"] == app_name), None)
+            scanned = st.character_reads(found)
+            held = [{"name": c.name, "level": c.level, "rank": c.rank,
+                     "holder": found if who in (app_name, roster.ROVER if rover else None) else who}
+                    for who, c in weapons_mod.held(st).items()]
+        finally:
+            st.close()
+        return calc_mod.known(data, found, state, held, (row or {}).get("chain"), scanned=scanned)
+
+    def calc_setup_of(data: dict, found: str, asked: str) -> dict:
+        """A resonator's setup as 计算 opens it: what was kept, else what is known (D269)."""
+        st = Store(db())
+        try:
+            kept = st.calc_setup(found)
+        finally:
+            st.close()
+        known = calc_known(data, found, asked)
+        start = {k: v for k, v in known.items()
+                 if k not in ("from", "panel", "scanned_at", "kept_at")}
+        return {**calc_mod.default_setup(data, found), **start, **(kept or {})}
+
+    # 配队 (D287): before /api/calc/{name}, which would take "team" for a resonator's name
+    @app.post("/api/calc/team")
+    def calc_team(body: CalcTeam) -> dict:
+        """A team worked out (D287): each member on their own kept setup, with what the others
+        give them, and the rotation added up. Keeps nothing."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        members = []
+        for i, asked in enumerate(body.members[:3]):
+            found = calc_role(data, asked)
+            setup = calc_setup_of(data, found, asked)
+            if i < len(body.modes) and body.modes[i] is not None:
+                setup["mode"] = body.modes[i]
+            members.append({"name": found, "setup": setup})
+        try:
+            return calc_mod.team(data, members, body.rotation, body.toggles)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise HTTPException(400, f"team not understood: {exc}") from exc
+
+    @app.get("/api/calc/teams")
+    def calc_teams() -> dict:
+        """配队's kept teams (D287), the newest first."""
+        st = Store(db())
+        try:
+            return {"teams": st.calc_teams()}
+        finally:
+            st.close()
+
+    @app.post("/api/calc/teams")
+    def calc_team_keep(body: CalcTeamKeep) -> dict:
+        """Keep a team under a name (D287), or keep the one named by `id` again."""
+        name = body.name.strip()
+        if not name:
+            raise HTTPException(400, "a team needs a name")
+        st = Store(db())
+        try:
+            return st.save_calc_team(name, body.team, body.id)
+        finally:
+            st.close()
+
+    @app.delete("/api/calc/teams/{team_id}")
+    def calc_team_drop(team_id: int) -> dict:
+        st = Store(db())
+        try:
+            if not st.delete_calc_team(team_id):
+                raise HTTPException(404, "no such team")
+        finally:
+            st.close()
+        return {"ok": True}
+
+    @app.get("/api/calc/{name}")
+    def calc_open(name: str) -> dict:
+        """A resonator's kept setup -- or, never set up, what the app knows of them (D269) --
+        with its numbers worked out."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        st = Store(db())
+        try:
+            kept = st.calc_setup(found)
+        finally:
+            st.close()
+        # when the scan read their screens after the setup was kept, the page offers it (D270)
+        known = calc_known_at(data, found, name)
+        start = {k: v for k, v in known.items()
+                 if k not in ("from", "panel", "scanned_at", "kept_at")}
+        setup = {**calc_mod.default_setup(data, found), **start, **(kept or {})}
+        reply = calc_reply(data, found, setup, kept is not None, known)
+        # the sets that work out best for them, beside the ones recommended (D310): asked once,
+        # when the page opens -- each edit does not need it again
+        rec = {r["set"] for r in data["roles"][found].get("recommended") or []}
+        reply["suggested"] = [s["set"] for s in calc_mod.rank_sets(data, found, setup)
+                              if s["set"] not in rec and s["adds"] > 0.001][:3]
+        return reply
+
+    @app.post("/api/calc/{name}")
+    def calc_save(name: str, body: CalcSave) -> dict:
+        """Keep what was entered for this resonator, and work it out."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        setup = {**calc_mod.default_setup(data, found), **body.setup}
+        # what is known of them stays with every answer, so the page can say what was changed
+        # by hand and put it back (D284)
+        known = calc_known_at(data, found, name)
+        try:
+            reply = calc_reply(data, found, setup, True, known)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise HTTPException(400, f"setup not understood: {exc}") from exc
+        st = Store(db())
+        try:
+            st.save_calc_setup(found, setup)
+            known["kept_at"] = st.calc_setup_at(found)
+        finally:
+            st.close()
+        return reply
+
+    @app.post("/api/calc/{name}/weapons")
+    def calc_weapons(name: str, body: CalcWeapons) -> dict:
+        """Every weapon this resonator can hold, by what they put out with it, the rest of the
+        setup as posted (D285); only those owned, at the rank held, when asked. Keeps nothing."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        setup = {**calc_mod.default_setup(data, found), **body.setup}
+        st = Store(db())
+        try:
+            copies = weapons_mod.by_weapon(st)
+            counts, _ = weapons_mod.owned_counts(st, (read_pulls(st) or {}).get("weapons"))
+        finally:
+            st.close()
+        # the rank held: the best copy's, as scanned; a weapon known only by its pulls, as many
+        # copies as were pulled (they merge)
+        owned = {w: (max(c.rank for c in copies[w]) if copies.get(w) else min(n, 5))
+                 for w, n in counts.items() if n}
+        try:
+            # their 专武, as the app knows it (D290): listed and marked, whatever its place
+            signature = roster.signatures(catalogue.get()).get(found)
+            ranked = calc_mod.rank_weapons(data, found, setup, owned, only_owned=body.owned,
+                                           signature=signature)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise HTTPException(400, f"setup not understood: {exc}") from exc
+        return {"weapons": ranked, "kind": calc_mod._puts_out(data, found),
+                "measure": calc_mod.weapon_measure(data, found),
+                # the build they were weighed on: their own, or their best (D312)
+                "built": ranked[0]["built"] if ranked else "setup"}
+
+    @app.post("/api/calc/{name}/echoes")
+    def calc_echoes(name: str, body: CalcSave) -> dict:
+        """How each echo compares for this resonator, the setup as posted (D286): what each
+        one's substats are worth, and what one more top roll of each stat would add. Keeps
+        nothing."""
+        data = calc_tables()
+        if data is None:
+            raise HTTPException(404, "计算's data is not fetched: 更新 has its step")
+        found = calc_role(data, name)
+        setup = {**calc_mod.default_setup(data, found), **body.setup}
+        try:
+            return calc_mod.echo_worth(data, found, setup)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise HTTPException(400, f"setup not understood: {exc}") from exc
+
     @app.get("/api/plans")
     def plans() -> dict:
         """Every plan with its cost, and all of them against the stock."""
@@ -2043,6 +2536,40 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             st.close()
         return {"recipe": fix.recipe, "learned": fix.learned}
 
+    @app.get("/api/cooking/recipes")
+    def recipe_sheet() -> dict:
+        """料理's question, which recipes are learned (D271): whether it was asked, and each
+        recipe it asks about, as the dish it teaches, ticked as the sheet starts."""
+        st = Store(db())
+        try:
+            cat = catalogue.get()
+            items = dishes_of(st, cat, build_inventory(st, cat))
+            return {"asked": cooking_mod.asked(st),
+                    "answered": st.setting(cooking_mod.LEARNED_ASKED) == cooking_mod.ANSWERED,
+                    "recipes": cooking_mod.recipe_sheet(st, items)}
+        finally:
+            st.close()
+
+    @app.post("/api/cooking/recipes")
+    def answer_recipes(answer: RecipeAnswer) -> dict:
+        """The answer: these recipes learned and the sheet's others not; or 「以后再说」 (D271)."""
+        st = Store(db())
+        try:
+            if answer.later:
+                cooking_mod.put_off(st)
+                return {"later": True}
+            if answer.learned is None:
+                raise HTTPException(400, "say which recipes are learned, or later")
+            cat = catalogue.get()
+            try:
+                cooking_mod.answer_sheet(st, dishes_of(st, cat, build_inventory(st, cat)),
+                                         answer.learned)
+            except ValueError as e:
+                raise HTTPException(400, str(e)) from None
+            return {"learned": answer.learned}
+        finally:
+            st.close()
+
     @app.get("/api/inventory")
     def inventory(show_all: bool = False) -> dict:
         """What is owned now, merged from every scan (D45 decisions 3, 5, 13)."""
@@ -2386,8 +2913,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         # and the Chinese under it (D164), so every name that has one is sent with it
         return {"keys": {name: keys for name in sorted(names)
                          if (keys := search.keys(name, cat.english(name) or ""))},
-                "english": {name: english
-                            for name, (english, _) in sorted(cat.english_names.items()) if english}}
+                # 计算's own words too (D322), a name's own English first
+                "english": {**cat.english_terms,
+                            **{name: english for name, (english, _)
+                               in sorted(cat.english_names.items()) if english}}}
 
     @app.get("/api/versions")
     def versions_now() -> dict:

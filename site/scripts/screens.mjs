@@ -22,3 +22,11 @@ for (const entry of readdirSync(to, { recursive: true, withFileTypes: true })) {
   made += 1;
 }
 console.log(`pictures: ${from} -> ${to} (${made} as WebP)`);
+
+// The guides' sketches (D301): drawn by tools/make_guides.py into docs/drawings, as SVG; copied
+// in as they are, each serving both languages
+const sketches = join(here, '..', '..', 'docs', 'drawings');
+const drawn = join(here, '..', 'public', 'drawings');
+rmSync(drawn, { recursive: true, force: true });
+if (existsSync(sketches)) cpSync(sketches, drawn, { recursive: true });
+console.log(`sketches: ${sketches} -> ${drawn}`);

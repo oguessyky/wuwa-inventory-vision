@@ -35,4 +35,6 @@ export const Icons: Record<string, ReactNode> = {
   steps: null,
   phone: <Icon name="phone" />,
   search: null,
+  calc: <Icon name="calc" />,
+  weapons: <Icon name="weapons" />,
 };

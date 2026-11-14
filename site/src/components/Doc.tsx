@@ -2,7 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { address, guideSteps, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
-import { Markdown } from './Markdown';
+import { anchor, Markdown } from './Markdown';
+import { Toc } from './Toc';
 import { GuideSteps, type Part } from './GuideSteps';
 import { Icon } from './Icons';
 import { Nav, type NavPage } from './Nav';
@@ -31,7 +32,8 @@ const DESCRIPTION = {
 
 /** Each page's icon, from the app's family: the app's own drawings, and the site's five. */
 const PAGE_ICON: Record<string, string> = {
-  install: 'pc', server: 'nas', mac: 'laptop', scan: 'inventory', pages: 'dashboard',
+  install: 'pc', server: 'nas', mac: 'laptop', scan: 'inventory', 'scan-resonators': 'resonators',
+  pages: 'dashboard', calc: 'calc',
   update: 'update', versions: 'update', troubleshooting: 'help', safety: 'privacy',
   privacy: 'privacy', terms: 'about', licence: 'about', credits: 'about',
 };
@@ -129,6 +131,10 @@ export function Doc({ lang, slug }: { lang: Lang; slug: string }) {
   const next = list[list.findIndex(p => p.slug === slug) + 1];
   // the band takes the # title and the paragraph under it; the page keeps the rest
   const page = parts(lang, slug);
+  // its ## parts, for the list beside it (D294)
+  const sections = [...page.body.matchAll(/^## (.+)$/gm)].map(m => ({
+    id: anchor(m[1]), text: m[1].replace(/[*`]/g, '').trim(),
+  }));
   // where the page sits, for a search result's trail (D222)
   const trail = {
     '@context': 'https://schema.org',
@@ -149,15 +155,19 @@ export function Doc({ lang, slug }: { lang: Lang; slug: string }) {
           <div className="hb-lede"><Markdown text={page.lede} lang={lang} /></div>
         </div>
       </header>
-      <main className={`doc page${pages().find(p => p.slug === slug)?.source ? ' legal' : ''}`}>
-        <Words text={page.body} lang={lang} slug={slug} />
-        {next ? (
-          <Link className="next" href={next.href}>
-            <span className="nav-ic"><Icon name={next.icon} /></span>
-            <span><small>{t.next}</small><b>{next.name}</b><em>{next.about}</em></span>
-            <span className="next-go" aria-hidden="true">›</span>
-          </Link>
-        ) : null}
+      <main className={`doc page${pages().find(p => p.slug === slug)?.source ? ' legal' : ''}${sections.length > 1 ? ' has-toc' : ''}`}>
+        <div className="doc-body">
+          <Words text={page.body} lang={lang} slug={slug} />
+          {next ? (
+            <Link className="next" href={next.href}>
+              <span className="nav-ic"><Icon name={next.icon} /></span>
+              <span><small>{t.next}</small><b>{next.name}</b><em>{next.about}</em></span>
+              <span className="next-go" aria-hidden="true">›</span>
+            </Link>
+          ) : null}
+        </div>
+        {/* the page's parts beside it, on a wide screen (D294) */}
+        {sections.length > 1 ? <Toc items={sections} title={lang === 'en' ? 'On this page' : '本页内容'} /> : null}
       </main>
     </Frame>
   );
@@ -227,7 +237,7 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
           const [name, ...rest] = head.split('\n');
           return (
             <section key={name} className="faq">
-              <h2>{name}</h2>
+              <h2 id={anchor(name)}>{name}</h2>
               <Markdown text={rest.join('\n')} lang={lang} />
               {questions.map(q => {
                 const [question, ...answer] = q.split('\n');
@@ -257,7 +267,7 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
       </>
     );
   }
-  return <Markdown text={text} lang={lang} />;
+  return <Markdown text={text} lang={lang} sections />;
 }
 
 /** Every release, each side's changes or 没有改动 (D227): the list the app shows only the newest

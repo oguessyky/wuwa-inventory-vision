@@ -5,3 +5,4 @@ public/screens/
 next-env.d.ts
 tsconfig.tsbuildinfo
 public/guides/
+public/drawings/

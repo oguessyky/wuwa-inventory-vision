@@ -539,6 +539,16 @@ class Catalogue:
         out.update({str(n): (str(e), "hand") for n, e in self.overrides["english"].items() if e})
         return out
 
+    @cached_property
+    def english_terms(self) -> dict[str, str]:
+        """计算's own words -> the game's English for them (D322): skills, their rows, chain and
+        gift titles, states. Not names: the 更新 page does not list them to fix."""
+        path = self.directory / "english.json"
+        if not path.exists():
+            return {}
+        terms = json.loads(path.read_text(encoding="utf-8")).get("terms") or {}
+        return {str(n): str(e) for n, e in terms.items() if e}
+
     def english(self, name: str | None) -> str | None:
         """A name's English name, or None (D163)."""
         found = self.english_names.get(name or "")

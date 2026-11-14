@@ -32,9 +32,18 @@ Everything you own, merged across scans. Search in English, Chinese, pinyin or i
 
 ![Inventory](screens/en/inventory.png)
 
+## Calculator
+
+Pick a resonator and it works out every skill's damage, heals and shields from their build. It grades the build against the same resonator at their best (小毕业 / 大毕业) and says what is short, and rates each echo's substats by tier. Compare A with B: a few echoes swapped, another weapon, or the next 共鸣链. How to use it: [the calculator](/calc).
+
+![Calculator](screens/en/calc.png)
+
 ## The rest
 
-- **Cooking**: what is below the count you keep, and what you can cook now.
+- **Cooking**: what is below the count you keep, what you can cook now, and which recipes you have learned.
 - **Shops**: each shop's shelf and limits; give an item a base and it shows on the dashboard when you drop below it.
 - **Guess**: a daily game.
-- **Update**: a new catalogue, pull history, fixes to the wiki, and which side each version changed.
+- **Update**: a new catalogue, pull history, fixes to the wiki.
+- **Settings** (at the foot of the left column, beside Help): drag the pages into your own order, choose the five on a phone's bottom bar, hide the ones you never use; the language; which side each version changed; clearing the scan data.
+
+![Cooking: what is under what you keep, and what you can make now](screens/en/cooking.png)

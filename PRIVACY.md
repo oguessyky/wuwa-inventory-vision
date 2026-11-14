@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective 31 October 2026.
+Effective 13 November 2026.
 
 This Privacy Policy is provided in English and may be translated into other languages for your
 convenience. In the event of any conflict or discrepancy between the English version and a
@@ -26,7 +26,8 @@ up, on your own server -- section 3). None of it is sent to the author.
   co-op players can appear in a capture.
 - **What is read from those pictures**: item names, counts, levels, refinement, who carries which
   weapon, and the 贝币 and 星声 you have; the small picture of each item tile; when each scan was
-  made.
+  made. From a resonator's own screens, when you open them during a scan: its level, skill levels,
+  stats, weapon and equipped echoes.
 - **What you enter**: targets, base amounts, plans, corrections to names and counts, and English
   names you type.
 - **Your pull history, if you import it.** You choose a file exported from wuwatracker. The app
@@ -47,8 +48,10 @@ up, on your own server -- section 3). None of it is sent to the author.
 
 - **Updating the catalogue** (更新 page, or the fetch tools). The app downloads item, dish, recipe and
   shop data and pictures from Kuro Games' wiki (`wiki.kurobbs.com`, `api.kurobbs.com`) and game data
-  tables from GitHub (`github.com`, `api.github.com`, `raw.githubusercontent.com`). It sends nothing
-  of yours: these are downloads. Like any website, those services see your IP address, under their
+  tables from GitHub (`github.com`, `api.github.com`, `raw.githubusercontent.com`), and each
+  resonator's guides from Kuro Games' official guide (`guide-server.aki-game.net`, the server of
+  `wuwaguide.kurogames.com`), asked as a web browser asks it. It sends nothing of yours: these are
+  downloads. Like any website, those services see your IP address, under their
   own privacy policies.
 - **Setting up.** The installer downloads the software the app needs (Python packages, PyTorch, the
   recognition model and the catalogue pack) from their hosts, including a file hosted on Google

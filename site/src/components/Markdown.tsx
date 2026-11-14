@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { Fragment, type ReactNode } from 'react';
 import type { Lang } from '@/lib/content';
+import { pngSize } from '@/lib/png';
 import { Code } from './Code';
+import { Zoom } from './Zoom';
 
 // Just enough Markdown for the site's own pages (D210), as the app's (D162) with what a guide
 // needs besides: links, pictures, numbered steps, blocks of commands and tables (a package's guide, D214). Built as React nodes,
@@ -48,9 +50,17 @@ function inline(text: string, key: string, lang: Lang): ReactNode[] {
 export const anchor = (text: string) =>
   text.replace(/[*`]/g, '').trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
 
-/** The blocks of a page: headings, paragraphs, lists, pictures and command blocks. */
-export function Markdown({ text, lang }: { text: string; lang: Lang }) {
+/** A screenshot narrower than this (in its own pixels) sits beside its words (D294): the 计算
+ * guide's parts, at twice the pixels, are; a whole page, at 1400, is not. */
+const NARROW = 1000;
+
+/** The blocks of a page: headings, paragraphs, lists, pictures and command blocks. With
+ * `sections` (a guide's body, D294), each ## and what follows it is a panel of its own; one
+ * whose only picture is narrow has it beside its words. */
+export function Markdown({ text, lang, sections = false }: { text: string; lang: Lang; sections?: boolean }) {
   const blocks: ReactNode[] = [];
+  // the sections, as indexes into `blocks`: where each starts, and its pictures
+  const parts: { at: number; id: string; narrow: number; wide: number }[] = [];
   const lines = text.replace(/\r\n/g, '\n').split('\n');
   let para: string[] = [];
   let list: string[] = [];
@@ -103,7 +113,14 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
     const picture = /^!\[([^\]]*)\]\(([^)]+)\)$/.exec(line.trim());
     if (picture) {
       flush();
-      blocks.push(<figure key={`f${blocks.length}`}><img src={`${BASE}/${webp(picture[2])}`} alt={picture[1]} loading="lazy" />
+      const size = pngSize(picture[2]);
+      const narrow = !!size && size.width < NARROW;
+      const part = parts[parts.length - 1];
+      if (part) part[narrow ? 'narrow' : 'wide'] += 1;
+      // a phone stood up (D301): taller than half again its width, shown about a phone's size
+      const tall = !!size && size.height > size.width * 1.5;
+      blocks.push(<figure key={`f${blocks.length}`} className={[narrow && 'narrow', tall && 'tall'].filter(Boolean).join(' ') || undefined}>
+        <Zoom src={`${BASE}/${webp(picture[2])}`} alt={picture[1]} narrow={narrow} lang={lang} />
         {picture[1] ? <figcaption>{picture[1]}</figcaption> : null}</figure>);
       continue;
     }
@@ -113,7 +130,10 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
       const k = `h${blocks.length}`;
       const id = anchor(heading[2]);
       if (heading[1] === '#') blocks.push(<h1 key={k}>{inline(heading[2], k, lang)}</h1>);
-      else if (heading[1] === '##') blocks.push(<h2 key={k} id={id}>{inline(heading[2], k, lang)}</h2>);
+      else if (heading[1] === '##') {
+        if (sections) parts.push({ at: blocks.length, id, narrow: 0, wide: 0 });
+        blocks.push(<h2 key={k} id={id}>{inline(heading[2], k, lang)}</h2>);
+      }
       else blocks.push(<h3 key={k} id={id}>{inline(heading[2], k, lang)}</h3>);
       continue;
     }
@@ -130,5 +150,20 @@ export function Markdown({ text, lang }: { text: string; lang: Lang }) {
     }
   }
   flush();
-  return <Fragment>{blocks}</Fragment>;
+  if (!sections || !parts.length) return <Fragment>{blocks}</Fragment>;
+  // what comes before the first ## stays as it is; each ## is a panel, numbered by the page
+  return (
+    <Fragment>
+      {blocks.slice(0, parts[0].at)}
+      {parts.map((part, i) => {
+        const end = parts[i + 1]?.at ?? blocks.length;
+        const side = part.narrow === 1 && part.wide === 0;
+        return (
+          <section key={part.id} className={`sec${side ? ' side' : ''}`} data-n={i + 1} aria-labelledby={part.id}>
+            {blocks.slice(part.at, end)}
+          </section>
+        );
+      })}
+    </Fragment>
+  );
 }

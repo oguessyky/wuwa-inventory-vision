@@ -45,7 +45,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 .nav-g.here > button::after{content:"";position:absolute;left:12px;right:12px;bottom:-13px;height:2px;border-radius:2px;background:var(--accent)}
 .chev{width:12px;height:12px;transition:transform .15s}
 .nav-g.open .chev{transform:rotate(180deg)}
-.nav-panel{position:absolute;left:-8px;top:calc(100% + 12px);width:340px;padding:8px;border-radius:16px;
+.nav-panel{position:absolute;left:-8px;top:calc(100% + 12px);width:380px;padding:8px;border-radius:16px;
   background:var(--panel);border:1px solid var(--line-2);box-shadow:0 24px 60px rgba(0,0,0,.55);
   opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .12s,transform .12s,visibility .12s}
 .nav-panel::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px}
@@ -60,6 +60,18 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .nav-t{display:flex;flex-direction:column;line-height:1.35;min-width:0}
 .nav-t b{font-size:14.5px;font-weight:600}
 .nav-t small{color:var(--muted);font-size:12.5px}
+/* D295: a menu says what its group is for, and lays four pages or more in two columns */
+.nav-head{margin:4px 6px 8px;padding:6px 8px 12px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.5}
+.nav-head b{display:block;margin-bottom:2px;color:var(--ink);font-size:13.5px;letter-spacing:.04em}
+.nav-items{display:grid;gap:2px}
+.nav-panel.cols{width:620px}
+.nav-panel.cols .nav-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* where you are, beside the menus */
+.trail{display:inline-flex;align-items:center;gap:8px;margin-left:14px;padding:0 0 0 16px;border-left:1px solid var(--line-2);
+  color:var(--muted);font-size:13.5px;white-space:nowrap}
+.trail i{font-style:normal;color:var(--faint)}
+.trail b{color:var(--ink);font-weight:600}
+@media (max-width:1100px){.trail{display:none}.nav-panel.cols{width:440px}.nav-panel.cols .nav-items{grid-template-columns:minmax(0,1fr)}}
 .burger{display:none;place-items:center;width:40px;height:40px;border:1px solid var(--line-2);border-radius:10px;
   background:none;color:var(--ink);cursor:pointer}
 .burger svg{width:22px;height:22px}
@@ -71,7 +83,7 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 
 
 .page{max-width:1080px;margin:0 auto;padding:12px 24px 72px;min-width:0}
-.doc.page > :is(p,ul,ol,h2,h3,.tbl){max-width:780px}
+.doc.page > :is(p,ul,ol,h2,h3,.tbl),.doc-body > :is(p,ul,ol,h2,h3,.tbl){max-width:780px}
 
 /* A page's band (D221): its group, icon, title and first lines, across the whole width */
 .hero-band{border-bottom:1px solid var(--line);
@@ -268,11 +280,48 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 .steps h3{margin:16px 0 6px;font-size:18px}
 .steps p{margin:0;color:var(--muted);font-size:14.5px}
 
-.shots .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
-.shots figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.shots img{display:block;width:100%;height:auto;border-bottom:1px solid var(--line)}
-.shots figcaption{padding:14px 16px;color:var(--muted);font-size:14px}
-.shots figcaption b{display:block;color:var(--ink);font-size:16px;margin-bottom:2px}
+/* D289: what it answers that the game does not -- four questions, each with its answer */
+.why{padding-top:40px}
+.why-g{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.why-g li{position:relative;padding:22px 20px 20px;border-radius:16px;background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);overflow:hidden}
+.why-g li::after{content:"";position:absolute;inset:auto -30% -60% auto;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(232,201,90,.10),transparent);pointer-events:none}
+.why-g b{display:block;margin:14px 0 6px;font-size:19px;letter-spacing:-.01em}
+.why-g p{margin:0;color:var(--muted);font-size:14.5px}
+
+/* D289: each thing it does, a row of its own -- the words, and its picture at size beside them */
+.features .sub{margin-bottom:40px}
+.feat{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:48px;align-items:center;padding:36px 0;
+  border-top:1px solid var(--line)}
+.feat[data-flip="true"] .feat-t{order:2}
+.tag{display:inline-block;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:700;letter-spacing:.04em;
+  color:var(--gold);background:rgba(232,201,90,.1);border:1px solid rgba(232,201,90,.3)}
+.feat h3{margin:14px 0 10px;font-size:clamp(22px,2.6vw,28px);line-height:1.25;letter-spacing:-.01em}
+.feat-t > p{margin:0 0 16px;color:#cfd3db;font-size:15.5px;max-width:520px}
+.ticks{list-style:none;padding:0;margin:0 0 18px;display:grid;gap:8px}
+.ticks li{position:relative;padding-left:28px;color:var(--ink);font-size:14.5px}
+.ticks li::before{content:"";position:absolute;left:0;top:.2em;width:18px;height:18px;border-radius:50%;
+  background:rgba(95,208,143,.14) no-repeat center/11px
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235fd08f' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+.feat-go{font-weight:700;text-decoration:none}
+.feat-go:hover{text-decoration:underline}
+.feat-v{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:16px;padding:28px;border-radius:20px;
+  background:radial-gradient(420px 260px at 50% 40%,rgba(232,201,90,.10),transparent 70%),var(--panel);border:1px solid var(--line)}
+.feat-v .shot{margin:0;flex:0 1 auto;max-width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--line-2);
+  box-shadow:0 22px 60px rgba(0,0,0,.55)}
+.feat-v .shot img{display:block;max-width:100%;height:auto;max-height:560px}
+.feat[data-pics="2"] .feat-v .shot{flex:1 1 0;min-width:0}
+.feat[data-pics="2"] .feat-v .shot:nth-child(2){margin-top:48px}
+
+/* the other pages, a strip that leads to all of them */
+.strip{padding-top:36px;border-top:1px solid var(--line)}
+.strip h3{margin:0 0 16px;font-size:18px}
+.strip-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.strip figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.strip img{display:block;width:100%;height:auto;border-bottom:1px solid var(--line)}
+.strip figcaption{padding:10px 12px;color:var(--muted);font-size:13px}
+.strip figcaption b{display:block;color:var(--ink);font-size:14.5px;margin-bottom:2px}
 .more{margin:22px 0 0}
 .more a{text-decoration:none;font-weight:700}
 
@@ -298,6 +347,10 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   .desk{transform:none;margin-top:30px}
   .bag{width:220px;inset:-10px -6px auto auto}
   .steps ol{grid-template-columns:minmax(0,1fr)}
+  .why-g{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .feat{grid-template-columns:minmax(0,1fr);gap:24px}
+  .feat[data-flip="true"] .feat-t{order:0}
+  .strip-g{grid-template-columns:repeat(2,minmax(0,1fr))}
   .safe{grid-template-columns:minmax(0,1fr);gap:20px}
 }
 @media (max-width:600px){
@@ -307,7 +360,10 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   .phone{width:96px;left:-18px;bottom:-22px;border-width:4px;border-radius:14px}
   .bag{width:160px;gap:5px}
   .lede{font-size:16px}
-  .shots .grid,.safe ul{grid-template-columns:minmax(0,1fr)}
+  .safe ul,.why-g{grid-template-columns:minmax(0,1fr)}
+  .feat-v{padding:14px;gap:10px}
+  .feat[data-pics="2"] .feat-v{flex-direction:column}
+  .feat[data-pics="2"] .feat-v .shot:nth-child(2){margin-top:0}
   .ctas .btn{flex:1 1 auto}
   .hero h1{font-size:clamp(32px,9.4vw,40px)}
   .zips li{flex-direction:column;align-items:stretch;gap:12px;padding:16px}
@@ -541,3 +597,58 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   .after-f div{width:100%}
   .after-f .btn{flex:1 1 0}
 }
+
+/* D294: a guide uses the width -- its parts listed beside it, each part a panel, a narrow
+   picture beside its words, any picture opened at full size */
+.page.has-toc{max-width:1240px}
+@media (min-width:1100px){
+  .page.has-toc{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:56px;align-items:start}
+}
+.doc-body{min-width:0;counter-reset:sec}
+.sec{counter-increment:sec;margin:28px 0;padding:6px 28px 24px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--panel),rgba(20,22,28,.4));scroll-margin-top:80px}
+.sec > h2{display:flex;align-items:center;gap:12px;margin:18px 0 12px;padding-top:0;border-top:0}
+.sec > h2::before{content:counter(sec);flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:10px;
+  font-size:15px;font-weight:800;color:#0b0c10;background:var(--gold)}
+.sec > :is(p,ul,ol,h3,.tbl){max-width:760px}
+.sec > figure{margin:20px 0 4px}
+@media (min-width:1100px){
+  .sec.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);column-gap:36px;align-content:start}
+  .sec.side > *{grid-column:1}
+  .sec.side > h2{grid-column:1 / -1}
+  .sec.side > figure{grid-column:2;grid-row:2 / span 20;margin:4px 0 0;position:sticky;top:96px}
+}
+.zoom{display:block;padding:0;border:0;background:none;cursor:zoom-in;border-radius:14px;max-width:100%}
+.zoom img{display:block;max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line-2);box-shadow:0 18px 50px rgba(0,0,0,.45);
+  transition:transform .15s,border-color .15s}
+.zoom:hover img{border-color:var(--gold);transform:translateY(-2px)}
+.zoom:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+figure.narrow .zoom img{max-width:min(100%,440px)}
+/* D301: a phone stood up, about a phone's size */
+figure.tall .zoom img{max-width:min(100%,300px)}
+.zoomed{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:28px;background:rgba(6,7,10,.86);cursor:zoom-out;
+  animation:zoom-in .15s ease-out}
+.zoomed img{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.zoom-x{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--ink);font-size:18px;cursor:pointer}
+@keyframes zoom-in{from{opacity:0}to{opacity:1}}
+.toc{display:none}
+@media (min-width:1100px){
+  .toc{display:block;position:sticky;top:96px;margin-top:28px;padding:16px 14px;border-radius:16px;border:1px solid var(--line);
+    background:var(--panel)}
+}
+.toc-h{margin:0 6px 10px;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.toc ol li{padding-left:0;margin:0;min-height:0;counter-increment:none}
+.toc ol li::before{content:none}
+.toc a{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:10px;color:var(--muted);text-decoration:none;
+  font-size:14px;line-height:1.35}
+.toc a:hover{color:var(--ink);background:var(--panel-2)}
+.toc a[aria-current]{color:var(--ink);background:rgba(232,201,90,.1)}
+.toc-n{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:7px;font-size:12px;font-weight:700;
+  color:var(--muted);border:1px solid var(--line-2)}
+.toc a[aria-current] .toc-n{color:#0b0c10;background:var(--gold);border-color:var(--gold)}
+@media (max-width:600px){
+  .sec{padding:4px 16px 18px;border-radius:16px;margin:20px 0}
+}
+@media (prefers-reduced-motion:reduce){.zoom img,.zoomed{transition:none;animation:none}}

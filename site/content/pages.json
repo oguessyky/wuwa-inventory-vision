@@ -39,12 +39,28 @@
    "about_en": "Scroll the bag, click, press F9"
   },
   {
+   "slug": "scan-resonators",
+   "zh": "扫描角色",
+   "en": "Scan your resonators",
+   "group": "use",
+   "about_zh": "打开角色的界面，等级、技能、武器和声骸就读进来",
+   "about_en": "Open a resonator's screens: level, skills, weapon and echoes come in"
+  },
+  {
    "slug": "pages",
    "zh": "各个页面",
    "en": "The pages",
    "group": "use",
    "about_zh": "每一页帮你算什么",
    "about_en": "What each page works out for you"
+  },
+  {
+   "slug": "calc",
+   "zh": "计算",
+   "en": "The calculator",
+   "group": "use",
+   "about_zh": "毕业差多少、换哪把武器、先换哪个声骸、整队打多少",
+   "about_en": "How near 毕业, which weapon, which echo first, a team's rotation"
   },
   {
    "slug": "update",

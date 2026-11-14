@@ -61,6 +61,9 @@ from pathlib import Path
 
 from .store.db import SYNC_EPOCH, SYNC_OFFER_ALL, SYNC_SERVER, Store
 
+#: app_setting key, on a scanner: the newest `character_reads.read_at` the home has (D299)
+SYNC_READS_SENT = "sync.reads_sent"
+
 #: What both ends must agree on to talk at all. Raised when the bundle changes shape.
 PROTOCOL = 1
 #: An upload larger than this is refused before it is read (a session's scans are
@@ -123,6 +126,15 @@ def unsent_scans(store: Store) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def unsent_reads(store: Store) -> list[dict]:
+    """What this scanner read off a resonator's own screens (D270) since the home last took
+    them (D299): rows of words and numbers, never a picture."""
+    since = store.setting(SYNC_READS_SENT) or ""
+    return [dict(r) for r in store.conn.execute(
+        "SELECT resonator, screen, key, data, read_at FROM character_reads WHERE read_at > ? "
+        "ORDER BY read_at", (since,))]
+
+
 def _learned(store: Store) -> tuple[dict[str, str | None], dict[str, str | None]]:
     gallery = {r["icon_hash"]: r["item_name"] for r in store.conn.execute(
         "SELECT icon_hash, item_name FROM gallery WHERE tab IS NULL OR tab != ?", (_REFERENCE,))}
@@ -163,7 +175,8 @@ def pieces(wanted: dict) -> list[dict]:
     lists = {k: list(wanted.get(k) or []) for k in ("gallery", "faces", "icons")}
     parts = max(1, -(-max(map(len, lists.values())) // PART_ROWS))
     return [{**wanted, **{k: v[i * PART_ROWS:(i + 1) * PART_ROWS] for k, v in lists.items()},
-             "scans": wanted.get("scans") if i == 0 else []} for i in range(parts)]
+             "scans": wanted.get("scans") if i == 0 else [],
+             "characters": wanted.get("characters") if i == 0 else 0} for i in range(parts)]
 
 
 def bundle(store: Store, need: dict) -> bytes:
@@ -197,6 +210,7 @@ def bundle(store: Store, need: dict) -> bytes:
         "gallery": rows_of("gallery", _GALLERY, "icon_hash", need.get("gallery") or []),
         "faces": rows_of("holder_face", _FACE, "key", need.get("faces") or []),
         "weapon_kinds": store.weapon_kinds(), "aliases": store.aliases(), "wallet": wallet,
+        "character_reads": unsent_reads(store) if need.get("characters") else [],
     }
     out = io.BytesIO()
     with zipfile.ZipFile(out, "w", zipfile.ZIP_STORED) as z:
@@ -336,6 +350,7 @@ def join(store: Store, said: dict) -> str:
         store.conn.execute("UPDATE scan SET synced_at = NULL")
     store.set_setting(SYNC_EPOCH, str(int(said.get("epoch") or 0)))
     store.set_setting(SYNC_OFFER_ALL, "1")
+    store.set_setting(SYNC_READS_SENT, "")          # and every resonator's readings (D299)
     store.set_setting(SYNC_SERVER, str(theirs))
     return "fresh"
 
@@ -418,7 +433,7 @@ def receive(store: Store, data: bytes) -> dict:
         raise SyncError("扫描数据在服务器上被清空过；先同步（pull）再上传。")
 
     took = {"scans": 0, "known": 0, "observations": 0, "gallery": 0, "faces": 0,
-            "weapon_kinds": 0, "aliases": 0, "wallet": 0, "icons": 0}
+            "weapon_kinds": 0, "aliases": 0, "wallet": 0, "icons": 0, "characters": 0}
     scans = sorted((s for s in said.get("scans") or [] if _valid_scan(s)),
                    key=lambda s: s["started_at"])
     try:
@@ -489,6 +504,26 @@ def _take(store: Store, said: dict, scans: list[dict], took: dict) -> None:
                     (row["read_at"], row.get("shells"), row.get("astrite"),
                      float(row.get("confidence") or 0)))
                 last, took["wallet"] = row["read_at"], took["wallet"] + 1
+        # a resonator's screens (D299): each one's newest reading wins, wherever it was read
+        for row in said.get("character_reads") or []:
+            if not _valid_read(row):
+                continue
+            took["characters"] += store.conn.execute(
+                "INSERT INTO character_reads (resonator, screen, key, data, read_at) "
+                "VALUES (?, ?, ?, ?, ?) ON CONFLICT(resonator, screen, key) DO UPDATE SET "
+                "data = excluded.data, read_at = excluded.read_at "
+                "WHERE excluded.read_at > character_reads.read_at",
+                (row["resonator"], row["screen"], row["key"], row["data"], row["read_at"])).rowcount
+
+
+def _valid_read(row: object) -> bool:
+    if not isinstance(row, dict) or not all(
+            isinstance(row.get(k), str) for k in ("resonator", "screen", "key", "data", "read_at")):
+        return False
+    try:
+        return isinstance(json.loads(row["data"]), dict)
+    except ValueError:
+        return False
 
 
 def _valid_scan(scan: object) -> bool:
@@ -1020,12 +1055,17 @@ class Home:
             known = mark_sent(store, sorted(had))
             scans = [s for s in scans if s["uid"] not in had]
         everything = store.setting(SYNC_OFFER_ALL) == "1"
-        if not scans and not everything:
+        reads = unsent_reads(store)
+        if not scans and not everything and not reads:
             return {"scans": 0, "known": known}
         parts: list[list] = [[scan] for scan in scans] or [[]]   # [[]]: what it learned, alone
         total: dict[str, int] = {"known": known}
         for i, part in enumerate(parts):
-            took = self._push_part(store, offer(store, part, everything=i == len(parts) - 1))
+            last = i == len(parts) - 1
+            offered = offer(store, part, everything=last)
+            if last and reads:          # the resonators' readings go with the last part (D299)
+                offered["characters"] = len(reads)
+            took = self._push_part(store, offered)
             for key, value in took.items():
                 total[key] = total.get(key, 0) + int(value or 0)
         store.set_setting(SYNC_OFFER_ALL, "")
@@ -1035,7 +1075,9 @@ class Home:
         """One part of a push: what the home lacks of `offered`, sent and marked sent."""
         wanted = self._json("/api/sync/need", offered)
         took = {"scans": 0}
-        if any(wanted.get(k) for k in ("scans", "gallery", "faces", "icons")):
+        wanted = {**wanted, "characters": offered.get("characters") or 0}
+        reads = unsent_reads(store) if wanted["characters"] else []
+        if any(wanted.get(k) for k in ("scans", "gallery", "faces", "icons", "characters")):
             for piece in pieces(wanted):
                 packed = bundle(store, piece)
                 with self._half("up") as going:
@@ -1047,6 +1089,8 @@ class Home:
                     took[key] = took.get(key, 0) + int(value or 0)
         mark_sent(store, offered["scans"])
         mark_seen(store, offered["gallery"], offered["faces"])     # it had them, or has them now
+        if reads and "characters" in took:      # a home from before D299 says nothing of them
+            store.set_setting(SYNC_READS_SENT, max(r["read_at"] for r in reads))
         return {**took, "known": len(wanted.get("known") or [])}
 
     def pull(self, store: Store, catalogue_dir: Path | None = None) -> dict:

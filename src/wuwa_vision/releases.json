@@ -2,6 +2,78 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.4.0",
+   "date": "2026-11-15",
+   "scanner": [
+    {
+     "zh": "扫描时打开一位共鸣者的「属性详情」「技能」「武器」，或在声骸背包里点声骸，扫描器会读出等级、技能等级、游戏面板、武器和声骸，记到这位共鸣者名下，「计算」从这里开始。连着服务器的扫描器会把它们随扫描一起发过去：只有文字和数字，从不发画面",
+     "en": "during a scan, opening a resonator's 属性详情, 技能 or 武器 screen, or clicking echoes in their echo bag, reads their level, skill levels, the game's panel, weapon and echoes into that resonator, and 计算 starts from them. A scanner with a server sends them with its scans: words and numbers only, never a picture"
+    }
+   ],
+   "home": [
+    {
+     "zh": "新页面「计算」：选一位共鸣者，按等级、技能、武器、声骸和敌人算出每个技能的伤害、治疗和护盾；每个增益都能开关、改数值，面板也能直接填",
+     "en": "a new page, 计算: pick a resonator and it works out every skill's damage, heals and shields from their level, skills, weapon, echoes and the enemy; every buff can be switched and its number changed, and the panel can be typed in"
+    },
+    {
+     "zh": "「计算」和这位共鸣者自己的最好配置比，告诉你是小毕业还是大毕业、差在哪；治疗角色按治疗量算（维里奈看攻击，守岸人看生命），技能里写了上限的（如守岸人的共鸣效率 250%）单独一条；每个声骸的副词条按档位打分",
+     "en": "计算 grades the build against the same resonator at their best -- 小毕业 or 大毕业, and what is short; a healer is judged by their heals (维里奈 on ATK, 守岸人 on HP), and a cap their own skill names (守岸人's 250% 共鸣效率) is a line of its own; each echo's substats are rated by tier"
+    },
+    {
+     "zh": "A、B 对比：换几个声骸、换一把武器、或多一个共鸣链，每个技能的每一行都显示变化",
+     "en": "A against B: change a few echoes, the weapon, or the 共鸣链, and every row of every skill shows the change"
+    },
+    {
+     "zh": "敌人可以选全息战略（难度六，按今州、黎那汐塔分组，显示它的词条）、野外首领，或自己填",
+     "en": "the enemy can be a 全息 at 难度六, grouped as the game groups them (今州, 黎那汐塔) with its words shown, an overworld boss, or one of your own"
+    },
+    {
+     "zh": "「更新」多了两步：下载「计算」要用的游戏数据，和每个声骸、套装的图片",
+     "en": "更新 has two more steps: 计算's game data, and the pictures of every echo and set"
+    },
+    {
+     "zh": "扫描器读到的共鸣者面板会到服务器上，服务器的「计算」直接用；两台电脑读同一位共鸣者时，留最新的那次",
+     "en": "the resonator screens a scanner reads arrive on the server, and its 计算 starts from them; when two PCs read the same resonator, the newest reading stays"
+    },
+    {
+     "zh": "「计算」更全了：每把武器按持有的谐振等级排名，声骸按副词条的贡献比较，异常效应（如光噪效应）的伤害、持续治疗和额外伤害各成一行，增益按在场时间计；每把武器的被动、每个套装和每位共鸣者的增益都逐条核对过",
+     "en": "计算 does more: every weapon ranked at the rank it would be held, echoes compared by what their substats add, a status effect's own damage (光噪效应 and others), heals over time and extra hits as rows of their own, and buffs counted by time on the field; every weapon's passive, every set and every resonator's own buffs were checked by hand"
+    },
+    {
+     "zh": "「配队」：最多三人一队，看每个人给队友什么，排好的轮转加起来算",
+     "en": "配队: a team of up to three, what each gives the others, and a rotation added up"
+    },
+    {
+     "zh": "新页面「套装」：每个声骸套装都能查，写明它需要哪种异常效应",
+     "en": "a new page, 套装: every echo set, to look one up, with the status effect it needs"
+    },
+    {
+     "zh": "新页面「设置」：拖动导航里的页面排成自己的顺序、隐藏不用的；语言、漂泊者和数据（原在「更新」）都在这里",
+     "en": "a new page, 设置: drag the pages into your own order and hide the ones you do not use; the language, your 漂泊者 and the data (from 更新) are here"
+    },
+    {
+     "zh": "「更新」多一步「官方攻略」：鸣潮角色攻略资料站推荐的声骸套装，也成为「计算」的推荐；更新后会说新增或重画了哪些图片",
+     "en": "更新 has one more step, 官方攻略: the echo sets Kuro's official guide site recommends, which join 计算's recommended; after an update it says which pictures were added or drawn again"
+    },
+    {
+     "zh": "「更新」里某个请求失败时不再卡在那里：其他的先继续，失败的稍后再试；「官方攻略」像浏览器一样连接，只下载有变化的攻略",
+     "en": "更新 no longer waits on a request that failed: the others go on and it is asked again later; 官方攻略 connects as a browser does and fetches only the guides that changed"
+    },
+    {
+     "zh": "「计算」和「配队」有英文：技能、每一行和共鸣者的名字",
+     "en": "计算 and 配队 in English: the skills, their rows and the resonator's name"
+    },
+    {
+     "zh": "「料理」第一次打开时会问哪些食谱学会了（联动的默认算没学会）；没学会的料理不再算缺。之后从「学会了哪些食谱？」随时改",
+     "en": "料理 asks, the first time it opens, which recipes are learned (the 联动 ones start as not learned); a dish whose recipe is not learned is no longer counted short. 学会了哪些食谱？ changes it any time"
+    },
+    {
+     "zh": "「版权与致谢」加上致谢：leongiscoding（Mac 版的测试和改进）和 BaconCoding74（扫描器的基础）",
+     "en": "版权与致谢 now thanks leongiscoding (testing and improving the Mac side) and BaconCoding74 (the scanner's base)"
+    }
+   ]
+  },
+  {
    "version": "1.3.3",
    "date": "2026-11-11",
    "scanner": [],

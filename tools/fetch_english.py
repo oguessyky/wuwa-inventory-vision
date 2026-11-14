@@ -23,7 +23,8 @@ gender's English names. A name the tables do not have is left out: the 更新 pa
 lets a person give it one.
 
 Writes data/catalogue/english.json: {"names": {name: English}, "differs": {...},
-"missing": [...], "source", "fetched_at"}. Downloads about 100 MB; reads it once.
+"terms": {计算's words: English} (D322), "missing": [...], "source", "fetched_at"}.
+Downloads about 100 MB; reads it once.
 
     uv run python tools/fetch_english.py [--branch BRANCH]
 """
@@ -124,6 +125,24 @@ def wanted_names(directory: Path) -> set[str]:
     return out
 
 
+def wanted_terms(directory: Path) -> set[str]:
+    """计算's own words (D322): each resonator's skills and their rows (第一段伤害), the titles
+    of their chain, inherent skills and gifts, and their states -- kept apart from the names, so
+    the 更新 page's list of names to fix stays the catalogue's."""
+    path = directory / "calc.json"
+    if not path.exists():
+        return set()
+    out: set[str] = set()
+    for role in (json.loads(path.read_text(encoding="utf-8")).get("roles") or {}).values():
+        for skill in role.get("skills") or []:
+            out.add(skill.get("name") or "")
+            out |= {row.get("name") or "" for row in skill.get("rows") or []}
+        for buff in [*(role.get("buffs") or []), *(role.get("gives") or [])]:
+            out.add(buff.get("title") or "")
+        out |= {mode.get("name") or "" for mode in role.get("modes") or []}
+    return out - {""}
+
+
 def _get(url: str) -> object:
     request = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(request, timeout=600) as response:
@@ -148,15 +167,18 @@ def main(argv: list[str] | None = None) -> int:
     zh = text("zh-Hans")
     en = text("en")
     names, differs = pair(zh, en, wanted)
+    terms, _ = pair(zh, en, wanted_terms(CATALOGUE) - wanted)
     del zh, en
     names.update(rover_forms(wanted, names))
     missing = sorted(wanted - set(names))
     OUT.write_text(json.dumps({
         "names": dict(sorted(names.items())), "differs": dict(sorted(differs.items())),
+        "terms": dict(sorted(terms.items())),
         "missing": missing, "source": f"github.com/{REPO} ({branch}) {TABLE}",
         "fetched_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"named {len(names)}; {len(differs)} with more than one English text; "
+    print(f"named {len(names)} and {len(terms)} of 计算's words; "
+          f"{len(differs)} with more than one English text; "
           f"{len(missing)} not in the tables: {', '.join(missing[:12])}")
     return 0
 

@@ -44,6 +44,7 @@ are each started by you. [PRIVACY.md](PRIVACY.md) says exactly what and when.
 | **Cooking** | dishes and potions against the stock you want to keep, and what you can cook now |
 | **Shops** | every shop's shelf by region: limits, prices, and the least you want to keep of each thing |
 | **Planner** | plans from a current level to a target, totalled against your stock |
+| **Calculator** | one resonator's damage, heals and shields from their build; 小毕业 / 大毕业 against their own best; each echo's substats rated; A against B for echoes, a weapon or the next 共鸣链 |
 | **Guess** | a daily game: guess the resonator from what the catalogue knows about them |
 | **Update** | the item catalogue after a patch, your pull history, and corrections where the wiki is wrong |
 
@@ -101,6 +102,11 @@ build on it, keep the [NOTICE](NOTICE) and the copyright notices in the source f
 changed, and credit **WuWa Inventory Vision by oguessyky**. [TERMS.md](TERMS.md) says how the
 project asks to be used: no scraping of a copy the author runs, nothing that automates the game,
 and no passing a changed version off under this name.
+
+Thanks to [leongiscoding](https://github.com/leongiscoding) for testing the scanner on a Mac and
+for improving the Mac side, and to [BaconCoding74](https://github.com/BaconCoding74) for the first
+help on the scanner's base, which began in wucv, a personal project of BaconCoding74 and oguessyky.
+Everything since has been improvements and new pages built on top of that start.
 
 This is an unofficial, fan-made tool, not affiliated with or endorsed by Kuro Games.
 *Wuthering Waves* and everything from it (names, icons, portraits, artwork, screenshots) belong

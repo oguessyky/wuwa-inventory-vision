@@ -826,6 +826,191 @@ def pic_one_file() -> str:
                        "right-click a .cmd file, Properties, tick Unblock, OK")
 
 
+# --- the help site's sketches (D301) --------------------------------------------------------
+# What happens in the game, drawn: a sketch of a screen, never a copy of the game's. Each says
+# both languages, as the guides' pictures do, so one serves both pages.
+
+RARITY = ("#7d8590", OK, "#5b8def", "#b07cf0", ACCENT)
+
+
+def bag(x: float, y: float, cols: int, rows: int, lit: int | None = None, size: int = 34,
+        gap: int = 8, first_row: int = 0) -> str:
+    """A bag's tiles, each with its rarity bar. `first_row`: which row of the bag the first one
+    is, so the same row looks the same on two screens."""
+    out = []
+    for r in range(rows):
+        for c in range(cols):
+            i = r * cols + c
+            on = i == lit
+            xx, yy = x + c * (size + gap), y + r * (size + gap)
+            out.append(box(xx, yy, size, size, PANEL, ACCENT if on else LINE, 6, 2.5 if on else 1))
+            out.append(box(xx + 7, yy + 7, size - 14, size - 18, LINE, LINE, 4))
+            out.append(box(xx + 4, yy + size - 7, size - 8, 3,
+                           RARITY[((first_row + r) * 5 + c * 3) % 5], "none", 1.5, 0))
+    return "".join(out)
+
+
+def pointer(x: float, y: float) -> str:
+    """The mouse, its tip at (x, y)."""
+    return (f'<path transform="translate({x} {y})" d="M0 0L0 20L5 15L9 24L13 22L9 13L16 13Z" '
+            f'fill="{INK}" stroke="#111" stroke-width="1.2"/>')
+
+
+def pill(x: float, y: float, w: float, label: str, colour: str) -> str:
+    return box(x, y, w, 26, colour, colour, 13) + t(x + w / 2, y + 18, label, 12, "#0b0d10", 700,
+                                                    anchor="middle")
+
+
+def pic_scan_scroll() -> str:
+    def screen(x: float, title: str, first: int, mark: int) -> str:
+        return (box(x, 40, 280, 196, PANEL2, LINE, 10) + t(x + 14, 62, title, 12, MUTED)
+                + bag(x + 18, 76, 6, 4, first_row=first)
+                + ring(x + 12, 76 + mark * 42 - 6, 256, 46))
+    return svg(t(20, 24, "慢慢滚，和上一屏至少留一行重叠 · Scroll slowly, keeping at least one row",
+                 13, ACCENT, 700)
+               + screen(20, "这一屏 · this screen", 0, 3) + screen(340, "下一屏 · the next", 3, 0)
+               + arrow(304, 138, 334, 138)
+               + t(320, 258, "同一行 · the same row", 12, ACCENT, anchor="middle"),
+               640, 270, "two screens of the bag, the last row of one the first row of the next")
+
+
+def pic_scan_click() -> str:
+    return svg(box(20, 16, 600, 236, PANEL2, LINE, 10) + t(34, 40, "背包 · the bag", 12, MUTED)
+               + bag(36, 56, 5, 4, lit=7) + pointer(140, 118)
+               + box(270, 50, 334, 186, PANEL, LINE, 10)
+               + box(286, 66, 52, 52, PANEL2, ACCENT, 8, 2) + box(296, 76, 32, 30, LINE, LINE, 5)
+               + t(352, 86, "面粉", 17, INK, 700) + t(352, 108, "食材 · ingredient", 12, MUTED)
+               + t(288, 150, "拥有 · Owned", 13, MUTED) + t(586, 150, "440", 17, INK, 700, anchor="end")
+               + ring(280, 130, 316, 32)
+               + box(288, 178, 300, 8, LINE, LINE, 4) + box(288, 196, 220, 8, LINE, LINE, 4)
+               + pill(470, 22, 140, "Ready · 可以点", OK)
+               + t(280, 226, "名称和拥有数量从这里读，最准 · the surest count", 12, ACCENT),
+               640, 268, "an item clicked in the bag, its name and Owned count read off the panel")
+
+
+def pic_scan_stop() -> str:
+    return svg(keycap(40, 60, "F9") + t(100, 86, "按 F9 · press F9", 15, INK, 600)
+               + t(320, 86, "或 · or", 13, MUTED, anchor="middle")
+               + box(372, 24, 248, 128, PANEL2, LINE, 12) + t(388, 48, "扫描页 / 手机 · scan page / phone",
+                                                              11, MUTED)
+               + box(392, 66, 208, 40, DANGER, DANGER, 9)
+               + t(496, 92, "Stop the scan", 14, "#0b0d10", 700, anchor="middle")
+               + t(496, 132, "连按两下 · press twice", 12, ACCENT, 600, anchor="middle")
+               + t(320, 186, "读到的都会保留 · everything read is kept", 13, OK, 600, anchor="middle"),
+               640, 204, "F9, or Stop the scan pressed twice, ends the scan and keeps what it read")
+
+
+def pic_resonator_screens() -> str:
+    out = [t(20, 24, "一位共鸣者，依次打开 · One resonator, each screen in turn", 13, ACCENT, 700)]
+    titles = (("属性详情", "Attributes"), ("技能", "Skills"), ("武器", "Weapon"), ("声骸", "Echoes"))
+    for i, (zh, en) in enumerate(titles):
+        x, y = 20 + i * 155, 40
+        out.append(box(x, y, 140, 176, PANEL2, LINE, 10))
+        out.append(f'<circle cx="{x + 18}" cy="{y + 20}" r="10" fill="{ACCENT}"/>')
+        out.append(t(x + 18, y + 25, str(i + 1), 12, "#111", 700, anchor="middle"))
+        out.append(t(x + 34, y + 25, zh, 14, INK, 700) + t(x + 12, y + 46, en, 11, MUTED))
+        if i < 3:
+            out.append(arrow(x + 141, y + 88, x + 153, y + 88))
+        body = y + 62
+        if i == 0:
+            out.append(t(x + 12, body + 10, "长离 Lv.90/90", 12, INK, 600))
+            for k, stat in enumerate(("生命", "攻击", "防御", "共鸣效率", "暴击", "暴击伤害")):
+                out.append(t(x + 12, body + 30 + k * 15, stat, 10, MUTED)
+                           + box(x + 70, body + 23 + k * 15, 56 - (k * 7) % 20, 6, LINE, LINE, 3))
+        elif i == 1:
+            for k in range(5):
+                cx, cy = x + 30 + (k % 3) * 40, body + 22 + (k // 3) * 46
+                out.append(f'<circle cx="{cx}" cy="{cy}" r="15" fill="{PANEL}" stroke="{LINE}"/>')
+                out.append(t(cx, cy + 4, "10" if k != 2 else "9", 11, INK, 600, anchor="middle"))
+        elif i == 2:
+            out.append(t(x + 12, body + 10, "千古洑流", 12, INK, 600)
+                       + t(x + 12, body + 28, "Lv.90 · 谐振1", 11, MUTED))
+            for k in range(3):
+                out.append(box(x + 12, body + 42 + k * 16, 110 - k * 22, 7, LINE, LINE, 3))
+        else:
+            out.append(bag(x + 12, body, 3, 2, lit=0, size=32, gap=6)
+                       + t(x + 12, body + 92, "长离装配中", 11, ACCENT, 600))
+    out.append(t(320, 248, "技能和武器上没有名字：先开属性详情 · they show no name: Attributes first",
+                 12, MUTED, anchor="middle"))
+    return svg("".join(out), 640, 262, "a resonator's four screens in order: 属性详情, 技能, 武器, 声骸")
+
+
+def pic_resonator_echo() -> str:
+    subs = ("暴击伤害 13.8%", "攻击 9.4%", "共鸣效率 8.4%", "共鸣技能伤害加成 7.9%")
+    return svg(box(20, 16, 600, 252, PANEL2, LINE, 10) + t(34, 40, "声骸背包 · the echo bag", 12, MUTED)
+               + bag(36, 58, 5, 4, lit=6) + pointer(100, 116)
+               + box(270, 50, 334, 204, PANEL, LINE, 10)
+               + t(288, 78, "无冠者", 17, INK, 700) + t(586, 78, "Lv.25 · COST 4", 12, MUTED, anchor="end")
+               + t(288, 104, "暴击 22.0%", 13, INK, 600) + t(288, 122, "攻击 150", 13, INK, 600)
+               + f'<path d="M288 134h298" stroke="{LINE}"/>'
+               + "".join(t(288, 154 + k * 17, s, 12, MUTED) for k, s in enumerate(subs))
+               + t(288, 232, "沉日劫明", 12, ACCENT) + t(586, 232, "长离装配中", 12, INK, 600, anchor="end")
+               + ring(500, 214, 96, 28),
+               640, 284, "an equipped echo clicked in the echo bag: its stats, set and who wears it")
+
+
+def pic_resonator_sync() -> str:
+    rows = "".join(box(44, 70 + k * 30, 170, 22, PANEL, LINE, 6) + t(56, 86 + k * 30, s, 12, INK)
+                   for k, s in enumerate(("属性详情", "技能", "武器", "声骸")))
+    return svg(box(20, 30, 220, 180, PANEL2, LINE, 12) + t(34, 54, "扫描端 · the scanner", 12, MUTED)
+               + rows + arrow(250, 110, 380, 110)
+               + t(315, 146, "✓ 文字和数字", 12, OK, 600, anchor="middle")
+               + t(315, 162, "words and numbers", 11, OK, anchor="middle")
+               + t(315, 186, "✗ 画面 · no picture", 12, DANGER, 600, anchor="middle")
+               + box(390, 30, 230, 180, PANEL2, LINE, 12) + t(404, 54, "服务器 · the server", 12, MUTED)
+               + t(410, 92, "计算 · calculator", 15, INK, 700)
+               + t(410, 116, "长离 Lv.90/90", 12, INK) + t(410, 136, "从扫描 · from the scan", 11, ACCENT)
+               + t(410, 170, "较新的为准", 12, MUTED) + t(410, 188, "the newer one wins", 11, MUTED),
+               640, 228, "the readings go to the server with the scan: words and numbers, never a picture")
+
+
+def pic_update_program() -> str:
+    def row(y: float, zh: str, en: str, what: str) -> str:
+        return (box(20, y, 600, 64, PANEL2, LINE, 10) + t(36, y + 28, zh, 14, INK, 700)
+                + t(36, y + 48, en, 11, MUTED) + what)
+    return svg(row(16, "服务器（NAS）", "the server", t(200, 54, "wuwa-inventory-vision", 12, INK, mono=True)
+                   + button(480, 33, 110, "更新 Update") + ring(474, 27, 122, 42))
+               + row(92, "扫描端", "the scanner", files(204, 130, [("4 更新 Update.cmd", "")],
+                                                      ("4 更新 Update.cmd",)))
+               + row(168, "一台电脑（full）", "one PC",
+                     box(200, 186, 92, 28, PANEL, LINE, 6) + t(246, 205, "data/", 12, ACCENT, mono=True,
+                                                                anchor="middle")
+                     + arrow(298, 200, 340, 200) + box(346, 186, 110, 28, PANEL, LINE, 6)
+                     + t(401, 205, "新版本 · new", 12, INK, anchor="middle")
+                     + button(480, 185, 110, "1 安装 Setup", lit=False)),
+               640, 248, "how each side updates: the server's Update, the scanner's 4 更新 Update, one PC's new folder")
+
+
+def pic_update_versions() -> str:
+    def side(x: float, zh: str, en: str, version: str, colour: str) -> str:
+        return (box(x, 40, 170, 76, PANEL2, LINE, 10) + t(x + 14, 64, zh, 13, INK, 700)
+                + t(x + 14, 82, en, 11, MUTED) + t(x + 14, 104, version, 13, colour, 700, mono=True))
+    return svg(side(20, "扫描端", "the scanner", "v1.3.0", DANGER)
+               + side(250, "服务器", "the server", "v1.3.1", OK)
+               + t(235, 24, "两边的版本不一样 · the versions differ", 12, DANGER, 600, anchor="middle")
+               + f'<path d="M196 78h48" stroke="{DANGER}" stroke-width="2.5" stroke-dasharray="5 4"/>'
+               + t(220, 72, "✗", 15, DANGER, 700, anchor="middle")
+               + arrow(430, 78, 460, 78)
+               + box(466, 40, 154, 76, PANEL2, OK, 10, 2) + t(543, 66, "v1.3.1 = v1.3.1", 13, OK, 700,
+                                                               mono=True, anchor="middle")
+               + t(543, 90, "同一个版本就好", 12, INK, anchor="middle")
+               + t(543, 106, "same version: it syncs", 11, MUTED, anchor="middle"),
+               640, 132, "a scanner and a server on different versions refuse to sync until both are updated")
+
+
+def help_drawings() -> dict[str, str]:
+    """The help site's sketches (D301), each at its own size so a page shows it as drawn."""
+    drawn = {"scan-scroll": pic_scan_scroll(), "scan-click": pic_scan_click(),
+             "scan-stop": pic_scan_stop(), "resonator-screens": pic_resonator_screens(),
+             "resonator-echo": pic_resonator_echo(), "resonator-sync": pic_resonator_sync(),
+             "update-program": pic_update_program(), "update-versions": pic_update_versions()}
+    out = {}
+    for name, picture in drawn.items():
+        w, h = picture.split('viewBox="0 0 ', 1)[1].split('"', 1)[0].split()
+        out[name] = picture.replace("<svg ", f'<svg width="{w}" height="{h}" ', 1) + "\n"
+    return out
+
+
 def drawings_ts() -> str:
     """The drawings 帮助 shows in the app, as the guides have them (D256)."""
     return ("// Written by tools/make_guides.py: the guides' drawings, for 帮助 (D256). Do not edit.\n"
@@ -845,6 +1030,10 @@ def main() -> int:
         print(f"{kind}.html  {len(text) // 1024} KB")
     (ROOT / "web" / "src" / "features" / "help" / "drawings.ts").write_text(
         drawings_ts(), encoding="utf-8", newline="\n")
+    drawings = ROOT / "docs" / "drawings"
+    drawings.mkdir(parents=True, exist_ok=True)
+    for name, picture in help_drawings().items():
+        (drawings / f"{name}.svg").write_text(picture, encoding="utf-8", newline="\n")
     return 0
 
 

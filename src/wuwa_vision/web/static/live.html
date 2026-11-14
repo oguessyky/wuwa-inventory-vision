@@ -21,6 +21,13 @@
     --accent:#6f9bff; --ok:#57d08c; --warn:#e3b341; --bad:#ff7b72;
   }
   *{box-sizing:border-box}
+  /* the app's scrollbars (D55, D308), in this page's own colours */
+  @supports not selector(::-webkit-scrollbar){ *{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--muted) 45%,transparent) transparent} }
+  ::-webkit-scrollbar{width:12px;height:12px}
+  ::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+  ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 45%,transparent);border-radius:999px;border:3px solid transparent;
+    background-clip:padding-box;min-height:38px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent);background-clip:padding-box}
   body{margin:0;background:var(--bg);color:var(--ink);
        font:14px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans SC",sans-serif}
   ::selection{background:rgba(232,201,90,.34);color:#fff}

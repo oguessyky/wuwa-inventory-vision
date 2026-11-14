@@ -121,7 +121,9 @@ def _download(url: str | None, dest: Path, width: int) -> str | None:
 def _fetch(url: str, attempts: int = 3, deadline: float = 30.0) -> bytes:
     """GET with a hard deadline per attempt. The CDN now and then stalls before the
     socket timeout applies (name lookup / connect), so the wait runs in a daemon
-    thread that is abandoned when it overruns."""
+    thread that is abandoned when it overruns. In the pool it asks once, and the pool asks
+    again later (D324)."""
+    attempts = fetch_pool.attempts(attempts)
     for attempt in range(1, attempts + 1):
         box: dict = {}
 

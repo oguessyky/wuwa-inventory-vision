@@ -8,7 +8,8 @@ import { ld, NAME, SITE } from '@/lib/seo';
 // The help site's landing page (D214). The user, 2026-10-27: "the help site should have a good
 // landing page". What the program is for, in one look: the bag scrolled once, read off the screen,
 // and what to farm next -- then which way to set it up, the pages, and why it is safe. The app's own
-// colours; system fonts, so a visit asks nothing of anyone else.
+// colours; system fonts, so a visit asks nothing of anyone else. D289: after the hero, what it
+// answers that the game does not, and each thing it does as a row with its picture at size.
 
 const W = {
   zh: {
@@ -26,12 +27,36 @@ const W = {
       ['告诉你下一步', '每种材料对照每个共鸣者和武器的完整配置，合成也算进去：还缺多少、去哪刷、商店买什么。'],
     ],
     waysH: '你该下载哪个？', waysSub: '点两下：画出你的装法，要下载的包和装好的每一步都在下面。',
-    pagesH: '每一页都在帮你算', pagesSub: '中文、拼音、首字母、英文都能搜到。每一页都适配手机。',
+    whyH: '游戏不告诉你的，它告诉你',
+    whySub: '背包几百格、几十种材料、几十位共鸣者。下面这些，以前全靠自己记、自己算。',
+    why: [
+      ['还缺什么？', '有多少、每位共鸣者和武器还差什么，一次扫描全部对照好，合成也算进去。'],
+      ['先刷哪个？', '这轮该刷什么、商店该买什么，总览直接列出来。'],
+      ['到底打多少？', '游戏不显示的伤害、治疗和护盾，每一下都算出来；离毕业差在哪，一眼就知道。'],
+      ['换不换？', '换哪把武器、先换哪个声骸、整队一轮打多少，都算给你看。'],
+    ],
+    featH: '它替你做的事', featSub: '每一项都按你扫描到的东西来算，不用一格一格手填。',
+    feats: [
+      { pics: ['planner'], tag: '规划', link: 'pages', h: '从现在到目标，还差多少',
+        p: '给共鸣者或武器定一个目标：等级、技能、突破。它从现在的进度算起，扣掉库存，告诉你还缺什么、还要刷几次。',
+        ticks: ['合成自动算进去', '几个目标一起算，材料不会重复算', '手机上也能看'] },
+      { pics: ['calc-grade'], tag: '计算', link: 'calc', h: '游戏里看不到的伤害，算给你看',
+        p: '每个技能每一下打多少，暴击和期望都算出来。再和这位共鸣者自己的最好配置比：是小毕业还是大毕业，差在哪一条属性。',
+        ticks: ['按扫描到的配置算，不用手填', '每条属性离毕业还差多少', '试算改过的数值会标出来，一键还原'] },
+      { pics: ['calc-weapons', 'calc-echoes'], tag: '计算', link: 'calc', h: '换哪把武器？先换哪个声骸？',
+        p: '同一套配置，每把武器都算一遍：五星按精1，四星和三星按精5，也能只看自己有的。每个声骸的副属性贡献多少，放在同一把尺子上比较。',
+        ticks: ['四星精5 也可能胜过五星', '最弱的声骸标出来，先换它', '再来一条满值副属性，哪条最值'] },
+      { pics: ['calc-team'], tag: '配队', link: 'calc', h: '整队一轮，各人占多少',
+        p: '最多三位，每人按自己的配置算。延奏、固有技能、共鸣链、武器给队友的增益自动加上；排好出场顺序和技能，就能看到一轮的总伤害。',
+        ticks: ['延奏的增益给下一位登场的角色', '用不到的增益可以关掉', '常用的队伍可以保存'] },
+    ],
+    more: '了解更多',
+    stripH: '还有这些页面',
     shots: [
-      ['inventory', '库存', '跨扫描合并的全部物品：从哪来、用在哪，数量可以直接改。'],
-      ['materials', '材料', '每种养成材料对照完整配置，合成算进去，也能设自己的目标。'],
-      ['resonators', '共鸣者', '有谁、练到哪、还要什么、谁拿着哪把武器。'],
-      ['shops', '商店', '每个商店的货架、限购和价格；少于底数的东西会出现在总览。'],
+      ['inventory', '库存', '跨扫描合并的全部物品，数量可以直接改。'],
+      ['materials', '材料', '每种养成材料对照完整配置。'],
+      ['resonators', '共鸣者', '有谁、练到哪、还要什么。'],
+      ['shops', '商店', '货架、限购和价格。'],
     ],
     allPages: '看全部页面',
     safeH: '它只看屏幕', safeSub: '不读内存、不改游戏文件、不抓网络包，也不会替你操作角色。',
@@ -59,12 +84,36 @@ const W = {
       ['It tells you what is next', 'Every material against every resonator\'s and weapon\'s full build, synthesis counted: what is short, where to farm it, what to buy.'],
     ],
     waysH: 'Which one do you need?', waysSub: 'Two taps: your setup drawn, with the packages to download and every step to set them up.',
-    pagesH: 'Every page does the sums', pagesSub: 'Find anything by English, Chinese, pinyin or initials. Every page fits a phone.',
+    whyH: 'What the game does not tell you, it does',
+    whySub: 'Hundreds of tiles, dozens of materials, dozens of resonators. All of this used to be kept in your head, or worked out by hand.',
+    why: [
+      ['What is short?', 'What you own against what each resonator and weapon still needs, from one scan, synthesis counted.'],
+      ['What to farm first?', 'What to farm this round and what to buy in the shops, listed on the overview.'],
+      ['How hard does it hit?', 'The damage, heals and shields the game never shows, every hit; and what keeps a build from 毕业.'],
+      ['Swap it or not?', 'Which weapon, which echo first, and what the whole team does in a rotation, worked out.'],
+    ],
+    featH: 'What it does for you', featSub: 'Each one worked out from what you scanned: nothing to type in, one tile at a time.',
+    feats: [
+      { pics: ['planner'], tag: 'Planner', link: 'pages', h: 'From where you are to the target',
+        p: 'Give a resonator or weapon a target: level, skills, ascension. It counts from where they are, takes off what you own, and says what is short and how many runs that is.',
+        ticks: ['Synthesis counted for you', 'Several targets at once, nothing counted twice', 'On your phone too'] },
+      { pics: ['calc-grade'], tag: 'Calculator', link: 'calc', h: 'The damage the game does not show',
+        p: 'Every hit of every skill, with crit and the expected value. Then against the same resonator at their best: 小毕业 or 大毕业, and which stat keeps them short.',
+        ticks: ['On the build you scanned, nothing typed in', 'How far each stat is from 毕业', 'What you try out is marked, and goes back in one tap'] },
+      { pics: ['calc-weapons', 'calc-echoes'], tag: 'Calculator', link: 'calc', h: 'Which weapon? Which echo first?',
+        p: 'The same build with every weapon in turn: a 5★ at R1, a 4★ or 3★ at R5, or only the ones you own. What each echo\'s substats add, all on one scale.',
+        ticks: ['A 4★ at R5 can beat a 5★', 'The weakest echo marked, to replace first', 'Which substat to roll for next'] },
+      { pics: ['calc-team'], tag: 'Team', link: 'calc', h: 'A team\'s rotation, and each one\'s share',
+        p: 'Up to three, each on their own build. Outros, inherent skills, chains and weapons given to the team are added for you; set the order and the skills, and see the rotation\'s damage.',
+        ticks: ['An outro goes to the next one on', 'Switch off what a fight would not give', 'Keep the teams you use'] },
+    ],
+    more: 'Read more',
+    stripH: 'And these pages',
     shots: [
-      ['inventory', 'Inventory', 'Everything you own, merged across scans: where it comes from, what uses it, counts you can fix.'],
-      ['materials', 'Materials', 'Every build material against a full build, synthesis counted, with targets of your own.'],
-      ['resonators', 'Resonators', 'Who you have, how far each is, what each still needs, who carries which weapon.'],
-      ['shops', 'Shops', 'Every shop\'s shelf, limits and prices; what drops below your base shows on the overview.'],
+      ['inventory', 'Inventory', 'Everything you own, merged across scans; fix a count in place.'],
+      ['materials', 'Materials', 'Every build material against a full build.'],
+      ['resonators', 'Resonators', 'Who you have, how far each is, what each needs.'],
+      ['shops', 'Shops', 'Every shelf, its limits and prices.'],
     ],
     allPages: 'See every page',
     safeH: 'It only looks at the screen', safeSub: 'No memory reads, no changes to game files, no packet capture, and it never plays for you.',
@@ -142,6 +191,7 @@ export function Landing({ lang }: { lang: Lang }) {
   const icons = [Icons.bag, Icons.tiles, Icons.plan];
   const safeIcons = [Icons.pixels, Icons.shield, Icons.idWiped, Icons.home];
   const trustIcons = [Icons.pixels, Icons.home, Icons.phone];
+  const whyIcons = [Icons.bag, Icons.plan, Icons.calc, Icons.weapons];
   return (
     <Frame lang={lang}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld(about(lang, v)) }} />
@@ -168,6 +218,51 @@ export function Landing({ lang }: { lang: Lang }) {
           </div>
         </section>
 
+        {/* what it answers that the game does not (D289) */}
+        <section className="band why">
+          <h2>{w.whyH}</h2>
+          <p className="sub">{w.whySub}</p>
+          <ul className="why-g">
+            {w.why.map(([h, p], i) => (
+              <li key={h}><span className="ic">{whyIcons[i]}</span><b>{h}</b><p>{p}</p></li>
+            ))}
+          </ul>
+        </section>
+
+        {/* each thing it does, a row of its own: the words beside a picture at size (D289) */}
+        <section className="band features">
+          <h2>{w.featH}</h2>
+          <p className="sub">{w.featSub}</p>
+          {w.feats.map((f, i) => (
+            <article key={f.h} className="feat" data-flip={String(i % 2 === 1)} data-pics={f.pics.length}>
+              <div className="feat-t">
+                <span className="tag">{f.tag}</span>
+                <h3>{f.h}</h3>
+                <p>{f.p}</p>
+                <ul className="ticks">{f.ticks.map(t => <li key={t}>{t}</li>)}</ul>
+                <Link className="feat-go" href={address(lang, f.link)}>{w.more} ›</Link>
+              </div>
+              <div className="feat-v">
+                {f.pics.map(name => (
+                  <figure key={name} className="shot"><img src={pic(name)} alt={f.h} loading="lazy" /></figure>
+                ))}
+              </div>
+            </article>
+          ))}
+          <div className="strip">
+            <h3>{w.stripH}</h3>
+            <div className="strip-g">
+              {w.shots.map(([name, h, p]) => (
+                <figure key={name}>
+                  <img src={pic(name)} alt={h} loading="lazy" width={1400} height={880} />
+                  <figcaption><b>{h}</b>{p}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <p className="more"><Link href={address(lang, 'pages')}>{w.allPages} ›</Link></p>
+          </div>
+        </section>
+
         <section className="band steps">
           <h2>{w.stepsH}</h2>
           <p className="sub">{w.stepsSub}</p>
@@ -185,20 +280,6 @@ export function Landing({ lang }: { lang: Lang }) {
           <p className="sub">{w.waysSub}</p>
           <SetupPicker lang={lang} packs={packs} hrefs={hrefs}
                        all={`${REPO}/releases/tag/v${v}`} sums={`${REPO}/releases/download/v${v}/SHA256SUMS.txt`} />
-        </section>
-
-        <section className="band shots">
-          <h2>{w.pagesH}</h2>
-          <p className="sub with-ic">{Icons.search}{w.pagesSub}</p>
-          <div className="grid">
-            {w.shots.map(([name, h, p]) => (
-              <figure key={name}>
-                <img src={pic(name)} alt={h} loading="lazy" width={1400} height={880} />
-                <figcaption><b>{h}</b>{p}</figcaption>
-              </figure>
-            ))}
-          </div>
-          <p className="more"><Link href={address(lang, 'pages')}>{w.allPages} ›</Link></p>
         </section>
 
         <section className="band safe">

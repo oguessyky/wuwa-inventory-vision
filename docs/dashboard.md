@@ -12,7 +12,7 @@ run at once. Every page is a view of the same database, so a correction made any
 everywhere.
 
 The pages are in a column down the left, in two groups: the ones you look at daily (总览, 规划,
-料理, 材料, 共鸣者) and the ones for managing things (武器, 商店, 库存, 猜谜, 更新).
+料理, 材料, 共鸣者) and the ones for managing things (武器, 计算, 商店, 库存, 猜谜, 更新).
 总览 already says what is short and what waits for a name, so 库存 is where you go to look an item
 up or fix it, not every day (D182). The app's icon at
 the top leads back to 总览. The button at the column's foot folds it to a rail of icons, and the
@@ -356,6 +356,40 @@ all plans together against your stock with synthesis, as on 材料. A resonator'
 with the rest of the app, so levelling one here updates 材料 and 库存 too. Plans are saved. EXP
 materials and a weapon's per-ascension 贝币 are not in the wiki's tables and are not counted.
 
+## 计算 — the calculator
+
+![计算](screens/calc.png)
+
+One resonator's numbers from their build (D268-D275). Pick them with **换人** or a click on their
+face; the picker runs from the highest rarity and newest version down, dims only who you do not
+have, and ticks who is at 大毕业. The setup starts from what the app knows -- the levels and skills
+you recorded, the weapon a scan saw them hold, their 共鸣链 -- and every part of it can be changed
+here: level, skills and nodes, weapon and its rank, five echoes (each with its COST, main stat and
+substats, a set picked from pictures, with chips for the sets the game recommends and for what a
+set gives, such as 导电), and the enemy -- a 全息 at 难度六, grouped as the game groups them
+(今州, 黎那汐塔), whose words are shown and whose buffs for the player can be switched on, an
+overworld boss, or one of your own.
+
+- **Every skill's rows**: the 倍率, a bar, then 不暴击, 暴击 and 期望 -- or the amount healed or
+  shielded. Every skill's table puts its columns in the same places.
+- **The panel**: the stats worked out, with the scanned game panel under each; type your own to
+  skip a scan, ↺ puts one back.
+- **Buffs**: every buff the resonator can get, by where it comes from (固有一 / 固有二, 共鸣链,
+  weapon, sets, 全息), each a switch, its number editable and resettable; and what they give the
+  team.
+- **小毕业 / 大毕业**: the same resonator at their best -- level 90, every skill and node, the
+  same weapon at 90 and the same sets, the best main stats and five 有效词条 at their top roll --
+  and how far this build is from it: 大毕业 at 90%, 小毕业 at 80%. A healer counts heals, worked
+  from the stat their heals use (维里奈 ATK, 守岸人 HP) with 治疗效果加成; a cap in their own
+  words, such as 守岸人's 250% 共鸣效率, is a line of its own. The box says what the grade is
+  built on. There is no official standard: this only compares them with themselves.
+- **Each echo rated**: every substat's tier out of 8, its range, and whether it is one of this
+  resonator's 有效词条.
+- **A against B**: change a few echoes, the weapon, or the 共鸣链, and every row is shown again
+  with its change.
+
+The formula is the community's; Kuro has not published one, and the page says so.
+
 ## 猜谜 — guess the resonator
 
 One resonator a day (the day turns at 04:00, as the game's does), the same one on every machine
@@ -400,7 +434,7 @@ catalogue writes them, beside their pictures.
 
 The page is in five parts, picked from the column on its left (on a phone, a list you go
 into and come back from): **图鉴** (从 Wiki 更新), **我的角色** (导入抽卡记录, 我的漂泊者, 我的共鸣者), **手动修改**,
-**英文名** and **数据** (清空扫描数据). Each part has its own address -- `/update/hand` opens 手动修改 (and an old `/update#hand` still does) -- and
+**英文名** and **识别**. 版本 and 清空扫描数据 were its sixth part, **数据**; they are on 设置 now (below). Each part has its own address -- `/update/hand` opens 手动修改 (and an old `/update#hand` still does) -- and
 the back button goes back through them. A fetch keeps running while another part is shown.
 
 **从 Wiki 更新** runs the fetch tools (new items and icons, dishes, resonators, weapons, portraits,
@@ -428,10 +462,6 @@ shop, in a pack. Every resonator is listed with a switch for "on the account" an
 it; what you set here outranks the pulls and is not touched by 清空扫描数据. Someone the pulls
 already show cannot be switched off.
 
-**清空扫描数据** starts the scans over when one went wrong: every scan, count, learned icon and
-holder face goes; targets, plans, resonator progress, the pull history and settings stay. The
-database and the scan crops are copied to `data/backups/<time>/` first.
-
 **手动修改** is for what the wiki lacks or gets wrong — materials, material families, weapons,
 resonators. The picker filters and sorts like every page (栏位, 类型, 属性, 稀有度 by kind, and
 **状态**: 已手动修改 finds what you have changed, 没有材料表 the resonators the wiki has no table
@@ -443,6 +473,24 @@ and weekly drop** (rest on one to see the boss large; type the boss's name to fi
 tiers are filled in**, with the amounts a build usually takes (填入常见数量 fills every amount left empty).
 Hand edits live in `data/catalogue/overrides.json`, win
 over the wiki, and survive installing a catalogue zip.
+
+## 设置 — settings
+
+At the foot of the left column, beside 帮助 (on a phone, in the menu under 关于).
+
+**导航** puts the pages in your own order. 日常 is what a phone keeps along its bottom (five at
+most), 管理 the rest. Drag a page by its handle ⠿ — with the mouse or a finger, within a group or
+from one to the other — or focus the handle and move it with ↑ and ↓ (Home and End for the top
+and bottom of its group). The eye hides a page: it is drawn nowhere in the column or the menu,
+except while you are on it. Every change is saved at once, in the app's database, so the PC and
+your phone over the tailnet show the same order; 恢复默认 puts back the order the app came with.
+
+**显示**: the language, the column folded to icons (this browser only), and the first-time guide
+again. **我的漂泊者** is the same as on 更新. **数据**: 版本 (which version this is, and which
+scanners should update), and **清空扫描数据**, which starts the scans over when one went wrong:
+every scan, count, learned icon and holder face goes; targets, plans, resonator progress, the pull
+history and settings (the pages' order too) stay. The database and the scan crops are copied to
+`data/backups/<time>/` first. The old address, `/update/data`, leads here.
 
 ## Commands
 

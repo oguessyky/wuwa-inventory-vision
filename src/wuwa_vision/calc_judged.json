@@ -1,0 +1,11805 @@
+{
+ "weapons": {
+  "万物持存的注释": {
+   "key": "c253d512325b28e8",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1
+    },
+    {
+     "stat": "def_ignore",
+     "param": 3,
+     "kind": "lib",
+     "per_stack": true,
+     "stacks": 5
+    }
+   ],
+   "notes": [
+    "无视防御按满层算：变奏时就是满层"
+   ]
+  },
+  "不屈命定之冠": {
+   "key": "91538b1f19fb7ed6",
+   "effects": [
+    {
+     "stat": "hp_pct",
+     "param": 0
+    },
+    {
+     "stat": "def_ignore",
+     "param": 1
+    },
+    {
+     "stat": "amplify",
+     "param": 2,
+     "when": [
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "不归孤军": {
+   "key": "4b43bd00f8f49fa3",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "不灭航路": {
+   "key": "30cad3ecc1e04421",
+   "effects": [
+    {
+     "stat": "crit",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 3
+    }
+   ]
+  },
+  "东落": {
+   "key": "a2e6e027d767310f",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 2,
+     "per_stack": true,
+     "stacks": 4
+    }
+   ]
+  },
+  "云琅": {
+   "key": "0865220a565d2d27",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_4",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 5,
+     "when": [
+      "集谐响应"
+     ]
+    },
+    {
+     "stat": "def_ignore",
+     "param": 6,
+     "element": 4,
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "今州守望": {
+   "key": "a65732fdde9c0595",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "hp_pct",
+     "param": 1
+    }
+   ]
+  },
+  "停驻之烟": {
+   "key": "082c9cc3e4028df0",
+   "effects": [
+    {
+     "stat": "er",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "others": true
+    }
+   ]
+  },
+  "光影双生": {
+   "key": "931cd7ed0a7c5729",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "amplify",
+     "param": 1,
+     "kind": "heavy"
+    },
+    {
+     "stat": "amplify",
+     "param": 3,
+     "kind": "echo"
+    },
+    {
+     "stat": "def_ignore",
+     "param": 6
+    }
+   ]
+  },
+  "凋亡频移": {
+   "key": "489378519876282d",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ]
+  },
+  "凌空": {
+   "key": "c6b55281e2bdcfee",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1
+    }
+   ]
+  },
+  "千古洑流": {
+   "key": "ec3bacea5b427783",
+   "effects": [
+    {
+     "stat": "er",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 2
+    }
+   ]
+  },
+  "千般渡": {
+   "key": "fbbfec76cbdf2165",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "crit_dmg",
+     "param": 3,
+     "per_stack": true,
+     "stacks": 6
+    },
+    {
+     "stat": "crit",
+     "param": 11,
+     "kind": "heavy"
+    },
+    {
+     "stat": "def_ignore",
+     "param": 7,
+     "kind": "heavy",
+     "per_stack": true,
+     "stacks": 2
+    }
+   ],
+   "notes": [
+    "【承天】【载物】按满层算"
+   ]
+  },
+  "华彩乐段": {
+   "key": "a49197c90c4d8db6",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    }
+   ]
+  },
+  "原初佩枪·穿林": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "原初臂铠·磐岩": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "原初迅刀·鸣雨": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "原初长刃·朴石": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "原初音感仪·听浪": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "叙别的罗曼史": {
+   "key": "e0ef4e20d818c816",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "呼啸重音": {
+   "key": "a49197c90c4d8db6",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    }
+   ]
+  },
+  "和光回唱": {
+   "key": "f6ef7490597dd67e",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3,
+     "when": [
+      "光噪"
+     ]
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3,
+     "when": [
+      "光噪"
+     ]
+    },
+    {
+     "stat": "amplify",
+     "param": 4,
+     "effect": "光噪",
+     "team": true
+    }
+   ]
+  },
+  "大海的馈赠": {
+   "key": "1987a57af614c8c5",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪"
+     ]
+    }
+   ]
+  },
+  "天之苍苍": {
+   "key": "54a40e356e68dcd1",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "amplify",
+     "param": 1,
+     "kind": "heavy",
+     "when": [
+      "虚湮"
+     ]
+    },
+    {
+     "stat": "def_ignore",
+     "param": 2,
+     "kind": "heavy",
+     "when": [
+      "虚湮"
+     ]
+    }
+   ]
+  },
+  "奇幻变奏": {
+   "key": "a49197c90c4d8db6",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    }
+   ]
+  },
+  "奔雷": {
+   "key": "d60aa6befd1f8811",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ]
+  },
+  "存帧": {
+   "key": "8daa988ac11a6fa9",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_1",
+     "param": 1,
+     "when": [
+      "霜渐"
+     ]
+    },
+    {
+     "stat": "atk_pct",
+     "param": 3,
+     "team": true,
+     "when": [
+      "霜渐"
+     ]
+    }
+   ]
+  },
+  "安魂": {
+   "key": "9d3080e836ae54c4",
+   "effects": [
+    {
+     "stat": "hp_pct",
+     "param": 0
+    },
+    {
+     "stat": "concerto",
+     "param": 1
+    },
+    {
+     "stat": "atk_pct",
+     "param": 3,
+     "team": true,
+     "when": [
+      "生存治疗"
+     ]
+    },
+    {
+     "stat": "dmg_echo",
+     "param": 5,
+     "team": true,
+     "when": [
+      "生存治疗"
+     ]
+    }
+   ],
+   "notes": [
+    "队伍的攻击：按队友有同奏算"
+   ]
+  },
+  "宙算仪轨": {
+   "key": "a03802922a9fa06f",
+   "effects": [
+    {
+     "stat": "def_pct",
+     "param": 0
+    },
+    {
+     "stat": "concerto",
+     "param": 1
+    },
+    {
+     "stat": "crit_dmg",
+     "param": 4,
+     "team": true,
+     "when": [
+      "生存治疗"
+     ]
+    }
+   ]
+  },
+  "容赦的沉思录": {
+   "key": "e0ef4e20d818c816",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "尘云旋臂": {
+   "key": "489378519876282d",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ]
+  },
+  "幽冥的忘忧章": {
+   "key": "f3b6d9a261cd8e99",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 2
+    },
+    {
+     "stat": "amplify",
+     "param": 3,
+     "kind": "echo"
+    },
+    {
+     "stat": "def_ignore",
+     "param": 4
+    }
+   ]
+  },
+  "异响空灵": {
+   "key": "a49197c90c4d8db6",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    }
+   ]
+  },
+  "异度": {
+   "key": "ec32e974903dcb3c",
+   "effects": [
+    {
+     "stat": "heal",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ]
+  },
+  "心之锚": {
+   "key": "40a4c6662d0454c8",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 3,
+     "per_stack": true,
+     "stacks": 10
+    },
+    {
+     "stat": "crit",
+     "param": 7
+    }
+   ]
+  },
+  "悖论喷流": {
+   "key": "489378519876282d",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ]
+  },
+  "悲喜剧": {
+   "key": "6f5a285cab932850",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 1
+    }
+   ]
+  },
+  "戍关佩枪·平云": {
+   "key": "d20bb8613991fa6d",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "param": 0
+    }
+   ]
+  },
+  "戍关臂铠·拔山": {
+   "key": "fa4a7346be762f36",
+   "effects": [
+    {
+     "stat": "dmg_lib",
+     "param": 0
+    }
+   ]
+  },
+  "戍关迅刀·镇海": {
+   "key": "d20bb8613991fa6d",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "param": 0
+    }
+   ]
+  },
+  "戍关长刃·定军": {
+   "key": "b49da45a57911312",
+   "effects": [
+    {
+     "stat": "dmg_basic",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 0
+    }
+   ]
+  },
+  "戍关音感仪·留光": {
+   "key": "b49da45a57911312",
+   "effects": [
+    {
+     "stat": "dmg_basic",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 0
+    }
+   ]
+  },
+  "掣傀之手": {
+   "key": "e0a1fa67cbfdde0e",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 2
+    },
+    {
+     "stat": "atk_pct",
+     "param": 4
+    }
+   ],
+   "notes": [
+    "不在场时的额外攻击按有算"
+   ]
+  },
+  "擎渊怒涛": {
+   "key": "c68af0060bf3015c",
+   "effects": [
+    {
+     "stat": "er",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 3
+    }
+   ]
+  },
+  "教学佩枪": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "教学臂铠": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "教学迅刀": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "教学长刃": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "教学音感仪": {
+   "key": "7542fcc238295e95",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "无眠烈火": {
+   "key": "e0ad89a4ba5da0b3",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "param": 0
+    }
+   ]
+  },
+  "时和岁稔": {
+   "key": "e143c3c3bda708d4",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 1
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 3
+    }
+   ]
+  },
+  "昙切": {
+   "key": "7585621ff5523a61",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3
+    },
+    {
+     "stat": "dmg_all",
+     "param": 4,
+     "team": true,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ],
+   "notes": [
+    "队伍的全属性加成：要附加异常效应"
+   ]
+  },
+  "星序协响": {
+   "key": "f4fd3e2dc0b8aba6",
+   "effects": [
+    {
+     "stat": "hp_pct",
+     "param": 0
+    },
+    {
+     "stat": "concerto",
+     "param": 1
+    },
+    {
+     "stat": "atk_pct",
+     "param": 4,
+     "team": true,
+     "when": [
+      "生存治疗"
+     ]
+    }
+   ]
+  },
+  "昭日译注": {
+   "key": "b693b4438c4aef7b",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "amplify",
+     "param": 1,
+     "kind": "echo"
+    },
+    {
+     "stat": "def_ignore",
+     "param": 3,
+     "element": 4
+    }
+   ]
+  },
+  "暗夜佩枪·暗星": {
+   "key": "68f9c04bdf4c55d4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "暗夜矩阵·暝光": {
+   "key": "68f9c04bdf4c55d4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "暗夜臂铠·夜芒": {
+   "key": "68f9c04bdf4c55d4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "暗夜迅刀·黑闪": {
+   "key": "68f9c04bdf4c55d4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "暗夜长刃·玄明": {
+   "key": "68f9c04bdf4c55d4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "曜光": {
+   "key": "d4186691e15ea8da",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 0
+    }
+   ]
+  },
+  "林间的咏叹调": {
+   "key": "bf6e5d2b08a2bfc8",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_4",
+     "param": 1,
+     "when": [
+      "风蚀"
+     ]
+    },
+    {
+     "stat": "res_shred",
+     "param": 3,
+     "element": 4,
+     "team": true,
+     "when": [
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "栖霞饮露": {
+   "key": "2552ae2e510f7898",
+   "effects": [
+    {
+     "stat": "hp_pct",
+     "param": 0
+    },
+    {
+     "stat": "concerto",
+     "param": 1
+    },
+    {
+     "stat": "atk_pct",
+     "param": 2,
+     "team": true,
+     "when": [
+      "霜渐"
+     ]
+    }
+   ],
+   "notes": [
+    "队伍的攻击：要附加霜渐效应，也要造成治疗"
+   ]
+  },
+  "核熔星盘": {
+   "key": "489378519876282d",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ]
+  },
+  "死与舞": {
+   "key": "432ee072cadaee37",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 1
+    }
+   ]
+  },
+  "永夜长明": {
+   "key": "d35e1d45f8ae967b",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "def_pct",
+     "param": 1
+    }
+   ]
+  },
+  "永续坍缩": {
+   "key": "489378519876282d",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ]
+  },
+  "永远的启明星": {
+   "key": "9f0ebd2b2268732c",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "def_ignore",
+     "param": 1,
+     "kind": "lib",
+     "when": [
+      "聚爆",
+      "震谐响应"
+     ]
+    },
+    {
+     "stat": "res_shred",
+     "param": 2,
+     "kind": "lib",
+     "element": 2,
+     "when": [
+      "聚爆",
+      "震谐响应"
+     ]
+    }
+   ]
+  },
+  "沉冥": {
+   "key": "cac449919c6097e3",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_3",
+     "param": 1,
+     "when": [
+      "同奏"
+     ]
+    },
+    {
+     "stat": "dmg_3",
+     "param": 5
+    },
+    {
+     "stat": "dmg_3",
+     "param": 2,
+     "others": true,
+     "when": [
+      "同奏"
+     ]
+    }
+   ],
+   "notes": [
+    "【怅念】算给自己，【羁念】算给队友：两者不同时在"
+   ]
+  },
+  "浩境粼光": {
+   "key": "882ef33d8c8dd493",
+   "effects": [
+    {
+     "stat": "er",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ]
+  },
+  "海的呢喃": {
+   "key": "b6a92eb6b152c5f0",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 6
+    },
+    {
+     "stat": "res_shred",
+     "param": 8,
+     "element": 6
+    }
+   ]
+  },
+  "清音": {
+   "key": "14343bf1194905e3",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    }
+   ]
+  },
+  "渊海回声": {
+   "key": "b22902d9d9ce7da7",
+   "effects": [
+    {
+     "stat": "heal",
+     "param": 0
+    }
+   ]
+  },
+  "源能佩枪·测叁": {
+   "key": "b676bafc24b6f156",
+   "effects": [],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "源能机锋": {
+   "key": "4632fd7b132f408c",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1,
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "源能臂铠·测肆": {
+   "key": "811307a976a030f4",
+   "effects": [],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "源能迅刀·测贰": {
+   "key": "5b10781b5e375f11",
+   "effects": [],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "源能长刃·测壹": {
+   "key": "cd9e62c09160a5bb",
+   "effects": [],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "源能音感仪·测五": {
+   "key": "f11f7815392381ff",
+   "effects": [],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "溢彩荧辉": {
+   "key": "b543720de63c9110",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1
+    },
+    {
+     "stat": "final",
+     "param": 3,
+     "team": true,
+     "when": [
+      "集谐响应",
+      "震谐响应"
+     ],
+     "per_stack": true,
+     "stacks": 3
+    }
+   ]
+  },
+  "漪澜浮录": {
+   "key": "38aa89e5d8856e47",
+   "effects": [
+    {
+     "stat": "er",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 5
+    }
+   ]
+  },
+  "灼霜": {
+   "key": "504ac836b51a4299",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "amplify",
+     "param": 1,
+     "element": 1,
+     "when": [
+      "霜渐"
+     ]
+    },
+    {
+     "stat": "def_ignore",
+     "param": 2,
+     "kind": "lib",
+     "when": [
+      "霜渐"
+     ]
+    },
+    {
+     "stat": "amplify",
+     "param": 3,
+     "effect": "霜渐",
+     "team": true,
+     "when": [
+      "霜渐"
+     ]
+    }
+   ]
+  },
+  "焰光裁定": {
+   "key": "64b8b9ced8a237dc",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "def_ignore",
+     "param": 1
+    },
+    {
+     "stat": "amplify",
+     "param": 2,
+     "effect": "光噪"
+    }
+   ]
+  },
+  "焰痕": {
+   "key": "4e304da8959193f1",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1
+    },
+    {
+     "stat": "dmg_2",
+     "param": 5,
+     "team": true
+    }
+   ]
+  },
+  "玉阙玄华": {
+   "key": "a3259c291edceaca",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "amplify",
+     "param": 1,
+     "kind": "skill",
+     "when": [
+      "电磁",
+      "同奏"
+     ]
+    },
+    {
+     "stat": "res_shred",
+     "param": 2,
+     "kind": "skill",
+     "element": 3,
+     "when": [
+      "电磁",
+      "同奏"
+     ]
+    },
+    {
+     "stat": "amplify",
+     "param": 3,
+     "effect": "电磁",
+     "team": true,
+     "when": [
+      "电磁",
+      "同奏"
+     ]
+    }
+   ]
+  },
+  "玻色星仪": {
+   "key": "38a01320d0b6cf51",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "when": [
+      "集谐响应",
+      "震谐响应",
+      "骇破响应",
+      "谐度破坏增幅"
+     ]
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 2,
+     "when": [
+      "集谐响应",
+      "震谐响应",
+      "骇破响应",
+      "谐度破坏增幅"
+     ]
+    }
+   ]
+  },
+  "琼枝冰绡": {
+   "key": "46f33aa37c0c7ccf",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 5
+    }
+   ],
+   "notes": [
+    "算的是不在场时的普攻加成：在场时的三层在延奏时换成它"
+   ]
+  },
+  "白昼之脊": {
+   "key": "83499a8837e5f3d2",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_5",
+     "param": 1
+    },
+    {
+     "stat": "amplify",
+     "param": 3,
+     "kind": "basic",
+     "when": [
+      "集谐响应"
+     ]
+    },
+    {
+     "stat": "def_ignore",
+     "param": 4,
+     "kind": "basic",
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "相位涟漪": {
+   "key": "4f6830389585fb15",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_all",
+     "param": 1,
+     "when": [
+      "集谐响应",
+      "震谐响应",
+      "骇破响应",
+      "谐度破坏增幅"
+     ]
+    }
+   ]
+  },
+  "瞬斩刀-18型": {
+   "key": "85b209a7ff1feacc",
+   "effects": [],
+   "notes": [
+    "生命低于一半时的重击加成不算",
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "碎骨": {
+   "key": "f0480461e02c0983",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 3,
+     "when": [
+      "骇破响应"
+     ]
+    },
+    {
+     "stat": "atk_pct",
+     "param": 5,
+     "team": true,
+     "when": [
+      "骇破响应"
+     ]
+    }
+   ]
+  },
+  "穿击枪-26型": {
+   "key": "f4d290178892c055",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 2
+    }
+   ],
+   "notes": [
+    "按没有受到伤害算",
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "纹秋": {
+   "key": "207f595124a989c0",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 5
+    }
+   ]
+  },
+  "翼锋": {
+   "key": "c6b55281e2bdcfee",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1
+    }
+   ]
+  },
+  "脉冲协臂": {
+   "key": "efa81b5273b6f406",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "苍鳞千嶂": {
+   "key": "895bfe1d3b235075",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 2
+    }
+   ]
+  },
+  "虚饰的华尔兹": {
+   "key": "e0ef4e20d818c816",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "蜃影": {
+   "key": "b0dad5faa25b4a08",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_5",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 2
+    },
+    {
+     "stat": "amplify",
+     "param": 4,
+     "kind": "heavy",
+     "when": [
+      "骇破响应"
+     ]
+    },
+    {
+     "stat": "def_ignore",
+     "param": 5,
+     "kind": "heavy",
+     "scale": 0.01,
+     "when": [
+      "骇破响应"
+     ]
+    }
+   ]
+  },
+  "血誓盟约": {
+   "key": "10ea9afe0be7a18e",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "param": 0,
+     "when": [
+      "生存治疗"
+     ]
+    },
+    {
+     "stat": "amplify",
+     "param": 2,
+     "element": 4,
+     "team": true,
+     "when": [
+      "漂泊者·气动"
+     ]
+    }
+   ]
+  },
+  "行进序曲": {
+   "key": "a49197c90c4d8db6",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    }
+   ]
+  },
+  "袍泽之固": {
+   "key": "cea574fc2fc3237a",
+   "effects": [
+    {
+     "stat": "dmg_lib",
+     "param": 0
+    }
+   ]
+  },
+  "裁春": {
+   "key": "229605ef7f9b2909",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3
+    },
+    {
+     "stat": "dmg_basic",
+     "param": 4
+    }
+   ]
+  },
+  "裁竹": {
+   "key": "77b87a9ac5369c36",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 2,
+     "scale": 0.01,
+     "per_stack": true,
+     "stacks": 2
+    },
+    {
+     "stat": "dmg_echo",
+     "param": 5,
+     "team": true
+    }
+   ]
+  },
+  "西升": {
+   "key": "8726413214263333",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 6
+    }
+   ]
+  },
+  "诸方玄枢": {
+   "key": "c42b20c41c8792d9",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1
+    }
+   ]
+  },
+  "赝作的矮星": {
+   "key": "cd837acc698a8f3d",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_lib",
+     "param": 1,
+     "when": [
+      "聚爆",
+      "集谐响应"
+     ]
+    },
+    {
+     "stat": "atk_pct",
+     "param": 3,
+     "team": true,
+     "when": [
+      "聚爆",
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "赫奕流明": {
+   "key": "76465c6ef31152c8",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 14
+    }
+   ]
+  },
+  "远行者佩枪·洞察": {
+   "key": "b18b9aeba5d20e59",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    }
+   ]
+  },
+  "远行者矩阵·探幽": {
+   "key": "b18b9aeba5d20e59",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    }
+   ]
+  },
+  "远行者臂铠·破障": {
+   "key": "b18b9aeba5d20e59",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    }
+   ]
+  },
+  "远行者迅刀·旅迹": {
+   "key": "b18b9aeba5d20e59",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    }
+   ]
+  },
+  "远行者长刃·辟路": {
+   "key": "b18b9aeba5d20e59",
+   "effects": [
+    {
+     "stat": "energy",
+     "param": 0
+    }
+   ]
+  },
+  "酩酊的英雄志": {
+   "key": "e0ef4e20d818c816",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "重破刃-41型": {
+   "key": "039f1362df3a3058",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 1
+    }
+   ],
+   "notes": [
+    "按生命大于80%算",
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "金掌": {
+   "key": "f3572caf3a1583fb",
+   "effects": [
+    {
+     "stat": "dmg_lib",
+     "param": 0
+    }
+   ]
+  },
+  "金穹": {
+   "key": "a5ef146f90c706e8",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 1
+    }
+   ]
+  },
+  "钢影拳-21丁型": {
+   "key": "adfe6356d69d5b58",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "final",
+     "param": 1,
+     "skill": "闪避反击"
+    }
+   ],
+   "notes": [
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  },
+  "钧天正音": {
+   "key": "63bd9384f9b58a4b",
+   "effects": [
+    {
+     "stat": "concerto",
+     "param": 0
+    },
+    {
+     "stat": "energy",
+     "param": 1
+    }
+   ]
+  },
+  "镭射切变": {
+   "key": "24717f530b681325",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_skill",
+     "param": 1,
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "阳焰": {
+   "key": "73965bbadefea348",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4
+    }
+   ]
+  },
+  "风流的寓言诗": {
+   "key": "e0ef4e20d818c816",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 4,
+     "when": [
+      "光噪",
+      "电磁",
+      "聚爆",
+      "虚湮",
+      "霜渐",
+      "风蚀"
+     ]
+    }
+   ]
+  },
+  "飞景": {
+   "key": "d3527fc243ea2a12",
+   "effects": [
+    {
+     "stat": "dmg_basic",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 0
+    }
+   ]
+  },
+  "飞逝": {
+   "key": "081ca10877e684c5",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ]
+  },
+  "驭冕铸雷之权": {
+   "key": "3d8aa05d5121a7ac",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 0
+    },
+    {
+     "stat": "dmg_heavy",
+     "param": 1
+    },
+    {
+     "stat": "def_ignore",
+     "param": 3,
+     "kind": "heavy",
+     "when": [
+      "护盾"
+     ],
+     "per_stack": true,
+     "stacks": 5
+    }
+   ],
+   "notes": [
+    "无视防御要有护盾，按满层算"
+   ]
+  },
+  "骇行": {
+   "key": "2208cbafa6c8a369",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3
+    },
+    {
+     "stat": "def_pct",
+     "param": 1,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ],
+   "notes": [
+    "按没有受到伤害、满层算"
+   ]
+  },
+  "鸣动仪-25型": {
+   "key": "8297a7d63d578263",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "param": 5
+    }
+   ],
+   "notes": [
+    "按生命高于60%算",
+    "回复自己生命：不是伤害，也不是治疗加成"
+   ]
+  }
+ },
+ "sets": {
+  "凝夜白霜": {
+   "5": {
+    "key": "6097d270015b7af7",
+    "effects": [
+     {
+      "stat": "dmg_1",
+      "value": 0.1,
+      "per_stack": true,
+      "stacks": 3
+     }
+    ]
+   }
+  },
+  "熔山裂谷": {
+   "5": {
+    "key": "0e776a1e715e8b49",
+    "effects": [
+     {
+      "stat": "dmg_2",
+      "value": 0.3
+     }
+    ]
+   }
+  },
+  "彻空冥雷": {
+   "5": {
+    "key": "8326ecdfabe0f7d3",
+    "effects": [
+     {
+      "stat": "dmg_3",
+      "value": 0.15,
+      "per_stack": true,
+      "stacks": 2
+     }
+    ]
+   }
+  },
+  "啸谷长风": {
+   "5": {
+    "key": "8b022ec95d71b72f",
+    "effects": [
+     {
+      "stat": "dmg_4",
+      "value": 0.3
+     }
+    ]
+   }
+  },
+  "浮星祛暗": {
+   "5": {
+    "key": "fa8cd6b2ccbe0f6e",
+    "effects": [
+     {
+      "stat": "dmg_5",
+      "value": 0.3
+     }
+    ]
+   }
+  },
+  "沉日劫明": {
+   "5": {
+    "key": "0564300d2742d570",
+    "effects": [
+     {
+      "stat": "dmg_6",
+      "value": 0.075,
+      "per_stack": true,
+      "stacks": 4
+     }
+    ]
+   }
+  },
+  "隐世回光": {
+   "5": {
+    "key": "288a028b2d087793",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.15,
+      "team": true,
+      "when": [
+       "生存治疗"
+      ]
+     }
+    ]
+   }
+  },
+  "轻云出月": {
+   "5": {
+    "key": "4b5fb429491b04f0",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.225,
+      "others": true
+     }
+    ],
+    "notes": [
+     "给下一位登场的角色，不给自己"
+    ]
+   }
+  },
+  "不绝余音": {
+   "5": {
+    "key": "ad35e3b83f1a6869",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.05,
+      "per_stack": true,
+      "stacks": 4
+     },
+     {
+      "stat": "dmg_outro",
+      "value": 0.6
+     }
+    ]
+   }
+  },
+  "凌冽决断之心": {
+   "5": {
+    "key": "a52914d51ecd5f1e",
+    "effects": [
+     {
+      "stat": "dmg_1",
+      "value": 0.225
+     },
+     {
+      "stat": "dmg_skill",
+      "value": 0.18,
+      "per_stack": true,
+      "stacks": 2
+     }
+    ]
+   }
+  },
+  "此间永驻之光": {
+   "5": {
+    "key": "aab38a257d8b012f",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "when": [
+       "光噪"
+      ]
+     },
+     {
+      "stat": "dmg_5",
+      "value": 0.15,
+      "when": [
+       "光噪"
+      ]
+     }
+    ]
+   }
+  },
+  "幽夜隐匿之帷": {
+   "5": {
+    "key": "0de199be3f930542",
+    "effects": [
+     {
+      "stat": "dmg_6",
+      "value": 0.15,
+      "others": true
+     }
+    ],
+    "notes": [
+     "延奏时额外 480% 湮灭伤害不算：计算没有这一行",
+     "湮灭加成给下一位登场的角色"
+    ]
+   }
+  },
+  "高天共奏之曲": {
+   "5": {
+    "key": "c1b51eccdb9bc471",
+    "effects": [
+     {
+      "stat": "final",
+      "value": 0.8,
+      "skill": "协同攻击"
+     },
+     {
+      "stat": "atk_pct",
+      "value": 0.2,
+      "team": true,
+      "when": [
+       "协同攻击"
+      ]
+     }
+    ]
+   }
+  },
+  "无惧浪涛之勇": {
+   "5": {
+    "key": "6a3369c4c194fde8",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.15
+     },
+     {
+      "stat": "dmg_all",
+      "value": 0.3,
+      "needs": {
+       "stat": "er",
+       "value": 2.5,
+       "from": 2.4999
+      }
+     }
+    ],
+    "notes": [
+     "全属性加成要共鸣效率到 250%"
+    ]
+   }
+  },
+  "流云逝尽之空": {
+   "5": {
+    "key": "a4d29feec2e8df85",
+    "effects": [
+     {
+      "stat": "dmg_4",
+      "value": 0.15,
+      "team": true,
+      "when": [
+       "风蚀"
+      ]
+     },
+     {
+      "stat": "dmg_4",
+      "value": 0.15,
+      "when": [
+       "风蚀"
+      ]
+     }
+    ]
+   }
+  },
+  "愿戴荣光之旅": {
+   "5": {
+    "key": "f79f021bbf4bcc3d",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.1,
+      "when": [
+       "风蚀"
+      ]
+     },
+     {
+      "stat": "dmg_4",
+      "value": 0.3,
+      "when": [
+       "风蚀"
+      ]
+     }
+    ]
+   }
+  },
+  "奔狼燎原之焰": {
+   "5": {
+    "key": "24162094eed424c3",
+    "effects": [
+     {
+      "stat": "dmg_2",
+      "value": 0.15,
+      "team": true
+     },
+     {
+      "stat": "dmg_lib",
+      "value": 0.2
+     }
+    ]
+   }
+  },
+  "失序彼岸之梦": {
+   "3": {
+    "key": "21a09e02f5cfa2b1",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2
+     },
+     {
+      "stat": "dmg_echo",
+      "value": 0.35
+     }
+    ],
+    "notes": [
+     "按共鸣能量为 0 时算"
+    ]
+   }
+  },
+  "荣斗铸锋之冠": {
+   "3": {
+    "key": "ab1d72c74231af86",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.06,
+      "when": [
+       "护盾"
+      ],
+      "per_stack": true,
+      "stacks": 5
+     },
+     {
+      "stat": "crit_dmg",
+      "value": 0.04,
+      "when": [
+       "护盾"
+      ],
+      "per_stack": true,
+      "stacks": 5
+     }
+    ],
+    "notes": [
+     "要有护盾：自己会上护盾，或配队里有人给；按满层算"
+    ]
+   }
+  },
+  "息界同调之律": {
+   "3": {
+    "key": "b1b5287b347ea401",
+    "effects": [
+     {
+      "stat": "dmg_heavy",
+      "value": 0.3
+     },
+     {
+      "stat": "dmg_echo",
+      "value": 0.04,
+      "team": true,
+      "per_stack": true,
+      "stacks": 4
+     }
+    ]
+   }
+  },
+  "焚羽猎魔之影": {
+   "3": {
+    "key": "ffcbb273be8723ba",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "kind": "heavy"
+     },
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "kind": "echo"
+     },
+     {
+      "stat": "dmg_2",
+      "value": 0.16
+     }
+    ]
+   }
+  },
+  "命理崩毁之弦": {
+   "3": {
+    "key": "1a1554e3fdcfbe98",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.2,
+      "when": [
+       "虚湮"
+      ]
+     },
+     {
+      "stat": "dmg_lib",
+      "value": 0.3,
+      "when": [
+       "虚湮"
+      ]
+     }
+    ]
+   }
+  },
+  "逆光跃彩之约": {
+   "5": {
+    "key": "5d6733a58c932fc1",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.15,
+      "others": true
+     }
+    ],
+    "notes": [
+     "给下一位登场的角色；随它的谐度破坏增幅额外加的部分不算"
+    ]
+   }
+  },
+  "星构寻辉之环": {
+   "5": {
+    "key": "e0e1f1e53c8a44e3",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.25,
+      "team": true,
+      "when": [
+       "生存治疗"
+      ],
+      "needs": {
+       "stat": "tune_eff",
+       "value": 1.25,
+       "from": 0.0
+      }
+     }
+    ]
+   }
+  },
+  "流金溯真之式": {
+   "5": {
+    "key": "ab8360de8a005506",
+    "effects": [
+     {
+      "stat": "dmg_5",
+      "value": 0.1,
+      "per_stack": true,
+      "stacks": 3
+     },
+     {
+      "stat": "dmg_basic",
+      "value": 0.4
+     }
+    ]
+   }
+  },
+  "长路启航之星": {
+   "5": {
+    "key": "e2e99eee0c9260f4",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "when": [
+       "聚爆",
+       "震谐响应"
+      ]
+     },
+     {
+      "stat": "dmg_2",
+      "value": 0.2,
+      "when": [
+       "聚爆",
+       "震谐响应"
+      ]
+     }
+    ]
+   }
+  },
+  "斑驳粉饰之沫": {
+   "5": {
+    "key": "c4c11a47d9c8e9b1",
+    "effects": [
+     {
+      "stat": "dmg_2",
+      "value": 0.1,
+      "when": [
+       "聚爆"
+      ]
+     },
+     {
+      "stat": "dmg_2",
+      "value": 0.25,
+      "others": true,
+      "when": [
+       "聚爆"
+      ]
+     }
+    ],
+    "notes": [
+     "25% 给下一位登场的角色"
+    ]
+   }
+  },
+  "听唤语义之愿": {
+   "5": {
+    "key": "59aa319097a89429",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "kind": "echo"
+     },
+     {
+      "stat": "dmg_4",
+      "value": 0.15
+     }
+    ]
+   }
+  },
+  "雪落无声之愿": {
+   "5": {
+    "key": "c7559c2dc9929575",
+    "effects": [
+     {
+      "stat": "dmg_1",
+      "value": 0.1,
+      "when": [
+       "霜渐"
+      ]
+     },
+     {
+      "stat": "crit",
+      "value": 0.25,
+      "when": [
+       "霜渐"
+      ]
+     }
+    ],
+    "notes": [
+     "【落雪】按共鸣解放时用掉算：给下一位的冷凝加成和它只能有一个"
+    ]
+   }
+  },
+  "剪心辑梦之影": {
+   "5": {
+    "key": "0a3daf36db272569",
+    "effects": [],
+    "notes": [
+     "谐度破坏增幅不算：计算还没有谐度破坏"
+    ]
+   }
+  },
+  "碎梦亡鬼之魇": {
+   "1": {
+    "key": "12344b9b1582f003",
+    "effects": [
+     {
+      "stat": "dmg_basic",
+      "value": 0.35,
+      "when": [
+       "骇破响应"
+      ]
+     },
+     {
+      "stat": "dmg_heavy",
+      "value": 0.35,
+      "when": [
+       "骇破响应"
+      ]
+     }
+    ]
+   }
+  },
+  "羽落空尘之歌": {
+   "5": {
+    "key": "bb255ab1937f6c91",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.2,
+      "when": [
+       "虚湮"
+      ]
+     },
+     {
+      "stat": "dmg_heavy",
+      "value": 0.35,
+      "when": [
+       "虚湮"
+      ]
+     },
+     {
+      "stat": "atk_pct",
+      "value": 0.25,
+      "team": true,
+      "when": [
+       "霜渐"
+      ],
+      "needs": {
+       "stat": "er",
+       "value": 2.5,
+       "from": 0.0
+      }
+     }
+    ]
+   }
+  },
+  "清邪荡煞之心": {
+   "5": {
+    "key": "21a6caf488f179f8",
+    "effects": [
+     {
+      "stat": "crit_dmg",
+      "value": 0.2,
+      "when": [
+       "集谐响应"
+      ]
+     },
+     {
+      "stat": "dmg_4",
+      "value": 0.3,
+      "when": [
+       "集谐响应"
+      ]
+     }
+    ]
+   }
+  },
+  "冥途夜行之灯": {
+   "5": {
+    "key": "5925d6d2852417b5",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.05,
+      "when": [
+       "护盾"
+      ],
+      "per_stack": true,
+      "stacks": 4
+     },
+     {
+      "stat": "dmg_2",
+      "value": 0.15,
+      "when": [
+       "护盾"
+      ]
+     }
+    ],
+    "notes": [
+     "要有护盾：自己会上护盾，或配队里有人给；按满层算"
+    ]
+   }
+  },
+  "衔梦照世之心": {
+   "5": {
+    "key": "16f40f9f9713e9cc",
+    "effects": [
+     {
+      "stat": "crit",
+      "value": 0.15,
+      "when": [
+       "电磁",
+       "同奏"
+      ]
+     },
+     {
+      "stat": "dmg_3",
+      "value": 0.225,
+      "when": [
+       "电磁",
+       "同奏"
+      ]
+     }
+    ]
+   }
+  },
+  "镜影流电之瞬": {
+   "5": {
+    "key": "2fde874a74a982d2",
+    "effects": [
+     {
+      "stat": "dmg_3",
+      "value": 0.1,
+      "when": [
+       "电磁"
+      ]
+     },
+     {
+      "stat": "dmg_3",
+      "value": 0.25,
+      "others": true,
+      "when": [
+       "电磁"
+      ]
+     }
+    ],
+    "notes": [
+     "25% 给下一位登场的角色"
+    ]
+   }
+  },
+  "茜染怀想之花": {
+   "5": {
+    "key": "652a683ff8caa015",
+    "effects": [
+     {
+      "stat": "atk_pct",
+      "value": 0.1,
+      "team": true,
+      "when": [
+       "生存治疗"
+      ]
+     },
+     {
+      "stat": "atk_pct",
+      "value": 0.15,
+      "team": true,
+      "when": [
+       "同奏"
+      ]
+     }
+    ],
+    "notes": [
+     "额外 15% 按队伍里有同奏的角色算"
+    ]
+   }
+  }
+ },
+ "echoes": {
+  "万囮牢·朽躯": {
+   "key": "cf1af4dd249d1e0b",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "今汐": {
+   "key": "fb962ef4e9853532",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 0.4,
+     "skill": "协同攻击"
+    }
+   ]
+  },
+  "伪作的神王": {
+   "key": "97895d42535e424e",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ],
+   "notes": [
+    "召唤出来的伤害不算：计算没有这一行"
+   ]
+  },
+  "共鸣回响·天演溯心": {
+   "key": "4a6e02a61dd976a6",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.1
+    },
+    {
+     "stat": "dmg_3",
+     "value": 0.1,
+     "when": [
+      "电磁",
+      "同奏"
+     ]
+    }
+   ]
+  },
+  "共鸣回响·梦魇亚当·重锤": {
+   "key": "32d248a63917fc80",
+   "effects": [
+    {
+     "stat": "crit",
+     "value": 0.15,
+     "when": [
+      "露西",
+      "丽贝卡"
+     ]
+    }
+   ],
+   "notes": [
+    "换成的特殊声骸技能不算"
+   ]
+  },
+  "共鸣回响·芙露德莉斯": {
+   "key": "3b64ffce7bff4eec",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.1
+    },
+    {
+     "stat": "dmg_4",
+     "value": 0.1,
+     "when": [
+      "漂泊者·气动",
+      "卡提希娅"
+     ]
+    }
+   ]
+  },
+  "共鸣回响·芬莱克": {
+   "key": "b1ce4b59d5a6f5ee",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "共鸣回响·鸣式·利维亚坦": {
+   "key": "de730568076f9ca8",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "共鸣回响·鸣式·虚造神型": {
+   "key": "2df48101535a76b3",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "千傀重楼": {
+   "key": "fb0c54b466c378d1",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "双极·星升辉铳": {
+   "key": "bae2fc1339ed0728",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "双极·渊陨重锋": {
+   "key": "2072c71b2a3c79d9",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "叹息古龙": {
+   "key": "73911bd81d1967e7",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "天傀劫煞": {
+   "key": "1eaa0987935bfc0d",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.1
+    },
+    {
+     "stat": "dmg_4",
+     "value": 0.1,
+     "when": [
+      "集谐响应"
+     ]
+    }
+   ]
+  },
+  "封庭械囿": {
+   "key": "f65e526d93260094",
+   "effects": [
+    {
+     "stat": "heal",
+     "value": 0.1
+    }
+   ]
+  },
+  "异构武装": {
+   "key": "c87332b8faebd8bf",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·万囮牢·朽躯": {
+   "key": "cf1af4dd249d1e0b",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·伪作的神王": {
+   "key": "97895d42535e424e",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ],
+   "notes": [
+    "召唤出来的伤害不算：计算没有这一行"
+   ]
+  },
+  "异相·双极·星升辉铳": {
+   "key": "bae2fc1339ed0728",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·双极·渊陨重锋": {
+   "key": "2072c71b2a3c79d9",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·封庭械囿": {
+   "key": "f65e526d93260094",
+   "effects": [
+    {
+     "stat": "heal",
+     "value": 0.1
+    }
+   ]
+  },
+  "异相·异构武装": {
+   "key": "c87332b8faebd8bf",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·无妄者": {
+   "key": "4c278777232066ad",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·梦魇·无冠者": {
+   "key": "9a3be5e379372894",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·梦魇·燎照之骑": {
+   "key": "4c278777232066ad",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·炉芯机骸": {
+   "key": "aaa0dfe72d5eb61f",
+   "effects": [
+    {
+     "stat": "er",
+     "value": 0.1
+    }
+   ]
+  },
+  "异相·琉璃刀伶": {
+   "key": "c1515bca67b7f2fe",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·罗蕾莱": {
+   "key": "9a3be5e379372894",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·荣光节使": {
+   "key": "64fa692643e55f97",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·角鳄": {
+   "key": "e043e5572f4cad6d",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·辛吉勒姆": {
+   "key": "3197b75a32308f05",
+   "effects": [
+    {
+     "stat": "dmg_lib",
+     "value": 0.25,
+     "when": [
+      "爱弥斯"
+     ]
+    }
+   ]
+  },
+  "无铭探索者": {
+   "key": "0a61a76e376b2667",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_echo",
+     "value": 0.2
+    }
+   ]
+  },
+  "梦魇·云闪之鳞": {
+   "key": "f6e6156b11fdbfc9",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·凯尔匹": {
+   "key": "e0af0bec7abbfcbd",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    }
+   ],
+   "notes": [
+    "召唤出来的伤害不算：计算没有这一行"
+   ]
+  },
+  "梦魇·哀声鸷": {
+   "key": "e3ce6d7c243ea66e",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·无冠者": {
+   "key": "9a3be5e379372894",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·无常凶鹭": {
+   "key": "fb0c54b466c378d1",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·朔雷之鳞": {
+   "key": "9444978551157376",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·燎照之骑": {
+   "key": "4c278777232066ad",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "梦魇·赫卡忒": {
+   "key": "ba24e23caf41c8e0",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_echo",
+     "value": 0.2
+    }
+   ]
+  },
+  "梦魇·辉萤军势": {
+   "key": "3b7e3b88e20116c5",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    },
+    {
+     "stat": "final",
+     "value": 0.3,
+     "skill": "协同攻击"
+    }
+   ]
+  },
+  "梦魇·飞廉之猩": {
+   "key": "b1ce4b59d5a6f5ee",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "毒冠贵族": {
+   "key": "2f2278b2dd04e5d9",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.12
+    }
+   ]
+  },
+  "海之女": {
+   "key": "e043e5572f4cad6d",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "炉芯机骸": {
+   "key": "aaa0dfe72d5eb61f",
+   "effects": [
+    {
+     "stat": "er",
+     "value": 0.1
+    }
+   ]
+  },
+  "琉璃刀伶": {
+   "key": "c1515bca67b7f2fe",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    }
+   ]
+  },
+  "罗蕾莱": {
+   "key": "9a3be5e379372894",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
+    }
+   ]
+  },
+  "荣光节使": {
+   "key": "64fa692643e55f97",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "荣耀狮像": {
+   "key": "ac3ba7a48e46a2a7",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "蚀脊龙": {
+   "key": "095cbe0993e890af",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_echo",
+     "value": 0.2
+    }
+   ]
+  },
+  "角鳄": {
+   "key": "e043e5572f4cad6d",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
+  "解形煞": {
+   "key": "aaa0dfe72d5eb61f",
+   "effects": [
+    {
+     "stat": "er",
+     "value": 0.1
+    }
+   ]
+  },
+  "赫卡忒": {
+   "key": "fb962ef4e9853532",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 0.4,
+     "skill": "协同攻击"
+    }
+   ]
+  },
+  "辛吉勒姆": {
+   "key": "3197b75a32308f05",
+   "effects": [
+    {
+     "stat": "dmg_lib",
+     "value": 0.25,
+     "when": [
+      "爱弥斯"
+     ]
+    }
+   ]
+  }
+ },
+ "roles": {
+  "秧秧": {
+   "inherent:1000104": [
+    {
+     "key": "0d7f9a01d7369414",
+     "effects": []
+    }
+   ],
+   "inherent:1000105": [
+    {
+     "key": "4822b3848e5f25a4",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.08
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "d82e582e743e8b8b",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "67b051ab104dace6",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "4cd4556a4056ba36",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.4
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "372e2df67122fa94",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.95,
+       "skill": "释羽"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ff112453cb9ecfe2",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.85,
+       "skill": "朔风旋涌"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "4e9bdc9be17eee79",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "4e9bdc9be17eee79",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "炽霞": {
+   "inherent:1000204": [
+    {
+     "key": "07319e0d9c5b0911",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.5,
+       "skill": "轰轰"
+      }
+     ]
+    }
+   ],
+   "inherent:1000205": [
+    {
+     "key": "e4c38936a67a7792",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.01,
+       "per_stack": true,
+       "stacks": 30
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "aa592e41979bc2b4",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 1.0,
+       "skill": "轰轰"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "3727836207c9ca78",
+     "effects": [],
+     "notes": [
+      "击败目标回复的共鸣能量不算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "6c209a2eab12dbfb",
+     "effects": [],
+     "notes": [
+      "对生命低于一半的目标才有：不算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "77f3e1e60964c9e6",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ed11bde4b0b00e32",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "f0b515aeab2efe4a",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "f0b515aeab2efe4a",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "维里奈": {
+   "inherent:1000304": [
+    {
+     "key": "2badb0210dc949cb",
+     "effects": []
+    }
+   ],
+   "inherent:1000305": [
+    {
+     "key": "42918aa92eb4ce7f",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "161366547a5e6751",
+     "effects": [],
+     "rows": [
+      {
+       "name": "萌芽的一瞬·持续治疗",
+       "kind": "heal",
+       "stat": "atk",
+       "values": [
+        "20.00%*6"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "1d51e070b8e762b3",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "09aa14af7aa36fb3",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.12,
+       "skill": "光合标记"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "d65cc7e1c6153822",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.15,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "a087c345082fde20",
+     "effects": [],
+     "notes": [
+      "治疗生命低于一半的角色时才有：不算"
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "810b3e41701fc7b5",
+     "effects": [
+      {
+       "stat": "dmg_heavy",
+       "value": 0.2,
+       "skill": "星星花绽放"
+      }
+     ]
+    }
+   ],
+   "inherent:1000305:1": [
+    {
+     "key": "42918aa92eb4ce7f",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1000309": [
+    {
+     "key": "25ccfce5023651e5",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "d65cc7e1c6153822",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.15,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "810b3e41701fc7b5",
+     "effects": [],
+     "notes": [
+      "给队伍的是治疗，不是伤害"
+     ]
+    }
+   ]
+  },
+  "漂泊者·衍射": {
+   "inherent:1000604": [
+    {
+     "key": "f9a7e471595e904e",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.6,
+       "skill": "浮声千斩·回声"
+      }
+     ]
+    }
+   ],
+   "inherent:1000605": [
+    {
+     "key": "033b6f223b72aa77",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.15
+      }
+     ]
+    }
+   ]
+  },
+  "散华": {
+   "inherent:1000504": [
+    {
+     "key": "27967fcd5f334ba4",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1000505": [
+    {
+     "key": "2846d6e64051df0f",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "skill": "冰绽"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "931013b4d38c7f86",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "c2e6f3c3e5352656",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "0e5de4a0c07e4d4f",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.35
+      }
+     ],
+     "notes": [
+      "按目标生命低于 70% 算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "10bac58e590e0e90",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      },
+      {
+       "stat": "dmg_heavy",
+       "value": 1.2,
+       "skill": "爆裂"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "b77f50c3d52486b1",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 1.0,
+       "skill": "冰绽"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "aa032d5e5f669cf1",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1,
+       "team": true,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "outro:1000509": [
+    {
+     "key": "0ed6da61e83d048f",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.38,
+       "kind": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "aa032d5e5f669cf1",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1,
+       "team": true,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ]
+  },
+  "桃祈": {
+   "inherent:1000904": [
+    {
+     "key": "68c5e8359f9230c9",
+     "effects": [
+      {
+       "stat": "def_pct",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "inherent:1000905": [
+    {
+     "key": "2933d32b852b9948",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "f78662ce6bebf2f3",
+     "effects": [
+      {
+       "stat": "shield",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "只有攻防转换的护盾"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "bb09dc3adcca5cf7",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2,
+       "skill": "不动如山"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.2,
+       "skill": "不动如山"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "5686cd2417e1ebf1",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "6b6677282eb1ab22",
+     "effects": [
+      {
+       "stat": "def_pct",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ab0016e98e5a3068",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.5,
+       "skill": "攻防转换"
+      },
+      {
+       "stat": "energy",
+       "value": 20
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "26f28161de57e175",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.4
+      },
+      {
+       "stat": "dmg_heavy",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "按护盾在时算"
+     ]
+    }
+   ],
+   "outro:1000909": [
+    {
+     "key": "0ff048e6266e9a78",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.38,
+       "kind": "skill"
+      }
+     ]
+    }
+   ]
+  },
+  "白芷": {
+   "inherent:1000404": [
+    {
+     "key": "80f0d9c47c708699",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.15,
+       "team": true
+      }
+     ],
+     "notes": [
+      "给拾取天籁的角色"
+     ]
+    }
+   ],
+   "inherent:1000405": [
+    {
+     "key": "1dddae6247c8229c",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "3d3460c5091f752e",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ],
+     "notes": [
+      "按 4 点【念意】算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "f441234d2b6b35df",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.15
+      },
+      {
+       "stat": "heal",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "f876ec09d12a445f",
+     "effects": [
+      {
+       "stat": "hp_pct",
+       "value": 0.12
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "d559cb27006e970f",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "skill": "频隙回响"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "40df8cb59ec50c9a",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "3d93f324e894755d",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.12,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1000409": [
+    {
+     "key": "b53d13a2e572efcb",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15
+      }
+     ],
+     "rows": [
+      {
+       "name": "命源输送·持续治疗",
+       "kind": "heal",
+       "stat": "hp",
+       "values": [
+        "1.54%*10"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "3d93f324e894755d",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.12,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "安可": {
+   "inherent:1000704": [
+    {
+     "key": "3dc19f8ef3bfb7be",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "inherent:1000705": [
+    {
+     "key": "1dc412ede35268a1",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "a677b15697d4c92a",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.03,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "a8083bf6e4835a47",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "5e6bb9ae8a501f14",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "heavy",
+       "skill": "白咩·失控之炎"
+      },
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "heavy",
+       "skill": "黑咩·暴走之炎"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "fb470c3c12964045",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "60db5e3f22029c26",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.35
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "bcea5ab5735a957d",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.05,
+       "per_stack": true,
+       "stacks": 5
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "fb470c3c12964045",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "丹瑾": {
+   "inherent:1000804": [
+    {
+     "key": "8b7715958a832e9c",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.2,
+       "skill": "闪避反击·逐影"
+      }
+     ]
+    }
+   ],
+   "inherent:1000805": [
+    {
+     "key": "6da1acad10c56dba",
+     "effects": [
+      {
+       "stat": "dmg_heavy",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "f87a1e043520d9d7",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.05,
+       "per_stack": true,
+       "stacks": 6
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "656db7869963b77d",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "5e6774a233fa2afe",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "e6356074ebec0a56",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "3dc8b738873f0616",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.15
+      },
+      {
+       "stat": "dmg_6",
+       "value": 0.15
+      }
+     ],
+     "notes": [
+      "额外 15% 按生命低于 60% 算：她的技能会扣血"
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "10fcf1503a65b0ee",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1000809": [
+    {
+     "key": "1cbdbeda81e00c6f",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.23,
+       "element": 6
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "10fcf1503a65b0ee",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "秋水": {
+   "inherent:1001004": [
+    {
+     "key": "9dee47ed9ef1340c",
+     "effects": [],
+     "notes": [
+      "每 30 秒一次的必定暴击不算"
+     ]
+    }
+   ],
+   "inherent:1001005": [
+    {
+     "key": "31946d9b4af3b47d",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "d5163e11fc201df8",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "a083af48353e0494",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.15
+      }
+     ],
+     "notes": [
+      "分身继承的生命不是秋水自己的"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "96dfc7e3cc0162b6",
+     "effects": [],
+     "rows": [
+      {
+       "name": "雾气子弹",
+       "kind": "damage",
+       "like": "空中攻击",
+       "share": 0.5,
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "33cb2ffc363e4109",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.3,
+       "skill": "雾化子弹"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "05d6abda7987c7e3",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.25
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "9d4a866726bbc918",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.08
+      },
+      {
+       "stat": "dmg_heavy",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "outro:1001009": [
+    {
+     "key": "a1b4c4a50aa9e5a0",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.23,
+       "element": 4
+      }
+     ]
+    }
+   ]
+  },
+  "忌炎": {
+   "inherent:1001104": [
+    {
+     "key": "ec885743800e13dd",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "inherent:1001105": [
+    {
+     "key": "1742f0c73d080ea8",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.12
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "334c81b640309636",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "f322968c000e1326",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.28
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "09a8258df5912d07",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.16
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.32
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "188aa5e728cbfc86",
+     "effects": [
+      {
+       "stat": "dmg_heavy",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "e39b7c93520c53d4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "kind": "outro",
+       "skill": "克己"
+      },
+      {
+       "stat": "atk_pct",
+       "value": 0.03,
+       "per_stack": true,
+       "stacks": 15
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "d3f1d7302c999e6a",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "kind": "lib",
+       "skill": "苍躣八荒·后动",
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "188aa5e728cbfc86",
+     "effects": [
+      {
+       "stat": "dmg_heavy",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "莫特斐": {
+   "inherent:1001204": [
+    {
+     "key": "e3264c2078c5b2b3",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.25,
+       "skill": "怒火赋格"
+      }
+     ]
+    }
+   ],
+   "inherent:1001205": [
+    {
+     "key": "df1da73959600eda",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.015,
+       "skill": "加强音",
+       "per_stack": true,
+       "stacks": 50
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b8722b6a72cbdaa0",
+     "effects": [],
+     "rows": [
+      {
+       "name": "协同·加强音",
+       "kind": "damage",
+       "like": "加强音伤害",
+       "share": 2,
+       "bonus": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "feb54421c17d0477",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "eab39741351e1946",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.3,
+       "kind": "lib",
+       "skill": "加强音"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "76e9d2d46dfe1e3b",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "d02cfa45d727921a",
+     "effects": [],
+     "rows": [
+      {
+       "name": "协同·加强音",
+       "kind": "damage",
+       "like": "加强音伤害",
+       "share": 2,
+       "bonus": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "bef434545dbdc731",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1001209": [
+    {
+     "key": "03f28bada27b466d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.38,
+       "kind": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "bef434545dbdc731",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "椿": {
+   "inherent:1001304": [
+    {
+     "key": "392efe8b7736711c",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "inherent:1001305": [
+    {
+     "key": "3fa7ca09fc33162b",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "019e6a0e02678dd6",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.28
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "9f2d79cd2b18695c",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "一日花"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "86555e8b849e0dc2",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "lib",
+       "skill": "芳华绽烬"
+      },
+      {
+       "stat": "atk_pct",
+       "value": 0.58
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "9e7b074177826faa",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "89a884ff3ce6cac9",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 3.03,
+       "kind": "intro",
+       "skill": "八千春秋"
+      },
+      {
+       "stat": "mv",
+       "value": 0.68,
+       "kind": "outro",
+       "skill": "缠绕"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "2ac921d8146f59d9",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.5,
+       "skill": "酣梦"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "9e7b074177826faa",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "卡卡罗": {
+   "inherent:1001404": [
+    {
+     "key": "2dcc2d63c2ae1a6a",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "inherent:1001405": [
+    {
+     "key": "afb95e8b13d6c415",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "56bba535fe11317d",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "49fafc031ccd5ece",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "8d4e2d11a14b5db5",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.25
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "7d4004b359412f50",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ad19dcd9ea385c63",
+     "effects": [
+      {
+       "stat": "dmg_intro",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "ae5bf0003756b0d7",
+     "effects": [],
+     "rows": [
+      {
+       "name": "猎杀影",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "100.00%*2"
+       ],
+       "bonus": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "7d4004b359412f50",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "吟霖": {
+   "inherent:1001504": [
+    {
+     "key": "7b8cd195afbc4077",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "inherent:1001505": [
+    {
+     "key": "4f15ca4ba9a83e0c",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.1,
+       "skill": "召雷磁爆"
+      },
+      {
+       "stat": "atk_pct",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "ff0937d15a64e720",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.7,
+       "skill": "磁殛咆哮"
+      },
+      {
+       "stat": "dmg_skill",
+       "value": 0.7,
+       "skill": "召雷磁爆"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "95582c4a3fca22cb",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 5
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "68221f6cd2d0216f",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.55,
+       "skill": "审判之雷"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "428d4e51e302f1d4",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "2afc536a6a7d679a",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 1.0,
+       "skill": "破天雷灭击"
+      }
+     ],
+     "notes": [
+      "按目标带着缚罪标记算"
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "786cad28b9b34f63",
+     "effects": [],
+     "rows": [
+      {
+       "name": "疾霆昭彰",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "419.59%*4"
+       ],
+       "bonus": "skill"
+      }
+     ]
+    }
+   ],
+   "outro:1001509": [
+    {
+     "key": "6bf1a533888bee17",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 3
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "428d4e51e302f1d4",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "凌阳": {
+   "inherent:1001804": [
+    {
+     "key": "16c4bb847e1a3967",
+     "effects": [
+      {
+       "stat": "dmg_intro",
+       "value": 0.5,
+       "skill": "出洞·睡狮蛰醒"
+      }
+     ]
+    }
+   ],
+   "inherent:1001805": [
+    {
+     "key": "1c0b1cdb70de4b72",
+     "effects": [],
+     "rows": [
+      {
+       "name": "额外的翻山越涧",
+       "kind": "damage",
+       "like": "飞身式·翻山越涧伤害",
+       "share": 1.5,
+       "bonus": "skill"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "e2b9b2aacc1275b4",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "96ced2e69236ee50",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "e8d7cce4deb45734",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.2
+      },
+      {
+       "stat": "dmg_skill",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "2af4be8783350c47",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "95ad3227977cd048",
+     "effects": [],
+     "rows": [
+      {
+       "name": "五链·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "200.00%"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "a9d3c59ba2ed5943",
+     "effects": [],
+     "notes": [
+      "只给下一次普攻：不算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "2af4be8783350c47",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "渊武": {
+   "inherent:1001604": [
+    {
+     "key": "006a751bdd7bc21d",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "skill",
+       "skill": "掀雷"
+      }
+     ]
+    }
+   ],
+   "inherent:1001605": [
+    {
+     "key": "6631c1cfc07127a6",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "634e4da7e96eab22",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "70a50c97f88a94cb",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 15
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "6a7d5e0f3d3fbe4a",
+     "effects": [],
+     "notes": [
+      "按防御加的伤害不算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "87ff572f77622ef8",
+     "effects": [],
+     "notes": [
+      "给队伍的是护盾"
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "aa04ff5804828d96",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "88342dcaf87f1b80",
+     "effects": [
+      {
+       "stat": "def_pct",
+       "value": 0.32,
+       "skill": "雷之楔",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "88342dcaf87f1b80",
+     "effects": [
+      {
+       "stat": "def_pct",
+       "value": 0.32,
+       "skill": "雷之楔",
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "漂泊者·湮灭": {
+   "inherent:1001704": [
+    {
+     "key": "db620caa56b8dd38",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1001705": [
+    {
+     "key": "8bfefd80ea896175",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 4
+      }
+     ],
+     "notes": [
+      "按一遍普攻约 4 次命中算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "9a147a9db9b1dfa1",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "c8cb3f4ce3333c79",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "9be230fb03a17b6a",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "b053eae1eabbcae0",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.1,
+       "element": 6,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "7fec0284cb7960e4",
+     "effects": [],
+     "rows": [
+      {
+       "name": "暗涌·额外伤害",
+       "kind": "damage",
+       "like": "暗流·普攻第五段伤害",
+       "share": 0.5,
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "7a55b7f153c3aeb5",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.25
+      }
+     ]
+    }
+   ]
+  },
+  "鉴心": {
+   "inherent:1001904": [
+    {
+     "key": "815131a5e139e437",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.2,
+       "skill": "涤净力场"
+      }
+     ]
+    }
+   ],
+   "inherent:1001905": [
+    {
+     "key": "760ca861e89ce61c",
+     "effects": [
+      {
+       "stat": "shield",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "5c7b188845d1bb78",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "be6a40627ffcf538",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "0e5cda27f4a66b41",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "f1442792a4fecf82",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.8,
+       "skill": "涤净力场"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "62ba0462fa61e772",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "dc67006ebfebe6c1",
+     "effects": [],
+     "rows": [
+      {
+       "name": "特殊行气反击",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "556.67%"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "outro:1001909": [
+    {
+     "key": "0b99963426fbdf3d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.38,
+       "kind": "lib"
+      }
+     ]
+    }
+   ]
+  },
+  "今汐": {
+   "inherent:1002004": [
+    {
+     "key": "9f5680e813e96778",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1002005": [
+    {
+     "key": "a86924e258ea98e8",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "intro",
+       "skill": "蟠龙清辉"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "ab21faa748d3457f",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "kind": "skill",
+       "skill": "惊龙破空",
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "a4ceb697f21de1d0",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "294fe82a3368dd52",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.25,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "1694609483424ca6",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "34a9cb347e02e4fc",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "kind": "lib",
+       "skill": "移岁诛邪"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "1e6a7eb5a7201231",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.45,
+       "kind": "skill",
+       "skill": "惊龙破空"
+      },
+      {
+       "stat": "mv",
+       "value": 0.45,
+       "kind": "skill",
+       "skill": "惊龙破空"
+      }
+     ],
+     "notes": [
+      "韶光带来的倍率额外提升，也按惊龙破空的倍率算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "1694609483424ca6",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "相里要": {
+   "inherent:1002304": [
+    {
+     "key": "79b439c105b92b56",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.05,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ]
+    }
+   ],
+   "inherent:1002305": [
+    {
+     "key": "1d35b86cfc347395",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "761bdcf941eb161d",
+     "effects": [],
+     "rows": [
+      {
+       "name": "衍构模体",
+       "kind": "damage",
+       "like": "万方法则伤害",
+       "share": 0.48,
+       "bonus": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "b021e887543943d0",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "f5b4df8edf9f13a6",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.63,
+       "skill": "应刃"
+      },
+      {
+       "stat": "dmg_skill",
+       "value": 0.63,
+       "skill": "基本推衍"
+      },
+      {
+       "stat": "dmg_skill",
+       "value": 0.63,
+       "skill": "一相万殊"
+      },
+      {
+       "stat": "dmg_skill",
+       "value": 0.63,
+       "skill": "万方法则"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "b4f58f5b667d1e3f",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "5839bfcea9ae5d11",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 2.22,
+       "kind": "outro",
+       "skill": "链式"
+      },
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "lib",
+       "skill": "思维矩阵"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "314dcd3fa1276220",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.76,
+       "kind": "skill",
+       "skill": "万方法则"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "b4f58f5b667d1e3f",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "长离": {
+   "inherent:1002104": [
+    {
+     "key": "6541a66517d50305",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.05,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "按 4 层【离火】算"
+     ]
+    }
+   ],
+   "inherent:1002105": [
+    {
+     "key": "ed28fa1b50c6be0c",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.2
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "735c4a7df2ea7a2c",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "78b11a923374f933",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.25
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "bc3386c7a5ffa854",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.8,
+       "kind": "lib",
+       "skill": "离火照丹心"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "27805e0147e9a0d1",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "1a1c252bea9d95b2",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "heavy",
+       "skill": "焚身以火"
+      },
+      {
+       "stat": "final",
+       "value": 0.5,
+       "kind": "heavy",
+       "skill": "焚身以火"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "d05c969f19984fc9",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.4,
+       "skill": "赫羽三相"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.4,
+       "skill": "焚身以火"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.4,
+       "skill": "离火照丹心"
+      }
+     ]
+    }
+   ],
+   "outro:1002109": [
+    {
+     "key": "d89c33e3ab93830a",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 2
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "27805e0147e9a0d1",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "折枝": {
+   "inherent:1002204": [
+    {
+     "key": "885f2e8f15429042",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.06,
+       "per_stack": true,
+       "stacks": 3
+      }
+     ]
+    }
+   ],
+   "inherent:1002205": [
+    {
+     "key": "ec45b8cf33e71f38",
+     "effects": [],
+     "notes": [
+      "给下一位的 15 点共鸣能量不算在她自己身上"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b5e49d3d6700cc62",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 15
+      },
+      {
+       "stat": "crit",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "0fe1a0d7fad705cd",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "862bf6cd393167c7",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.15,
+       "per_stack": true,
+       "stacks": 3
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "2bbf8ac6fbc4f45d",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "98aa76d6a9dc537f",
+     "effects": [],
+     "rows": [
+      {
+       "name": "协同墨鹤",
+       "kind": "damage",
+       "like": "墨鹤伤害",
+       "share": 1.4,
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "c40f2d944c02f83c",
+     "effects": [],
+     "rows": [
+      {
+       "name": "白鹤",
+       "kind": "damage",
+       "like": "神来之笔伤害",
+       "share": 1.2,
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "outro:1002209": [
+    {
+     "key": "4298bdb8dc1dd8f0",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 1
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "skill"
+      }
+     ]
+    }
+   ]
+  },
+  "灯灯": {
+   "inherent:1002604": [
+    {
+     "key": "3e42a02292bb0399",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "inherent:1002605": [
+    {
+     "key": "a6b93c533dc16ef7",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "af5823263fe19f52",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "09de7af276d9df33",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.2,
+       "skill": "强化·前扑"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.2,
+       "skill": "强化·后撤"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "7b9e703347c2d4a5",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3,
+       "kind": "lib",
+       "skill": "啾啾专送"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "20f68a8a5d17ff0a",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "37a74ea070afa201",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "skill": "强光穿射"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "dc3d36144d361ccc",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1002609": [
+    {
+     "key": "2417aef42902d6d5",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.38,
+       "kind": "skill"
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "dc3d36144d361ccc",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "釉瑚": {
+   "inherent:1002404": [
+    {
+     "key": "76e493ecb599c85e",
+     "effects": []
+    }
+   ],
+   "inherent:1002405": [
+    {
+     "key": "e8717b33b3a80d8a",
+     "effects": [
+      {
+       "stat": "dmg_1",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "7c3fb0f231956c17",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "8a377c3e6561d871",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "817df750fb49d6c4",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "26488144bff7a56a",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "6c432bdac7f643d2",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "cd4ffbd5fffd2ba6",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.15,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "outro:1002409": [
+    {
+     "key": "361aae1c32cb3a35",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 1.0,
+       "skill": "协同攻击"
+      }
+     ]
+    }
+   ]
+  },
+  "守岸人": {
+   "inherent:1002504": [
+    {
+     "key": "876f6da2119985c2",
+     "effects": []
+    }
+   ],
+   "inherent:1002505": [
+    {
+     "key": "777efe3f78af342f",
+     "effects": [
+      {
+       "stat": "er",
+       "value": 0.1
+      }
+     ],
+     "notes": [
+      "漂泊者的那份是给漂泊者的"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "3e4e5020418a03cf",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "b20dc656da3741b9",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.4,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "4f5cdf0a8ed52ebe",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 20
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "b887257a2fa1a070",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.7
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "385aef6516a02df9",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "c0ab8048b728f8f3",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.42,
+       "kind": "intro",
+       "skill": "洞悉"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 5.0,
+       "skill": "洞悉"
+      }
+     ]
+    }
+   ],
+   "skill:1002503:1": [
+    {
+     "key": "001a8b141dbce649",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.125,
+       "needs": {
+        "stat": "er",
+        "value": 2.5,
+        "from": 0.0
+       }
+      }
+     ]
+    }
+   ],
+   "skill:1002503:2": [
+    {
+     "key": "3d151ef5464c0528",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.25,
+       "needs": {
+        "stat": "er",
+        "value": 2.5,
+        "from": 0.0
+       }
+      }
+     ]
+    }
+   ],
+   "outro:1002509": [
+    {
+     "key": "a2be4c84098e5f21",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "b20dc656da3741b9",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.4,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "洛可可": {
+   "inherent:1002704": [
+    {
+     "key": "0c87419afe5361c4",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1002705": [
+    {
+     "key": "c1f2730afe591477",
+     "effects": [],
+     "notes": [
+      "给下一位的【珍奇箱】不算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "c140466daf7a572b",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "4c3a5a7d90ef1328",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.1,
+       "team": true,
+       "per_stack": true,
+       "stacks": 3
+      },
+      {
+       "stat": "dmg_6",
+       "value": 0.1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "2f00059b5172175d",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.1
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "9588a0e0c0887052",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "basic",
+       "skill": "幻想照进现实"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "48f0986cb432b040",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "lib",
+       "skill": "即兴喜剧，开场"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "cfd41a09b628bf80",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.6,
+       "skill": "幻想照进现实"
+      }
+     ]
+    }
+   ],
+   "outro:1002709": [
+    {
+     "key": "3a4573e41162a24e",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 6
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "4c3a5a7d90ef1328",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.1,
+       "team": true,
+       "per_stack": true,
+       "stacks": 3
+      },
+      {
+       "stat": "dmg_6",
+       "value": 0.1,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "珂莱塔": {
+   "inherent:1002804": [
+    {
+     "key": "15b240b7756ef803",
+     "effects": []
+    }
+   ],
+   "inherent:1002805": [
+    {
+     "key": "247b839a563d4d38",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "2f8a345c305a2931",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.125
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "394fde14af95016d",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.26,
+       "kind": "lib",
+       "skill": "致死以终"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "97fb1d0db58c7e91",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.93,
+       "kind": "skill",
+       "skill": "暴力美学"
+      },
+      {
+       "stat": "mv",
+       "value": 0.93,
+       "kind": "skill",
+       "skill": "示我璀璨"
+      }
+     ],
+     "rows": [
+      {
+       "name": "碎璃镜花",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "1032.18%"
+       ],
+       "bonus": "outro"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "582bc44ff0811f40",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "6f43ae514e17b182",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.47,
+       "kind": "heavy",
+       "skill": "末路见行"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "a3e615ae1e0cf59d",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.8659999999999999,
+       "kind": "lib",
+       "skill": "死兆"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "582bc44ff0811f40",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "布兰特": {
+   "inherent:1002904": [
+    {
+     "key": "f1ac0b3e448bb378",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.2,
+       "skill": "涛声喝彩"
+      }
+     ]
+    }
+   ],
+   "inherent:1002905": [
+    {
+     "key": "6ed7402ade763058",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "9e5973a48a0a9000",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "per_stack": true,
+       "stacks": 3
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "66b1946906415d51",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.3,
+       "skill": "空中攻击"
+      },
+      {
+       "stat": "crit",
+       "value": 0.3,
+       "skill": "火焰归亡曲"
+      }
+     ],
+     "rows": [
+      {
+       "name": "航向确定·爆炸",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "440.00%*2"
+       ],
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "6f5f2949ad79baf2",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.42,
+       "skill": "火焰归亡曲"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "cc95d68afde3efeb",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "6ed963a2125e7c4b",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "b807749c2d4d9f20",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.3,
+       "skill": "空中攻击"
+      }
+     ],
+     "rows": [
+      {
+       "name": "再燃",
+       "kind": "damage",
+       "like": "火焰归亡曲伤害",
+       "share": 0.3,
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "outro:1002909": [
+    {
+     "key": "51367ed0c1de944d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 2
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "skill"
+      }
+     ]
+    }
+   ]
+  },
+  "菲比": {
+   "inherent:1003004": [
+    {
+     "key": "b628ae1432db7323",
+     "effects": []
+    }
+   ],
+   "inherent:1003005": [
+    {
+     "key": "876dc3ea7c532a1b",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.12
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "1b10182efce37b39",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.9,
+       "kind": "lib",
+       "skill": "启明之誓愿",
+       "mode": 9150602
+      }
+     ],
+     "notes": [
+      "赦罪状态：倍率提升从255%变为480%，原有的提升计算里没有，所以没算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "eed1d42de68ff21b",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 1.2,
+       "kind": "outro",
+       "when": [
+        "光噪"
+       ],
+       "mode": 9150601
+      },
+      {
+       "stat": "amplify",
+       "value": 1.2,
+       "effect": "光噪",
+       "team": true,
+       "mode": 9150602
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "2f7aed472c1b5f57",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.91,
+       "kind": "heavy",
+       "skill": "星辉",
+       "mode": 9150601
+      },
+      {
+       "stat": "mv",
+       "value": 2.49,
+       "kind": "heavy",
+       "skill": "星辉",
+       "mode": 9150602
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "38bdf252563876dd",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.1,
+       "element": 5,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ac5ef01091a7e7f9",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.12
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "ddaf541f90d9e1de",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "outro:1003009": [
+    {
+     "key": "2211661ed12888e0",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.1,
+       "element": 5,
+       "team": true,
+       "mode": 9150602
+      },
+      {
+       "stat": "amplify",
+       "value": 1.0,
+       "effect": "光噪",
+       "team": true,
+       "mode": 9150602
+      }
+     ]
+    }
+   ]
+  },
+  "漂泊者·气动": {
+   "inherent:1003204": [
+    {
+     "key": "1f7352e8975379dd",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1003205": [
+    {
+     "key": "66010417aad91260",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.2,
+       "skill": "万象归墟"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "6060c8378725db53",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "9458635795d8ce45",
+     "effects": [],
+     "rows": [
+      {
+       "name": "流光乍隐于长夜·持续治疗",
+       "kind": "heal",
+       "stat": "atk",
+       "values": [
+        "20.00%*10"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "8bcc3a07f87d1953",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "2e95c649c04a8b1e",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "e138fe51f38c2270",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "lib",
+       "skill": "万象归墟"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "9d9c5b85833da9e5",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.3,
+       "kind": "skill",
+       "skill": "缥缈无相"
+      }
+     ]
+    }
+   ]
+  },
+  "坎特蕾拉": {
+   "inherent:1003104": [
+    {
+     "key": "074e18581435ed59",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "inherent:1003105": [
+    {
+     "key": "bf7d4edb043d7958",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.06,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "f983c30dd4fa0563",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "翩跹"
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "斑驳幻梦"
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "感知汲取"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "b42d3f3ba0506101",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 2.45,
+       "skill": "惊醒"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "e8bdf22f41d96123",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 3.7,
+       "kind": "lib",
+       "skill": "陷溺"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "3f1240be89513d2a",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.25
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "e2d8f7ccada4bae0",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "b3e173953573b1ae",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "basic",
+       "skill": "蛰幻"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "outro:1003109": [
+    {
+     "key": "b5ee48f3f9081f90",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 6
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "skill"
+      }
+     ]
+    }
+   ]
+  },
+  "夏空": {
+   "inherent:1003404": [
+    {
+     "key": "be62b31e1f6630ea",
+     "effects": []
+    }
+   ],
+   "inherent:1003405": [
+    {
+     "key": "9ddee65e76064c21",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3,
+       "kind": "heavy",
+       "skill": "重击·四拍重奏"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "da0efd858765b97f",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.35
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "37dc905258df07f9",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.4,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "06f7bdf1fb4af1b9",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "ed0f07ba87ed83f4",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.45,
+       "kind": "heavy",
+       "skill": "四拍重奏"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.45,
+       "kind": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "0e761421f629a638",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.4
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "4a391beffc37d4a0",
+     "effects": [],
+     "rows": [
+      {
+       "name": "音律独奏",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "220.00%"
+       ],
+       "bonus": "lib"
+      }
+     ]
+    }
+   ],
+   "outro:1003409": [
+    {
+     "key": "669377a6c0c9dccd",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 1.0,
+       "effect": "风蚀",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "37dc905258df07f9",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.4,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "赞妮": {
+   "inherent:1003304": [
+    {
+     "key": "8a3c8a983f375e8f",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.12
+      }
+     ]
+    }
+   ],
+   "inherent:1003305": [
+    {
+     "key": "227947d4b3b9f25b",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "47e8c809de4522a9",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "586d309e403bdc0b",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "集中压制"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "破袭反击"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "f3853e09877bf6b1",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.08,
+       "kind": "lib",
+       "skill": "终绝将至之刻",
+       "per_stack": true,
+       "stacks": 150
+      }
+     ],
+     "notes": [
+      "按消耗满 150 点【焰光】算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "866b1fe2a1fda873",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "352246d126dd0193",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "kind": "lib",
+       "skill": "重燃"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "db7af2b11897dd1e",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "skill": "重斩·破晓"
+      },
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "skill": "重斩·将明"
+      },
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "skill": "重斩·终夜"
+      },
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "skill": "重斩·闪裂"
+      }
+     ],
+     "notes": [
+      "每点【焰光】额外的倍率没算"
+     ]
+    }
+   ],
+   "outro:1003309": [
+    {
+     "key": "46928d91ce5ce72a",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 5,
+       "others": true
+      }
+     ],
+     "notes": [
+      "延奏自己的那一下伤害不算：计算没有这一行"
+     ],
+     "rows": [
+      {
+       "name": "来日道标·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "150.00%"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "866b1fe2a1fda873",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "露帕": {
+   "inherent:1003604": [
+    {
+     "key": "931fbc6888e0a6dc",
+     "effects": []
+    }
+   ],
+   "inherent:1003605": [
+    {
+     "key": "2b337fdaafb97958",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.03,
+       "element": 2,
+       "team": true
+      }
+     ],
+     "notes": [
+      "队伍里每多一名热熔角色再加的部分不算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "98c706c6109872a4",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 10
+      },
+      {
+       "stat": "crit",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "85f6e580f0cbd396",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.2,
+       "team": true,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "d0a797374edb5333",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "intro",
+       "skill": "你无法逃离！"
+      },
+      {
+       "stat": "res_shred",
+       "value": 0.12,
+       "element": 2,
+       "team": true
+      }
+     ],
+     "notes": [
+      "荣光的无视热熔抗性合计 15%"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "f22907a15675edaf",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.25,
+       "skill": "狼舞的决意·极"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "17a0c5aa2904af64",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "fb0f981f1126fe8b",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "狼舞的决意·极"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "荣光欢酣于火"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "你无法逃离！"
+      }
+     ]
+    }
+   ],
+   "skill:1003603:1": [
+    {
+     "key": "5faaf10f2db83a16",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.18,
+       "team": true
+      },
+      {
+       "stat": "dmg_2",
+       "value": 0.1,
+       "team": true
+      }
+     ],
+     "notes": [
+      "攻击按队伍三次变奏叠满 18% 算",
+      "热熔加成按打怒涛、海啸级目标算"
+     ]
+    }
+   ],
+   "outro:1003609": [
+    {
+     "key": "0d6ee6de06acb7e5",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 2
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "85f6e580f0cbd396",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.2,
+       "team": true,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ]
+  },
+  "弗洛洛": {
+   "inherent:1003704": [
+    {
+     "key": "5b420564aac31a0c",
+     "effects": []
+    }
+   ],
+   "inherent:1003705": [
+    {
+     "key": "4c38a149c6da7d26",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.025,
+       "per_stack": true,
+       "stacks": 10
+      }
+     ],
+     "notes": [
+      "余响溢出后额外的暴击伤害不算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "986e4380bab4567f",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "亡与死的乐章"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "永不消逝的梦呓"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "0ee9b0550b63d52a",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.75,
+       "skill": "谱曲终末"
+      },
+      {
+       "stat": "mv",
+       "value": 0.75,
+       "skill": "谱曲终末"
+      }
+     ],
+     "notes": [
+      "余响带来的倍率额外提升，也按谱曲终末的倍率算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "aed4f0972fad470b",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.8,
+       "kind": "echo"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "6d16cd9f8fa32f83",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "6d9a01085876b663",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "ad7380529aa3f661",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.24,
+       "skill": "强化攻击·赫卡忒"
+      },
+      {
+       "stat": "dmg_6",
+       "value": 0.6
+      }
+     ],
+     "notes": [
+      "算的是她在场时的湮灭加成；不在场时的 40% 没算"
+     ],
+     "rows": [
+      {
+       "name": "深夜，走出安息与终结·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "216.42%"
+       ],
+       "bonus": "echo"
+      }
+     ]
+    }
+   ],
+   "outro:1003709": [
+    {
+     "key": "158cc9864d47ed8d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 6
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "6d16cd9f8fa32f83",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "c323cf7e6107d445",
+     "effects": [],
+     "notes": [
+      "是弗洛洛自己的，不给队伍"
+     ]
+    }
+   ],
+   "chain:6:2": [
+    {
+     "key": "3464ff4c03907358",
+     "effects": [],
+     "notes": [
+      "是弗洛洛自己的，不给队伍"
+     ]
+    }
+   ]
+  },
+  "卡提希娅": {
+   "inherent:1003504": [
+    {
+     "key": "b3214b4abb343240",
+     "effects": [
+      {
+       "stat": "received",
+       "value": 0.2,
+       "others": true
+      }
+     ]
+    }
+   ],
+   "inherent:1003505": [
+    {
+     "key": "cd818f18dadc4567",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3,
+       "when": [
+        "风蚀"
+       ]
+      },
+      {
+       "stat": "final",
+       "value": 0.1,
+       "when": [
+        "风蚀"
+       ],
+       "per_stack": true,
+       "stacks": 3
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "037a01115f45c647",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.25,
+       "skill": "芙露德莉斯",
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "46ac3e328a9ca8c8",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "basic"
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "heavy"
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "intro"
+      },
+      {
+       "stat": "mv",
+       "value": 2.0,
+       "skill": "空中攻击"
+      }
+     ],
+     "notes": [
+      "芙露德莉斯形态的招式也一起算了"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "76bef8f057a2a0ba",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "lib",
+       "skill": "看潮怒风哮之刃"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "9c847bfc2480a13b",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true,
+       "when": [
+        "光噪",
+        "电磁",
+        "聚爆",
+        "虚湮",
+        "霜渐",
+        "风蚀"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "4f4f8040178e40c9",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "bdee21eba8c505ca",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "skill": "芙露德莉斯"
+      }
+     ]
+    }
+   ],
+   "inherent:1003504:1": [
+    {
+     "key": "b3214b4abb343240",
+     "effects": [
+      {
+       "stat": "received",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "outro:1003509": [
+    {
+     "key": "e141f591480fc5b6",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.175,
+       "element": 4,
+       "when": [
+        "光噪",
+        "电磁",
+        "聚爆",
+        "虚湮",
+        "霜渐",
+        "风蚀"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "9c847bfc2480a13b",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true,
+       "when": [
+        "光噪",
+        "电磁",
+        "聚爆",
+        "虚湮",
+        "霜渐",
+        "风蚀"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "奥古斯塔": {
+   "inherent:1003904": [
+    {
+     "key": "a690e43c25c07d01",
+     "effects": []
+    }
+   ],
+   "inherent:1003905": [
+    {
+     "key": "d3ba0bc811204fcd",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "1119a6bd419d54e2",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.15,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "951b3445d3ec1206",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2,
+       "per_stack": true,
+       "stacks": 2
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 1.0,
+       "needs": {
+        "stat": "crit",
+        "value": 1.5,
+        "from": 1.0
+       }
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "8879dce1fcd663ea",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "烁雷·后撤"
+      },
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "烁雷·旋切"
+      },
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "烁雷·升拳"
+      },
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "不败恒阳·落袭"
+      },
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "赫日威临·烈阳"
+      },
+      {
+       "stat": "mv",
+       "value": 0.25,
+       "skill": "赫日威临·不朽者之肃"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "a207a6b7fcf4f434",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "4a64195a7fdaa87e",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "50be806e7b454db0",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.5,
+       "needs": {
+        "stat": "crit",
+        "value": 1.75,
+        "from": 1.5
+       }
+      }
+     ],
+     "notes": [
+      "【以众愿为冕】上限到 4 层的部分不算"
+     ],
+     "rows": [
+      {
+       "name": "怒霆",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "100.00%*2"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "a207a6b7fcf4f434",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "尤诺": {
+   "inherent:1003804": [
+    {
+     "key": "ef7e15c1e462e51d",
+     "effects": []
+    }
+   ],
+   "inherent:1003805": [
+    {
+     "key": "80e022d4bc0416fe",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "0af371596917ad3e",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "满月领域里每秒回的共鸣能量不算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "200358a4b61edc0a",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.4,
+       "team": true
+      }
+     ],
+     "notes": [
+      "按祝颂叠满 10 层算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "49b87d57fd256cfe",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.65,
+       "skill": "月弓·普攻"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.65,
+       "skill": "越限的弦引"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.65,
+       "skill": "月弓·闪避反击"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "5516c8c8e4aa6c70",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "1518f3a39f463150",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "8627790d604b8804",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 16.0,
+       "kind": "heavy",
+       "skill": "重击·至臻的完满"
+      }
+     ]
+    }
+   ],
+   "outro:1003809": [
+    {
+     "key": "c730c62ad07e65fa",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.5,
+       "kind": "heavy"
+      }
+     ],
+     "rows": [
+      {
+       "name": "晦渡为明·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "100.00%"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "卜灵": {
+   "inherent:1004304": [
+    {
+     "key": "795930d93358dbc3",
+     "effects": [],
+     "notes": [
+      "治疗生命低于一半的角色时才有：不算"
+     ]
+    }
+   ],
+   "inherent:1004305": [
+    {
+     "key": "ba08bf0a7ffb8ad1",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "75103df0af86d259",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2,
+       "skill": "飞雷诀·归一"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "00f3d39e0b5665e6",
+     "effects": [
+      {
+       "stat": "energy",
+       "value": 25
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "7c822fdc6ea76a53",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "5c87694919c36362",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "51ef761015b57b66",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "c64aed48ab6c5a46",
+     "effects": [],
+     "notes": [
+      "队伍共鸣技能加成提升到 50%：原来的数值不知道，没算"
+     ]
+    }
+   ],
+   "outro:1004309": [
+    {
+     "key": "3950e3c5dab423e8",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "嘉贝莉娜": {
+   "inherent:1004004": [
+    {
+     "key": "a8b2a44127cfb5a4",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.05,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "inherent:1004005": [
+    {
+     "key": "39aea1f0ab8775b1",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "ca1687bb4a53338b",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "skill": "炽天猎杀"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "skill": "炼羽裁决"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "skill": "火狱暴雨"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "skill": "掠袭"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "skill": "罪业当涤"
+      }
+     ],
+     "notes": [
+      "按满 40 点【余火】算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "7a98e5f913fe3a5b",
+     "effects": [],
+     "notes": [
+      "内燃烧原来的攻击加成不知道，没算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "92e3a679a2ca74f2",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.3,
+       "kind": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "d5c1f9ae52fc9092",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "d36a699392399d7b",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.5,
+       "kind": "skill",
+       "skill": "迫近"
+      },
+      {
+       "stat": "mv",
+       "value": 1.5,
+       "kind": "skill",
+       "skill": "恶翼扬升"
+      },
+      {
+       "stat": "mv",
+       "value": 1.5,
+       "kind": "skill",
+       "skill": "掠袭"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "13f2c80e7e26b828",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "skill": "炽天猎杀"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "skill": "炼羽裁决"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "skill": "火狱暴雨"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "skill": "罪业当涤"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "skill": "炽天猎杀"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "skill": "炼羽裁决"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "skill": "火狱暴雨"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "skill": "掠袭"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "skill": "罪业当涤"
+      }
+     ],
+     "notes": [
+      "热熔加深按满 40 点【余火】算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "d5c1f9ae52fc9092",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "千咲": {
+   "inherent:1004204": [
+    {
+     "key": "53a59d61333dae40",
+     "effects": []
+    }
+   ],
+   "inherent:1004205": [
+    {
+     "key": "a852b901949a1605",
+     "effects": [
+      {
+       "stat": "dmg_6",
+       "value": 0.2
+      },
+      {
+       "stat": "heal",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "bbb26c0e10da73a0",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.3
+      }
+     ],
+     "notes": [
+      "61803 点固定伤害不算"
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "8c83becf2a9493ae",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.1,
+       "element": 6
+      },
+      {
+       "stat": "dmg_all",
+       "value": 0.5,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "1fec564e2daf8686",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "锯环·疾攻"
+      },
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "电锯模式·闪避反击"
+      },
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "锯环·终结"
+      }
+     ],
+     "notes": [
+      "【锯环残响】带来的额外倍率不算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "e21fa0cdc45f5571",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "b3d061baecca34bf",
+     "effects": [
+      {
+       "stat": "dmg_lib",
+       "value": 1.0,
+       "skill": "即刻·归无"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "c2701b5ce0574542",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4
+      },
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "effect": "虚湮",
+       "team": true
+      }
+     ],
+     "notes": [
+      "异常效应伤害加深按虚湮算"
+     ]
+    }
+   ]
+  },
+  "仇远": {
+   "inherent:1004104": [
+    {
+     "key": "5df1128d3c764965",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.5,
+       "skill": "答剑·弦歌不辍"
+      },
+      {
+       "stat": "final",
+       "value": 0.5,
+       "skill": "答剑·割股之心"
+      },
+      {
+       "stat": "final",
+       "value": 0.5,
+       "skill": "答剑·忠烈死节"
+      },
+      {
+       "stat": "concerto",
+       "value": 30
+      }
+     ]
+    }
+   ],
+   "inherent:1004105": [
+    {
+     "key": "f8e8389ad22780b6",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "87f000b36311d88f",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "c70e245f7a720f95",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "kind": "echo",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "f8e9f49196923408",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 5.0,
+       "kind": "lib",
+       "skill": "万钧一断"
+      },
+      {
+       "stat": "mv",
+       "value": 6.0,
+       "skill": "答剑·弦歌不辍"
+      },
+      {
+       "stat": "mv",
+       "value": 6.0,
+       "skill": "答剑·割股之心"
+      },
+      {
+       "stat": "mv",
+       "value": 6.0,
+       "skill": "答剑·忠烈死节"
+      }
+     ],
+     "notes": [
+      "荷蓑出林和新筠坠箨的伤害不算：计算没有这一行"
+     ],
+     "rows": [
+      {
+       "name": "剑啊，谓我弃绝割股之心·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "500.00%"
+       ],
+       "bonus": "echo"
+      },
+      {
+       "name": "剑啊，谓我弃绝割股之心·额外伤害2",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "500.00%"
+       ],
+       "bonus": "echo"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "112455ab7821366d",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "538f0d03752b517d",
+     "effects": [
+      {
+       "stat": "def_ignore",
+       "value": 0.15
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "df3c2d8861aaa9d6",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 1.0
+      }
+     ],
+     "rows": [
+      {
+       "name": "退出淋漓醉墨",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "600.00%"
+       ],
+       "bonus": "echo"
+      }
+     ]
+    }
+   ],
+   "skill:1004107:1": [
+    {
+     "key": "c977a097a456a558",
+     "effects": [
+      {
+       "stat": "dmg_echo",
+       "value": 0.3,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1004109": [
+    {
+     "key": "a41b399f78091bf2",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.5,
+       "kind": "echo"
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "c70e245f7a720f95",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "kind": "echo",
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "琳奈": {
+   "inherent:1004504": [
+    {
+     "key": "d1154f34a36f7faa",
+     "effects": []
+    }
+   ],
+   "inherent:1004505": [
+    {
+     "key": "db7c78c4806f2cfd",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 0.25
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "24e671b58b764168",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "kind": "basic",
+       "skill": "幻光折跃"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "2dc5ed92adeed19f",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25
+      }
+     ],
+     "notes": [
+      "给下一位的 25% 在她的延奏里"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "aa742ed62cf31809",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.9,
+       "kind": "basic",
+       "skill": "视觉冲击"
+      },
+      {
+       "stat": "mv",
+       "value": 0.9,
+       "kind": "basic",
+       "skill": "虹彩飞溅"
+      },
+      {
+       "stat": "dmg_5",
+       "value": 0.55,
+       "skill": "加色混合",
+       "per_stack": true,
+       "stacks": 25
+      }
+     ],
+     "notes": [
+      "预调色按满 25 层算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "238e50ab6b14323b",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "5c2111786faddec7",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "kind": "lib",
+       "skill": "爆炸喷涂"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "df1c8353e44b4293",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3,
+       "skill": "虹彩飞溅",
+       "per_stack": true,
+       "stacks": 3
+      },
+      {
+       "stat": "final",
+       "value": 0.3,
+       "skill": "视觉冲击",
+       "per_stack": true,
+       "stacks": 3
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "skill:1004503:1": [
+    {
+     "key": "d8b025943870ff2e",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.24,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1004509": [
+    {
+     "key": "c62c4f4e19da48a6",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib"
+      }
+     ],
+     "rows": [
+      {
+       "name": "有空一起兜风！·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "100.00%"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "12b307bb38757535",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25
+      }
+     ]
+    }
+   ]
+  },
+  "莫宁": {
+   "inherent:1004404": [
+    {
+     "key": "9693d53b8edcdda5",
+     "effects": [
+      {
+       "stat": "er",
+       "value": 0.1
+      },
+      {
+       "stat": "concerto",
+       "value": 40
+      }
+     ]
+    }
+   ],
+   "inherent:1004405": [
+    {
+     "key": "7afc9bd059893094",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "2059b864b7847be7",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "06109db7de778ebd",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.32,
+       "team": true,
+       "needs": {
+        "stat": "er",
+        "value": 2.6,
+        "from": 1.0
+       }
+      },
+      {
+       "stat": "tune_eff",
+       "value": 0.2,
+       "team": true
+      }
+     ],
+     "notes": [
+      "暴击伤害对带着干涉标记的目标"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "8d8f192666b7822a",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 25
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "03f032c2921a21f2",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.3,
+       "skill": "强谐振场"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "45814bbd529422f0",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "lib",
+       "skill": "临界协议"
+      },
+      {
+       "stat": "mv",
+       "value": 1.6,
+       "skill": "粒子射流"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "88bf5b3115b4fdb6",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 4.0,
+       "kind": "lib",
+       "skill": "临界协议"
+      }
+     ]
+    }
+   ],
+   "skill:1004403:1": [
+    {
+     "key": "a063980f4d8e96b3",
+     "effects": [
+      {
+       "stat": "def_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "skill:1004407:1": [
+    {
+     "key": "ddec1e71359bfc70",
+     "effects": [
+      {
+       "stat": "tune_eff",
+       "value": 0.5,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1004409": [
+    {
+     "key": "af156c3c25459851",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "17febd8bbe24eb77",
+     "effects": [
+      {
+       "stat": "tune_eff",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "陆·赫斯": {
+   "inherent:1004704": [
+    {
+     "key": "8a660c19572e63af",
+     "effects": []
+    }
+   ],
+   "inherent:1004705": [
+    {
+     "key": "096ae481afa5b915",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "when": [
+        "集谐响应"
+       ]
+      },
+      {
+       "stat": "atk_pct",
+       "value": 0.25,
+       "when": [
+        "集谐响应"
+       ]
+      }
+     ],
+     "notes": [
+      "伤害加深按满 30% 算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "82f193621788e4a5",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 1.5,
+       "skill": "空中攻击"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "22d17af1299490d4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "lib",
+       "skill": "于永冻中释义"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "when": [
+        "集谐响应"
+       ]
+      }
+     ],
+     "notes": [
+      "无因的医谕的加深上限提到 60%"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "a4498d5698fc8a69",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.36,
+       "skill": "斩杀日冕"
+      },
+      {
+       "stat": "mv",
+       "value": 1.36,
+       "skill": "判决大地裂响"
+      },
+      {
+       "stat": "mv",
+       "value": 1.36,
+       "skill": "日髓阵列"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "96e59554f61a621e",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "d61d94701d6a9cf2",
+     "effects": [
+      {
+       "stat": "dmg_intro",
+       "value": 0.8
+      },
+      {
+       "stat": "dmg_outro",
+       "value": 0.8
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "skill",
+       "skill": "流金回潮"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "b34a7b63b221fd71",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3,
+       "skill": "斩杀日冕"
+      },
+      {
+       "stat": "final",
+       "value": 0.3,
+       "skill": "日髓阵列"
+      },
+      {
+       "stat": "final",
+       "value": 0.3,
+       "skill": "判决大地裂响"
+      },
+      {
+       "stat": "dmg_lib",
+       "value": 1.2,
+       "skill": "于永冻中释义"
+      }
+     ],
+     "notes": [
+      "【终局之释义】按满层算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "96e59554f61a621e",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "爱弥斯": {
+   "inherent:1004604": [
+    {
+     "key": "1a9effb79bc41a5b",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 2.0,
+       "kind": "heavy",
+       "skill": "重击·爱弥斯"
+      },
+      {
+       "stat": "amplify",
+       "value": 2.0,
+       "kind": "heavy",
+       "skill": "重击·机兵"
+      }
+     ]
+    }
+   ],
+   "inherent:1004605:121001": [
+    {
+     "key": "38ae4f8a6bfe3ca0",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.2,
+       "per_stack": true,
+       "stacks": 3,
+       "when": [
+        "震谐响应"
+       ]
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib",
+       "skill": "星辉破界而来·终结"
+      }
+     ]
+    }
+   ],
+   "inherent:1004605:121002": [
+    {
+     "key": "0dc63ffb94415944",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.3,
+       "per_stack": true,
+       "stacks": 2,
+       "when": [
+        "聚爆"
+       ]
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib",
+       "skill": "星辉破界而来·终结"
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "cdf3ab942fa7b571",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 3.0,
+       "kind": "heavy",
+       "skill": "重击·爱弥斯"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 3.0,
+       "kind": "heavy",
+       "skill": "重击·机兵"
+      }
+     ]
+    }
+   ],
+   "chain:1:121001": [
+    {
+     "key": "1080822acc700d78",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "f5635111e266f1b4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "skill",
+       "skill": "光翼共奏·降临"
+      },
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "skill",
+       "skill": "光翼共奏·登台"
+      }
+     ]
+    }
+   ],
+   "chain:2:121001": [
+    {
+     "key": "27bea79a52885a99",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "skill",
+       "skill": "光翼共奏",
+       "per_stack": true,
+       "stacks": 5
+      }
+     ]
+    }
+   ],
+   "chain:2:121002": [
+    {
+     "key": "21e71c3131e729dc",
+     "effects": [],
+     "notes": [
+      "聚爆效应的倍率提升：计算的异常效应伤害只算光噪"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "48779461a54811b4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "lib",
+       "skill": "星辉破界而来·终结"
+      },
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "lib",
+       "skill": "星辉破界而来·过载"
+      }
+     ]
+    }
+   ],
+   "chain:3:121001": [
+    {
+     "key": "5b02b42694a34a70",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.6,
+       "when": [
+        "震谐响应"
+       ]
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib",
+       "skill": "星辉破界而来·终结",
+       "when": [
+        "震谐响应"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:3:121002": [
+    {
+     "key": "4fdb75b6f41035b4",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.6,
+       "when": [
+        "聚爆"
+       ]
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "lib",
+       "skill": "星辉破界而来·终结",
+       "when": [
+        "聚爆"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "94d64a026439f56c",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "77306746d9fdc1a3",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "b76df14be49d2971",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "kind": "lib"
+      }
+     ]
+    }
+   ],
+   "chain:6:121001": [
+    {
+     "key": "34e1fc307fdd8b06",
+     "effects": [],
+     "notes": [
+      "震谐伤害可暴击、轨迹上限：计算没有这一行"
+     ]
+    },
+    {
+     "key": "e8ac99863409d255",
+     "effects": [],
+     "notes": [
+      "震谐伤害可暴击、轨迹上限：计算没有这一行"
+     ]
+    }
+   ],
+   "chain:6:121002": [
+    {
+     "key": "0b3c66a220388c49",
+     "effects": []
+    }
+   ],
+   "outro:1004609": [
+    {
+     "key": "198a6031aa192135",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1004609:2": [
+    {
+     "key": "1b9686852c2dbb5d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "94d64a026439f56c",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "西格莉卡": {
+   "inherent:1005104": [
+    {
+     "key": "0a216861f754ee0d",
+     "effects": []
+    }
+   ],
+   "inherent:1005105": [
+    {
+     "key": "93235cf10bad80ae",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.03,
+       "team": true,
+       "per_stack": true,
+       "stacks": 6
+      },
+      {
+       "stat": "dmg_echo",
+       "value": 0.03,
+       "team": true,
+       "per_stack": true,
+       "stacks": 6
+      },
+      {
+       "stat": "dmg_4",
+       "value": 0.3
+      },
+      {
+       "stat": "dmg_echo",
+       "value": 0.3
+      },
+      {
+       "stat": "dmg_echo",
+       "value": 0.5,
+       "needs": {
+        "stat": "er",
+        "value": 1.5,
+        "from": 1.25
+       }
+      }
+     ],
+     "notes": [
+      "语义的祝福按满 6 层算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b3913a3278aa5310",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "skill": "明悟"
+      },
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "skill": "解读"
+      },
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "skill": "大嘭嘭！"
+      },
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "skill": "日灵帮帮忙"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "6cae3afffbffc63d",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "我即语义"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "a89fac78c0900c0f",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "cc35930eb9295990",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "1e5939725c791be5",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.3,
+       "kind": "lib",
+       "skill": "如那期望般！"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "c7a1a47a034591b7",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.3
+      },
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "skill": "符语爆破"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "skill": "符语链刃"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "skill": "符语日灵"
+      },
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "skill": "我即语义"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "符语爆破"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "符语链刃"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "符语日灵"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.3,
+       "skill": "我即语义"
+      }
+     ],
+     "notes": [
+      "「天赋？」按满层算"
+     ]
+    }
+   ],
+   "inherent:1005105:1": [
+    {
+     "key": "a43ff2d98127fdae",
+     "effects": [
+      {
+       "stat": "dmg_4",
+       "value": 0.03,
+       "team": true,
+       "per_stack": true,
+       "stacks": 6
+      },
+      {
+       "stat": "dmg_echo",
+       "value": 0.03,
+       "team": true,
+       "per_stack": true,
+       "stacks": 6
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "cc35930eb9295990",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "达妮娅": {
+   "inherent:1005304": [
+    {
+     "key": "c781f76b8baafa6e",
+     "effects": []
+    }
+   ],
+   "inherent:1005305": [
+    {
+     "key": "1eaf315207660ae1",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.3,
+       "team": true
+      }
+     ],
+     "notes": [
+      "共鸣模态·聚爆时；集谐时的谐度破坏增幅不算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "9f4f839f69ab090d",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "chain:2:121101": [
+    {
+     "key": "7d09321eb6af185e",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.5,
+       "when": [
+        "聚爆"
+       ]
+      },
+      {
+       "stat": "res_shred",
+       "value": 0.1,
+       "element": 2
+      }
+     ],
+     "notes": [
+      "简并虚质按满 10 层算"
+     ]
+    }
+   ],
+   "chain:2:121102": [
+    {
+     "key": "d3144c1c6cc28c5c",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "skill",
+       "skill": "放逐·幻灭之形"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "5cd892c3c1010332",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "lib",
+       "skill": "帷幕终景·幻灭之形"
+      },
+      {
+       "stat": "mv",
+       "value": 12.0,
+       "skill": "拟态泡泡·布景之形"
+      },
+      {
+       "stat": "concerto",
+       "value": 30
+      }
+     ],
+     "notes": [
+      "【黯核】满时的倍率按共鸣技能算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "b8000f26bc7e2bdd",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "6ba1981c6263d00e",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 1.0,
+       "kind": "lib",
+       "skill": "帷幕终景·布景之形"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "538a7647281b8b96",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.6
+      },
+      {
+       "stat": "dmg_2",
+       "value": 0.6
+      }
+     ]
+    }
+   ],
+   "chain:6:121101": [
+    {
+     "key": "35a8383f214482c2",
+     "effects": [],
+     "notes": [
+      "聚爆效应的倍率提升：计算的异常效应伤害只算光噪"
+     ]
+    }
+   ],
+   "chain:6:121102": [
+    {
+     "key": "087e2526f124fbc5",
+     "effects": []
+    }
+   ],
+   "inherent:1005305:1": [
+    {
+     "key": "79572f769236c246",
+     "effects": [
+      {
+       "stat": "dmg_2",
+       "value": 0.3,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1005309": [
+    {
+     "key": "aec76e63031ba68d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "effect": "聚爆",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1005309:2": [
+    {
+     "key": "dc372ccfc8c07ded",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15
+      }
+     ]
+    }
+   ]
+  },
+  "丽贝卡": {
+   "inherent:1004804": [
+    {
+     "key": "4cdc5dfa5f783133",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1,
+       "per_stack": true,
+       "stacks": 2
+      }
+     ],
+     "notes": [
+      "谐度破坏增幅不算"
+     ]
+    }
+   ],
+   "inherent:1004805": [
+    {
+     "key": "3ab7c4dc10773226",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "7039969e4990d847",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "猎手"
+      },
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "铁胆"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "6f688a35790d2b8b",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      },
+      {
+       "stat": "amplify",
+       "value": 0.15,
+       "team": true,
+       "when": [
+        "骇破响应"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "47311aeda8fbbdfb",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "lib",
+       "skill": "狂欢时间！"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "lib",
+       "skill": "大烟花！"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "7c6bae2439302e51",
+     "effects": [],
+     "notes": [
+      "小孩子才做选择！的加成原来是多少不知道，没算"
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "73f5e819ceaf3dad",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "afcafa39eeffd5c8",
+     "effects": [
+      {
+       "stat": "dmg_basic",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "普攻加成提升 40% 按加 40% 算"
+     ],
+     "rows": [
+      {
+       "name": "六链·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "900.00%"
+       ],
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "inherent:1004805:1": [
+    {
+     "key": "4db143d017ba25a5",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1004809": [
+    {
+     "key": "c96b0ea76e397cf1",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.15
+      },
+      {
+       "stat": "amplify",
+       "value": 0.35,
+       "kind": "heavy"
+      }
+     ],
+     "notes": [
+      "超限按满 35% 算"
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "aff10574a975c6c1",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "洛瑟菈": {
+   "inherent:1005004": [
+    {
+     "key": "d7a4b7d39d13130c",
+     "effects": []
+    }
+   ],
+   "inherent:1005004:110901": [
+    {
+     "key": "d78e855395cd9cae",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.08,
+       "element": 1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "inherent:1005004:110902": [
+    {
+     "key": "ed889a9b495c9b01",
+     "effects": [
+      {
+       "stat": "dmg_echo",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "inherent:1005005": [
+    {
+     "key": "7ae2521cc7a84ee4",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "a07d4746b7c55f7e",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "a9ce308a0691e7bc",
+     "effects": []
+    }
+   ],
+   "chain:2:110901": [
+    {
+     "key": "38551d4159e1aef1",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.8,
+       "effect": "霜渐",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:2:110902": [
+    {
+     "key": "27e4be69a6106728",
+     "effects": [
+      {
+       "stat": "dmg_echo",
+       "value": 0.4,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "53c63dbc2c3bdadc",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "skill": "断舍离"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "6f54682282cdf9a6",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1,
+       "per_stack": true,
+       "stacks": 3
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "93ef0a7dd4082453",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "遗忘"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "329b66beffab2485",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 2.0,
+       "skill": "断舍离",
+       "per_stack": true,
+       "stacks": 3
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ],
+   "inherent:1005004:1": [
+    {
+     "key": "d78e855395cd9cae",
+     "effects": [
+      {
+       "stat": "res_shred",
+       "value": 0.08,
+       "element": 1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "inherent:1005004:2": [
+    {
+     "key": "6842ce8da4e36908",
+     "effects": [
+      {
+       "stat": "dmg_echo",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "skill:1005007:1": [
+    {
+     "key": "c5e984b9282dd8dc",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.1,
+       "kind": "echo",
+       "team": true,
+       "per_stack": true,
+       "stacks": 4
+      }
+     ],
+     "notes": [
+      "变焦按满 4 层算"
+     ]
+    }
+   ],
+   "outro:1005009": [
+    {
+     "key": "044ab9e69ec26302",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.6,
+       "effect": "霜渐",
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1005009:2": [
+    {
+     "key": "c86bd8ad2055cbde",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.5,
+       "kind": "echo"
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "38551d4159e1aef1",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.8,
+       "effect": "霜渐",
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "露西": {
+   "inherent:1004904": [
+    {
+     "key": "433ce9f5c5f51183",
+     "effects": []
+    }
+   ],
+   "inherent:1004905": [
+    {
+     "key": "43c78877deb2f839",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25
+      }
+     ],
+     "notes": [
+      "按两层【网络后门】算；骇破伤害的倍率不算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "e39b2176cb7b80a5",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "adbb540ef16fc753",
+     "effects": [],
+     "rows": [
+      {
+       "name": "脉冲干扰·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "450.00%"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "c812534830b7a9a7",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "skill": "覆写篡改"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 1.0,
+       "skill": "覆写篡改"
+      }
+     ],
+     "notes": [
+      "欺骗程式和骇破响应的倍率不算：计算没有这一行"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "13fcce2287871dd8",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "e421bb279be9a296",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "91859145c9dc3b7b",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "kind": "heavy",
+       "when": [
+        "骇破响应"
+       ]
+      }
+     ],
+     "notes": [
+      "骇破伤害不算"
+     ]
+    }
+   ],
+   "outro:1004909": [
+    {
+     "key": "261132ff0940f89c",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "13fcce2287871dd8",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "绯雪": {
+   "inherent:1005204": [
+    {
+     "key": "338efdc5bb3a2d5c",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "霜冻效应的伤害：计算没有这一行"
+     ]
+    }
+   ],
+   "inherent:1005205": [
+    {
+     "key": "312032aeb3c99d92",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b293ff94fa80f81c",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.2,
+       "skill": "预求身"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "c7ee49afae24b4c8",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.25,
+       "kind": "basic",
+       "skill": "居合"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "482af21a2f9a946b",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.6,
+       "kind": "heavy",
+       "skill": "寒簇·常世身"
+      },
+      {
+       "stat": "mv",
+       "value": 1.6,
+       "kind": "heavy",
+       "skill": "枯霜·预求身"
+      }
+     ],
+     "notes": [
+      "额外异常倍率不算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "0477257f66a3446b",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "746e36fa2aeb9dc4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "常世身"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "白玉切"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "skill": "落华"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "18c140081437c3f5",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 5.0,
+       "skill": "预求我身·见心"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 5.0,
+       "skill": "预求我身·归刃"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.4
+      }
+     ],
+     "notes": [
+      "霜冻效应的伤害：计算没有这一行"
+     ]
+    }
+   ],
+   "outro:1005209": [
+    {
+     "key": "0898f8db27fd2900",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 1,
+       "when": [
+        "霜渐"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "30d7b6728191ec56",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:6:1": [
+    {
+     "key": "42ca9fc34260174b",
+     "effects": [],
+     "notes": [
+      "霜冻效应的伤害：计算没有这一行"
+     ]
+    }
+   ]
+  },
+  "漂泊者·导电": {
+   "inherent:1005504": [
+    {
+     "key": "95f9a0c0ea828f6b",
+     "effects": []
+    }
+   ],
+   "inherent:1005505": [
+    {
+     "key": "8eb8f2b04efb753c",
+     "effects": [
+      {
+       "stat": "dmg_skill",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "5bdd94e84300487c",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "7a415345187530fe",
+     "effects": []
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "ae50dd363c9afac7",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "skill",
+       "skill": "超负荷"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "017dcf7ba228d5d6",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "lib",
+       "skill": "最终战略"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "65d500024f65159f",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.2
+      }
+     ],
+     "notes": [
+      "临界共鸣状态时"
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "1c8bd9e5d244e0e7",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "kind": "skill",
+       "skill": "千声翻涌"
+      },
+      {
+       "stat": "mv",
+       "value": 0.2,
+       "skill": "雷陨"
+      }
+     ]
+    }
+   ],
+   "skill:1005507:1": [
+    {
+     "key": "2a61cd7c57e95c3b",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.1,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1005509": [
+    {
+     "key": "1b5ebea4adca3480",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "when": [
+        "光噪",
+        "电磁",
+        "聚爆",
+        "虚湮",
+        "霜渐",
+        "风蚀"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "秧秧·玄翎": {
+   "inherent:1005404": [
+    {
+     "key": "fc9c56b5fec77f71",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "when": [
+        "虚湮"
+       ]
+      },
+      {
+       "stat": "amplify",
+       "value": 0.36,
+       "when": [
+        "虚湮"
+       ]
+      }
+     ],
+     "notes": [
+      "按目标 6 层虚湮效应算"
+     ]
+    }
+   ],
+   "inherent:1005405": [
+    {
+     "key": "a41c2122aed29e27",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "d3f0cb06070e2327",
+     "effects": [],
+     "rows": [
+      {
+       "name": "玄翎之影·抗坠",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "337.98%"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "4c7f5ce996c10f3e",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 1.0,
+       "skill": "重击·苍剑式"
+      },
+      {
+       "stat": "final",
+       "value": 1.0,
+       "skill": "重击·羽剑式"
+      },
+      {
+       "stat": "final",
+       "value": 1.0,
+       "skill": "释羽风落"
+      },
+      {
+       "stat": "final",
+       "value": 1.0,
+       "skill": "湮象风华"
+      }
+     ],
+     "rows": [
+      {
+       "name": "戛剑棹歌而远·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "337.98%"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "5ad83e791cf71e55",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 1.75,
+       "kind": "lib",
+       "skill": "裁羽寂万音"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "e685541568a5c457",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "cd8ad0d95f12bb0e",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "bbc342b4a80788fd",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "kind": "heavy"
+      }
+     ],
+     "rows": [
+      {
+       "name": "玄翎之影·止如槁木",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "337.98%"
+       ],
+       "bonus": "heavy"
+      }
+     ]
+    }
+   ],
+   "outro:1005409": [
+    {
+     "key": "f198adeb4a813939",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 6,
+       "when": [
+        "虚湮"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "e685541568a5c457",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "穗穗": {
+   "inherent:1005704": [
+    {
+     "key": "e2171e0e5a6fddcb",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.8,
+       "skill": "醒春潮"
+      },
+      {
+       "stat": "crit",
+       "value": 0.8,
+       "skill": "泠泠漱玉声"
+      },
+      {
+       "stat": "dmg_1",
+       "value": 2.4,
+       "skill": "醒春潮"
+      },
+      {
+       "stat": "dmg_1",
+       "value": 2.4,
+       "skill": "泠泠漱玉声"
+      },
+      {
+       "stat": "concerto",
+       "value": 18
+      },
+      {
+       "stat": "energy",
+       "value": 13
+      }
+     ]
+    }
+   ],
+   "inherent:1005705": [
+    {
+     "key": "188439ad263d5828",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "f2dd8de78b18ab74",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "aeab1f24ae1102b8",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.5,
+       "team": true,
+       "when": [
+        "光噪",
+        "电磁",
+        "聚爆",
+        "虚湮",
+        "霜渐",
+        "风蚀"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "a3b5b16d49883393",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 20
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "943fbb995aada3d7",
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.5,
+       "skill": "润物"
+      },
+      {
+       "stat": "heal",
+       "value": 0.5,
+       "skill": "春生"
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "41b6bd075acab363",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "skill": "濯雨时"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "10ec801609bf00b1",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 5.0,
+       "skill": "泠泠漱玉声"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 5.0,
+       "skill": "醒春潮"
+      }
+     ]
+    }
+   ],
+   "outro:1005709": [
+    {
+     "key": "af156c3c25459851",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "outro:1005709:2": [
+    {
+     "key": "0b0f58d9b046b1ba",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.5,
+       "needs": {
+        "stat": "er",
+        "value": 2.6,
+        "from": 2.0
+       }
+      }
+     ],
+     "notes": [
+      "要消耗目标的异常效应层数"
+     ]
+    }
+   ]
+  },
+  "清宵": {
+   "inherent:1005804": [
+    {
+     "key": "f63bca696ce4d97d",
+     "effects": []
+    }
+   ],
+   "inherent:1005805": [
+    {
+     "key": "32e44a7119f923b7",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.65,
+       "skill": "弦剑"
+      },
+      {
+       "stat": "final",
+       "value": 0.65,
+       "skill": "昙体仙身"
+      },
+      {
+       "stat": "final",
+       "value": 0.65,
+       "skill": "天光云影沧澜兴"
+      }
+     ],
+     "notes": [
+      "按 15 层心识锁定算"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "04478d5ea2ab54aa",
+     "effects": [
+      {
+       "stat": "crit",
+       "value": 0.16
+      }
+     ],
+     "notes": [
+      "巨阙灭迹的伤害不算：计算没有这一行"
+     ],
+     "rows": [
+      {
+       "name": "起若流云聚还散·额外伤害",
+       "kind": "damage",
+       "stat": "atk",
+       "values": [
+        "400.00%"
+       ],
+       "bonus": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "e8b5ef55190bb835",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "heavy",
+       "skill": "弦剑"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "1963d3eb55d638b5",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 1.0,
+       "kind": "lib",
+       "skill": "天光云影沧澜兴"
+      },
+      {
+       "stat": "mv",
+       "value": 0.75,
+       "skill": "天钧荡煞"
+      }
+     ],
+     "notes": [
+      "万物和鸣按 25 层算"
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "d0c32e9087238055",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2,
+       "when": [
+        "集谐响应"
+       ]
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "ac088b0942cf582e",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "skill",
+       "skill": "浮声一刹·行罚"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "579642a706b687ad",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "skill": "弦剑"
+      },
+      {
+       "stat": "final",
+       "value": 0.4,
+       "skill": "天钧荡煞"
+      },
+      {
+       "stat": "final",
+       "value": 0.4,
+       "skill": "天光云影沧澜兴"
+      }
+     ],
+     "notes": [
+      "巨阙灭迹的部分不算"
+     ]
+    }
+   ]
+  },
+  "心": {
+   "inherent:1006104:131101": [
+    {
+     "key": "d346516232274edf",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "inherent:1006104:131102": [
+    {
+     "key": "c66caad2d58ccf79",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.25,
+       "when": [
+        "电磁"
+       ],
+       "per_stack": true,
+       "stacks": 2
+      },
+      {
+       "stat": "dmg_3",
+       "value": 0.2,
+       "when": [
+        "漂泊者·导电"
+       ]
+      }
+     ]
+    }
+   ],
+   "inherent:1006105:131101": [
+    {
+     "key": "fe2ce3f6959469a3",
+     "effects": []
+    }
+   ],
+   "inherent:1006105:131102": [
+    {
+     "key": "db7052582557e82e",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "08eef483936ce992",
+     "effects": []
+    }
+   ],
+   "chain:1:131101": [
+    {
+     "key": "6eee1a98e096a93f",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.55,
+       "kind": "intro",
+       "skill": "诸相同奏"
+      }
+     ],
+     "notes": [
+      "【同奏增益】按满 4 层算"
+     ]
+    }
+   ],
+   "chain:1:131102": [
+    {
+     "key": "ab7e7ef3ad1ce075",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "5b61caface6d80e3",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "heavy",
+       "skill": "步红尘"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "heavy",
+       "skill": "镇红尘"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "heavy",
+       "skill": "临寰宇"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "heavy",
+       "skill": "镇寰宇"
+      }
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "a4e217cb8e4bde8d",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.7,
+       "kind": "lib",
+       "skill": "万阙垂天"
+      }
+     ]
+    }
+   ],
+   "chain:3:131101": [
+    {
+     "key": "4d08728f18a96632",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.8,
+       "kind": "lib",
+       "skill": "万阙垂天"
+      }
+     ],
+     "notes": [
+      "【同奏增益】按满 4 层算"
+     ]
+    }
+   ],
+   "chain:3:131102": [
+    {
+     "key": "1349ac8328d0bebd",
+     "effects": []
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "5011c95493427a57",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "fbbd3414132e7b82",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "f7b6d060b76a01a0",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "kind": "skill"
+      },
+      {
+       "stat": "def_ignore",
+       "value": 0.2,
+       "kind": "skill"
+      }
+     ]
+    }
+   ],
+   "chain:6:131101": [
+    {
+     "key": "450f5b70d04feab5",
+     "effects": []
+    }
+   ],
+   "chain:6:131102": [
+    {
+     "key": "aa7fb258e73a7c5d",
+     "effects": []
+    }
+   ],
+   "outro:1006109": [
+    {
+     "key": "7522534d2cd4f6fd",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "when": [
+        "同奏"
+       ]
+      }
+     ]
+    }
+   ],
+   "outro:1006109:2": [
+    {
+     "key": "62a649fbabb89f2f",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 3,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "d3f719c18589dd89",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "景燃": {
+   "inherent:1005904": [
+    {
+     "key": "d0065d16aeafaada",
+     "effects": []
+    }
+   ],
+   "inherent:1005905": [
+    {
+     "key": "f54e3f54b27fe2ac",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "aab79bf583cc0629",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "skill",
+       "skill": "阴蚀骨"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "skill",
+       "skill": "黄泉渡"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "skill",
+       "skill": "阳焚身"
+      },
+      {
+       "stat": "mv",
+       "value": 0.8,
+       "kind": "skill",
+       "skill": "往生送"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "eb1f20c96f668bd2",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.46,
+       "kind": "heavy",
+       "skill": "劫魄"
+      },
+      {
+       "stat": "mv",
+       "value": 0.46,
+       "kind": "heavy",
+       "skill": "踏罡"
+      }
+     ],
+     "notes": [
+      "通幽每次进入战斗只有一次：没算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "4b3a8febf8e3cf24",
+     "effects": [
+      {
+       "stat": "atk",
+       "value": 2500,
+       "needs": {
+        "stat": "hp",
+        "value": 50000,
+        "from": 0.0
+       }
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "9b6c50d0071e1d41",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "8907e43ef9b5c8af",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "1b0c7405e782d047",
+     "effects": [
+      {
+       "stat": "final",
+       "value": 0.4,
+       "kind": "heavy"
+      }
+     ],
+     "notes": [
+      "魑魅魍魉的伤害不算：计算没有这一行"
+     ]
+    }
+   ],
+   "chain:4:1": [
+    {
+     "key": "9b6c50d0071e1d41",
+     "effects": [
+      {
+       "stat": "dmg_all",
+       "value": 0.2,
+       "team": true
+      }
+     ]
+    }
+   ]
+  },
+  "锁暝": {
+   "inherent:1006204": [
+    {
+     "key": "0c3b69f616b53b8c",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.5
+      },
+      {
+       "stat": "concerto",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "inherent:1006205": [
+    {
+     "key": "4a612300afec877a",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 1.0,
+       "kind": "basic",
+       "skill": "解伞形"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 1.0
+      }
+     ],
+     "notes": [
+      "按禁锁契主算：它和协契不同时在"
+     ]
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b443fc7be3682335",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "intro",
+       "skill": "拢伞形·闪裂"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "intro",
+       "skill": "解伞形·碎霆"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "intro",
+       "skill": "拢伞形·锁妄念·同奏"
+      },
+      {
+       "stat": "mv",
+       "value": 0.6,
+       "kind": "intro",
+       "skill": "解伞形·旋雷破·同奏"
+      }
+     ]
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "4f9df7728748beaf",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.4
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 0.34,
+       "others": true
+      }
+     ],
+     "notes": [
+      "给下一位的按满 4 层【同奏增益】算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "8c7a2dc4ac426d6d",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.3,
+       "kind": "basic"
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "b75fc7d54b284972",
+     "effects": [
+      {
+       "stat": "atk_pct",
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "d564ccaf2231400c",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.4,
+       "kind": "lib",
+       "skill": "暝伞形·重锁狱瘴"
+      }
+     ]
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "8f449b32fa6681e4",
+     "effects": [
+      {
+       "stat": "mv",
+       "value": 0.5,
+       "kind": "basic",
+       "skill": "暝伞形·刻心念"
+      },
+      {
+       "stat": "crit_dmg",
+       "value": 2.0
+      }
+     ],
+     "notes": [
+      "【同奏增益】效果提升的部分不算"
+     ]
+    }
+   ],
+   "inherent:1006205:1": [
+    {
+     "key": "cee1dba33f52cda8",
+     "effects": [
+      {
+       "stat": "dmg_3",
+       "value": 0.7
+      }
+     ],
+     "notes": [
+      "按满 2 层【同奏增益】算"
+     ]
+    }
+   ],
+   "outro:1006209": [
+    {
+     "key": "4300a1d790381a0b",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.2,
+       "element": 3
+      },
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "kind": "skill"
+      }
+     ]
+    }
+   ],
+   "chain:2:1": [
+    {
+     "key": "b7a059c2053ec5cc",
+     "effects": [
+      {
+       "stat": "crit_dmg",
+       "value": 0.34
+      }
+     ],
+     "notes": [
+      "按满层算"
+     ]
+    }
+   ]
+  },
+  "莉莉": {
+   "inherent:1006304": [
+    {
+     "key": "c535b1fd853ee0a2",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 25
+      }
+     ]
+    }
+   ],
+   "inherent:1006305": [
+    {
+     "key": "c47ab17c0a76e5b6",
+     "effects": []
+    }
+   ],
+   "chain:1": [
+    {
+     "key": "b472c859fff1e5e9",
+     "effects": []
+    }
+   ],
+   "chain:2": [
+    {
+     "key": "12e77c68a00dc36e",
+     "effects": [],
+     "notes": [
+      "【梦芳】层数不定：没算"
+     ]
+    }
+   ],
+   "chain:3": [
+    {
+     "key": "7e8cddba7c2bf03c",
+     "effects": [
+      {
+       "stat": "concerto",
+       "value": 10
+      },
+      {
+       "stat": "energy",
+       "value": 10
+      }
+     ]
+    }
+   ],
+   "chain:4": [
+    {
+     "key": "a479a4394bce3d3e",
+     "effects": []
+    }
+   ],
+   "chain:5": [
+    {
+     "key": "b3cd31843e7a3bfa",
+     "effects": []
+    }
+   ],
+   "chain:6": [
+    {
+     "key": "d9f68b34ed2be01d",
+     "effects": [
+      {
+       "stat": "dmg_5",
+       "value": 1.0,
+       "skill": "梦之童话的落幕"
+      },
+      {
+       "stat": "dmg_5",
+       "value": 1.0,
+       "skill": "梦之魇影的终结"
+      },
+      {
+       "stat": "dmg_5",
+       "value": 7.0,
+       "skill": "永绽"
+      }
+     ]
+    }
+   ],
+   "outro:1006309": [
+    {
+     "key": "af156c3c25459851",
+     "effects": [
+      {
+       "stat": "amplify",
+       "value": 0.25,
+       "team": true
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "recommended": {
+  "漂泊者·气动": [
+   "隐世回光",
+   "流云逝尽之空",
+   "愿戴荣光之旅"
+  ]
+ },
+ "shields": [
+  "桃祈",
+  "鉴心",
+  "奥古斯塔",
+  "景燃",
+  "尤诺",
+  "夏空",
+  "渊武"
+ ],
+ "modes": {
+  "菲比": [
+   {
+    "id": 9150601,
+    "name": "赦罪",
+    "text": "长按普攻进入：主C，自己打伤害"
+   },
+   {
+    "id": 9150602,
+    "name": "告解",
+    "text": "长按共鸣技能进入：副C，给队伍默祷"
+   }
+  ]
+ },
+ "kinds": {
+  "散华": "副C",
+  "莫特斐": "副C",
+  "丹瑾": "副C",
+  "渊武": "副C",
+  "秧秧": "副C",
+  "桃祈": "副C",
+  "夏空": "副C",
+  "坎特蕾拉": "副C",
+  "洛可可": "副C",
+  "釉瑚": "副C",
+  "漂泊者·气动": "副C"
+ }
+}
