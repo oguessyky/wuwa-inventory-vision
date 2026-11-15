@@ -549,6 +549,26 @@ class Catalogue:
         terms = json.loads(path.read_text(encoding="utf-8")).get("terms") or {}
         return {str(n): str(e) for n, e in terms.items() if e}
 
+    @cached_property
+    def calc_words(self) -> frozenset[str]:
+        """计算's own words (D322): each resonator's skills and their rows, the titles of its
+        chain, inherent skills and gifts, and its states -- as against the things 计算 names (an
+        echo set, an echo, a 全息), which other pages show too. Only 计算 and 配队 show these, so
+        only they are sent them in English (D327)."""
+        try:
+            data = json.loads((self.directory / "calc.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return frozenset()
+        out: set[str] = set()
+        for role in (data.get("roles") or {}).values():
+            for skill in role.get("skills") or []:
+                out.add(skill.get("name") or "")
+                out |= {row.get("name") or "" for row in skill.get("rows") or []}
+            for buff in [*(role.get("buffs") or []), *(role.get("gives") or [])]:
+                out.add(buff.get("title") or "")
+            out |= {mode.get("name") or "" for mode in role.get("modes") or []}
+        return frozenset(out - {""})
+
     def english(self, name: str | None) -> str | None:
         """A name's English name, or None (D163)."""
         found = self.english_names.get(name or "")

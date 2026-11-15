@@ -91,6 +91,11 @@ into the app (`calc_data.SUB_TIERS`) from what the community compiled: **Wutheri
 (<https://christopherklay.github.io/WutheringInsight>) and **Buffget**
 (<https://buffget.com/news/wuthering-waves-sub-stats-guide-12-crit-and-min-maxing>). Its damage
 formula is the community's tested one: Kuro has not published one, and the page says so.
+Its 小毕业 and 大毕业 score a build against a reference a player can reach -- of 25 substats at
+most 16 that count, 32 steps up the rolls, the two most useful held to 29% of theirs -- after
+the method **thewuwacalculator.com** (by ssjrunor, <https://thewuwacalculator.com/docs>)
+publishes for its build score. Nothing is downloaded from it; the search is this project's own
+code.
 
 The English names of the game's places and factions on the 猜谜 page are the game's own words,
 checked in the game by hand.

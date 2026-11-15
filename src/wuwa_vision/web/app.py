@@ -45,7 +45,7 @@ from pydantic import BaseModel, Field
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
 from .. import calc as calc_mod
-from .. import calc_data, demo, exp, guess, planner, roster, versions, web_icons
+from .. import calc_data, demo, exp, guess, planner, roster, search, versions, web_icons
 from .. import cooking as cooking_mod
 from .. import dashboard as dashboard_mod
 from .. import echo_sets as echo_sets_mod
@@ -677,6 +677,11 @@ KEPT_ANSWERS = frozenset({
     "/api/resonators", "/api/weapons", "/api/shops", "/api/recognized", "/api/holders",
     "/api/item",
 })
+#: The two parts of the search index (D328): `/api/find?part=`.
+FIND_PARTS = frozenset({"pinyin", "english"})
+#: What a 材料 tier carries that its page never reads (D327): one build's need (the panel asks
+#: /api/item for it), what the tier is made into, and the tier below's picture and rarity.
+MATERIALS_UNSHOWN = frozenset({"per_build", "to_name", "from_icon", "from_rarity", "sent_up"})
 #: How many answers are kept: every page in both languages, and the panels last opened.
 KEEP_ANSWERS = 160
 
@@ -705,8 +710,6 @@ def list_query(answer: dict, key: str, asked: dict[str, str],
     """`answer` with its list `key` searched (`q`, as the search boxes search: the name as
     written, its pinyin, initials or English), sorted (`sort`, `dir`; rows without the field
     last either way) and paged (`offset`, `limit`). `total` is how many matched (D171)."""
-    from .. import search
-
     rows = list(answer.get(key) or [])
     typed = (asked.get("q") or "").strip()
     if typed:
@@ -1621,6 +1624,22 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
 
         return calc_data.cached(CATALOGUE_DIR)
 
+    def kept_grade(st: Store, data: dict, name: str, setup: dict) -> bool:
+        """大毕业 on this kept setup, for the picker's tick (D330): as it was kept, while the setup,
+        the game data and the grading's rules are what it was worked out from; else worked out
+        once again and kept."""
+        from ..catalogue import CATALOGUE_DIR
+
+        key = hashlib.sha1(json.dumps(
+            [calc_mod.GRADE_RULES, calc_data.stamp(CATALOGUE_DIR), setup],
+            sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+        held = st.calc_grade(name)
+        if held is not None and held[0] == key:
+            return held[1] == "大毕业"
+        grade = calc_mod.compute(data, setup, name)["grade"]["grade"]
+        st.save_calc_grade(name, key, grade)
+        return grade == "大毕业"
+
     def calc_role(data: dict, name: str) -> str:
         found = calc_mod.find_role(data["roles"], name)
         if found is None:
@@ -1719,10 +1738,11 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             return {"have": False}
         pictures = echo_pictures()
         echo_icons, set_icons = pictures.get("echoes") or {}, pictures.get("sets") or {}
-        # 大毕业, from each one's kept setup (D273)
+        # 大毕业, from each one's kept setup (D273), as it was kept with it (D330)
         st = Store(db())
         try:
             kept = {n: st.calc_setup(n) for n in data["roles"]}
+            ticked = {n: kept_grade(st, data, n, k) for n, k in kept.items() if k}
         finally:
             st.close()
         return {
@@ -1731,9 +1751,8 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             "resonators": [{"name": n, "rarity": r["rarity"], "element": r["element"],
                             "weapon_type": r["weapon_type"], "modes": r.get("modes") or [],
                             "recommended": r.get("recommended") or [],
-                            # the picker's tick: 大毕业 on the kept setup (D274)
-                            "graduated": bool(kept.get(n)) and calc_mod.compute(
-                                data, kept[n], n)["grade"]["grade"] == "大毕业",
+                            # the picker's tick: 大毕业 on the kept setup (D274, D330)
+                            "graduated": ticked.get(n, False),
                             "tags": r.get("tags") or [],
                             # the six chain nodes by name, once each (a mode's paragraph is
                             # the same node)
@@ -1927,6 +1946,8 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         try:
             st.save_calc_setup(found, setup)
             known["kept_at"] = st.calc_setup_at(found)
+            # the picker's tick for what was kept, worked out now, not on the next page (D330)
+            kept_grade(st, data, found, setup)
         finally:
             st.close()
         return reply
@@ -2306,8 +2327,6 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
              **({"rover": True} if n in rovers else {})}
             for n in sorted(cat.names()) if (e := cat.entry(n)) and e.get("tab") != WEAPON_TAB
         ]
-        from .. import search
-
         weapons = [
             {"name": n, "rarity": b.get("rarity") or 0, "type": b.get("type"),
              "find": search.keys(n, cat.english(n) or ""),
@@ -2445,7 +2464,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             groups = material_groups(st, cat, inventory)
             owned = {i.name: i.count or 0 for i in inventory if i.name}
             return {
-                "groups": [g.as_dict() for g in groups],
+                # each tier as the page reads it: the planner's own working left out (D327)
+                "groups": [{**g, "tiers": [{k: v for k, v in t.items()
+                                            if k not in MATERIALS_UNSHOWN} for t in g["tiers"]]}
+                           for g in (g.as_dict() for g in groups)],
                 # the targets the user set themselves, so the page can offer to
                 # put all of them back at once (D87)
                 "by_hand": sorted(st.material_targets()),
@@ -2885,17 +2907,42 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         return {"name": name, "english": found[0], "source": found[1]}
 
     @app.get("/api/find")
-    def find_keys() -> dict:
+    def find_keys(part: str | None = None, lang: str | None = None,
+                  terms: bool = False) -> dict:
         """What a name can be typed as, for everything that is not a resonator or
         a weapon (D148): each item of the catalogue, each thing in the bag, each
         boss, the words a list is grouped by, and each shop by its names and where
         it is (D161). Those two carry their keys on
         their own rows (D136); an item has no row of its own in half the places
         its name is shown -- a dish's ingredient, a family's tier, a drop's boss --
-        so the pages ask once for the whole table and look a name up in it."""
+        so the pages ask once for the whole table and look a name up in it.
+
+        One index in two parts, both keyed by the Chinese name (D328), asked for by `part`
+        so a page downloads only what it lacks: `pinyin` (`keys`: pinyin and initials) and
+        `english` (`english`: the English names, with 计算's own words, D322, only when `terms`
+        asks for them, D327). `lang=zh` and `lang=en` are D327's names for the two parts.
+        Without either: all of it, as before."""
+        named = part or {"zh": "pinyin", "en": "english"}.get(lang or "", "")
+        asked = set(named.split(",")) - {""}
+        if unknown := ", ".join(sorted(asked - FIND_PARTS)):
+            raise HTTPException(400, _said(f"没有这一部分：{unknown}", f"No such part: {unknown}"))
+        cat = catalogue.get()
+        out: dict = {}
+        if not asked or "pinyin" in asked:
+            out["keys"] = find_names(cat, english=not asked)
+        if not asked or "english" in asked:
+            # 计算's own words only where asked for (D327); a name's own English first
+            words = cat.english_terms if terms or not asked else {
+                zh: en for zh, en in cat.english_terms.items() if zh not in cat.calc_words}
+            out["english"] = {**words, **{name: english for name, (english, _)
+                                          in sorted(cat.english_names.items()) if english}}
+        return out
+
+    def find_names(cat: Catalogue, english: bool) -> dict[str, str]:
+        """Each name the pages look up (D148) -> its pinyin and initials; and its English too
+        where `english` (the whole table, as before D327)."""
         st = Store(db())
         try:
-            cat = catalogue.get()
             names = set(cat.names()) | {i.name for i in build_inventory(st, cat) if i.name}
         finally:
             st.close()
@@ -2907,16 +2954,9 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         for shop in cat.shops:
             names |= {shop["name"], *shop.get("also", [])}
             names |= {w for r in shop.get("regions") or [] for w in (r["country"], r["town"]) if w}
-        from .. import search
-
-        # and the English name, where there is one (D163); the English pages show it first
-        # and the Chinese under it (D164), so every name that has one is sent with it
-        return {"keys": {name: keys for name in sorted(names)
-                         if (keys := search.keys(name, cat.english(name) or ""))},
-                # 计算's own words too (D322), a name's own English first
-                "english": {**cat.english_terms,
-                            **{name: english for name, (english, _)
-                               in sorted(cat.english_names.items()) if english}}}
+        return {name: keys for name in sorted(names)
+                if (keys := search.keys(name, (cat.english(name) or "") if english else "",
+                                        lang=None if english else "zh"))}
 
     @app.get("/api/versions")
     def versions_now() -> dict:

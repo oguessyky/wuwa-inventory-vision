@@ -2,6 +2,33 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.4.1",
+   "date": "2026-11-16",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "「计算」的小毕业、大毕业改为和「可达配置」比：0% 是不带声骸，100% 是玩家练得出来的配置（25 个副词条里最多 16 个有用、只能往上升 32 档），200% 是有用的副词条全部摇到最高。100% 是小毕业，120% 是大毕业。共鸣效率按你自己的配，辅助不会因为堆共鸣效率吃亏",
+     "en": "the Calculator's 小毕业 and 大毕业 now compare with a build a player can reach: 0% is no echoes, 100% a reachable build (of 25 substats at most 16 useful, 32 steps up the rolls in all), 200% every useful substat at its top roll. 100% is 小毕业, 120% 大毕业. 共鸣效率 is taken as you built it, so a support is not marked down for it"
+    },
+    {
+     "zh": "英文页面上，有英文名的东西只显示英文，中文放在鼠标悬停里；「配队」的成员、共鸣模态和增益来源，「计算」的武器、声骸、敌人和属性都改成英文。更新里的「英文名」现在也会取声骸套装、声骸、全息和首领的英文名，更新一次就有",
+     "en": "on the English pages a name that has its English shows the English alone, the Chinese on hover; Team's members, modes and gifts, and the Calculator's weapons, echoes, enemy and elements are in English. Update's English names step now also fetches the echo sets, echoes, holograms and bosses: run it once to have them"
+    },
+    {
+     "zh": "每个页面只下载自己语言要用的名字，打开更快；搜索框用中文、拼音、首字母或英文都能找到，而且要等你停下输入才去问服务器",
+     "en": "each page downloads only the names its language needs, so pages open faster; every search box finds by Chinese, pinyin, initials or English, and asks the server only once you stop typing"
+    },
+    {
+     "zh": "「计算」打开更快：选人里的大毕业标记随配置保存，不再每次打开都重算；要看的共鸣者和列表同时去取",
+     "en": "the Calculator opens faster: the picker's 大毕业 tick is kept with each setup instead of worked out again on every open, and the resonator is asked for at the same time as the lists"
+    },
+    {
+     "zh": "「配队」里有共鸣模态按钮的成员，「配置」按钮和其他人对齐了",
+     "en": "on Team, a member with mode buttons has their Setup button level with the others'"
+    }
+   ]
+  },
+  {
    "version": "1.4.0",
    "date": "2026-11-15",
    "scanner": [

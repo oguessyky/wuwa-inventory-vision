@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import collections
 import copy
+import json
+import math
 import re
 
 from . import calc_data
@@ -1156,10 +1158,25 @@ def set_gives(entry: dict) -> str | None:
     return None
 
 
-#: The lines (D274): 大毕业 at 90% of their own best, 小毕业 at 80%; a cap in their words is
-#: 小毕业 at 85% of it.
-BIG, SMALL = 0.9, 0.8
+#: The lines (D325): what they put out is a score -- 0 with no echoes, 1 the reference a player
+#: can reach, 2 every useful substat at its top roll. 小毕业 at the reference, 大毕业 a fifth of the
+#: way past it. A cap in their words is 小毕业 at 85% of it (D274).
+SMALL, BIG, TOP = 1.0, 1.2, 2.0
 LIMIT_SMALL = 0.85
+
+#: The grading's rules, as a name: a kept 大毕业 tick (D330) worked out under other rules is
+#: worked out again. Change it with any change to how a grade is reached.
+GRADE_RULES = "D325"
+
+#: The reference a player can reach (D325), after thewuwacalculator.com's build score: of the 25
+#: substats at most 16 count (the stats that change what they put out, and the 共鸣效率 they
+#: need); every substat starts at its lowest roll and the build has 32 steps up the rolls to
+#: share; the two stats one roll raises most climb at most 29% of their rolls; the fifth comes
+#: twice; the last one chosen is at least half way up its rolls.
+REF_COUNTED = 16
+REF_STEPS = 32
+REF_TOP_SHARE = 0.29
+REF_LOW_SHARE = 0.5
 
 
 def basis(data: dict, name: str, setup: dict) -> str:
@@ -1313,8 +1330,23 @@ def weapon_measure(data: dict, name: str) -> str:
 
 
 def grade_for(ratio: float) -> str | None:
-    """大毕业 at 90% of their own best, 小毕业 at 80% (D274)."""
+    """大毕业 at 120% of the scale, 小毕业 at 100%: the reference a player can reach (D325)."""
     return "大毕业" if ratio >= BIG - 1e-9 else "小毕业" if ratio >= SMALL - 1e-9 else None
+
+
+def score(now: float, bare: float, reference: float, best: float) -> float:
+    """Where an output sits on the scale (D325): below the reference, the share of the way from
+    no echoes to it; above, 1 and the share of the way on to the best."""
+    if now >= reference:
+        return 1 + (now - reference) / (best - reference) if best > reference else 1.0
+    return max(0.0, (now - bare) / (reference - bare)) if reference > bare else 0.0
+
+
+def output_at(at: float, bare: float, reference: float, best: float) -> float:
+    """The output a score stands for: `score`'s other way round."""
+    if at >= 1:
+        return reference + (at - 1) * (best - reference)
+    return bare + at * (reference - bare)
 
 
 def _output(result: dict, kind: str) -> float:
@@ -1327,8 +1359,9 @@ def _output(result: dict, kind: str) -> float:
 
 def grade(data: dict, name: str, setup: dict, stats: dict | None = None) -> dict:
     """小毕业 or 大毕业 (D274, D275). A cap in their own words is judged on the panel given; their
-    output -- for a healer, cap or no cap -- against the same resonator at its best
-    (`best_setup`). Every line must be met."""
+    output -- for a healer, cap or no cap -- as a score on three builds of the same resonator
+    (D325): no echoes, the reference a player can reach, every useful substat at its top roll.
+    Every line must be met."""
     role = data["roles"][name]
     kind = basis(data, name, setup)
     output = _puts_out(data, name)
@@ -1356,31 +1389,41 @@ def grade(data: dict, name: str, setup: dict, stats: dict | None = None) -> dict
     targets: list[dict] = []
     if not limits or output == "heal":
         mine = compute(data, setup, name, _grade=False)
-        theirs = compute(data, best_setup(data, name, setup), name, _grade=False)
-        now, best = _output(mine, output), _output(theirs, output)
+        er_need = next((x["need"] for x in lines if x["stat"] == "er"), None)
+        built = _references(data, name, setup, _er_target(mine["panel"], er_need))
+        theirs = compute(data, built["top"]["setup"], name, _grade=False)
+        reached = compute(data, built["reference"]["setup"], name, _grade=False)
+        now, bare = _output(mine, output), built["bare"]
+        reference, best = built["reference"]["output"], built["top"]["output"]
+        best = max(best, reference)
         capped = {limit["stat"] for limit in limits}
         main = _heal_stat(role) if output == "heal" else role.get("scales") or "atk"
+        levels = [output_at(at, bare, reference, best) for at in (SMALL, BIG)]
         for stat in on:
             if stat in capped:
                 continue
             target = {
                 "stat": stat,
                 "have": float(mine["panel"].get(stat) or 0),
+                "reference": float(reached["panel"].get(stat) or 0),
                 "best": float(theirs["panel"].get(stat) or 0),
             }
             if stat == main:
-                target.update(_stat_needs(data, name, setup, stat, output, now, best) or {})
+                target.update(_stat_needs(data, name, setup, stat, output, now, levels) or {})
             targets.append(target)
-        ratio = now / best if best else 0.0
+        ratio = score(now, bare, reference, best)
         lines.append(
             {
                 "stat": output,
                 "small": SMALL,
                 "need": BIG,
+                "top": TOP,
                 "have": ratio,
                 "met": ratio >= BIG - 1e-9,
                 "met_small": ratio >= SMALL - 1e-9,
                 "now": now,
+                "bare": bare,
+                "reference": reference,
                 "best": best,
             }
         )
@@ -1429,21 +1472,206 @@ def _round_line(data: dict, name: str, setup: dict) -> list[dict]:
 
 
 def _stat_needs(
-    data: dict, name: str, setup: dict, stat: str, output: str, now: float, best: float
+    data: dict, name: str, setup: dict, stat: str, output: str, now: float, levels: list[float]
 ) -> dict | None:
-    """How much of `stat` the panel must reach for 小毕业 and for 大毕业 (D277), the rest as it
-    is: what they put out grows in a straight line with the stat it is worked from, so two
-    points -- the panel as it is, and the stat typed higher -- give where each line falls."""
+    """How much of `stat` the panel must reach for 小毕业 and for 大毕业 (D277) -- the outputs
+    `levels` stand for (D325) -- the rest as it is: what they put out grows in a straight line
+    with the stat it is worked from, so two points -- the panel as it is, and the stat typed
+    higher -- give where each line falls."""
     have = float(compute(data, setup, name, _grade=False)["panel"].get(stat) or 0)
     step = max(have, 1000.0)
     typed = {**(setup.get("panel") or {}), stat: have + step}
     higher = _output(compute(data, {**setup, "panel": typed}, name, _grade=False), output)
     slope = (higher - now) / step
-    if slope <= 0 or not best:
+    if slope <= 0 or not all(levels):
         return None
+    small, need = levels
+    return {"small": have + (small - now) / slope, "need": have + (need - now) / slope}
+
+
+def _er_target(stats: dict, need: float | None) -> float:
+    """The 共鸣效率 the references are built to (D325): what their own build has -- so a support is
+    not marked down for what their role needs -- but no more than one round needs, or their cap
+    (D318, D274), where that is known."""
+    own = float(stats.get("er") or 1.0)
+    return min(own, need) if need else own
+
+
+def reference_build(data: dict, name: str, setup: dict) -> dict:
+    """The reference a player can reach (D325), with what it is made of: `setup`, its `output`,
+    the stats that count `ranked` by what one lowest roll adds, those it has (`chosen`), the
+    `steps` it climbed, and `bare`, the output with no echoes."""
+    mine = compute(data, setup, name, _grade=False)
+    lines = _round_line(data, name, setup)
+    need = min([x["need"] for x in lines] + [
+        limit["value"] for limit in _limits_of(data["roles"][name], setup) if limit["stat"] == "er"
+    ], default=None)
+    built = _references(data, name, setup, _er_target(mine["panel"], need))
+    return {**built["reference"], "bare": built["bare"], "top": built["top"]}
+
+
+def _frame(data: dict, name: str, setup: dict) -> dict:
+    """Their best build (D274, D310) without a substat: the five echoes, sets and main stats the
+    references share."""
+    frame = best_setup(data, name, setup)
+    for echo in frame["echoes"]:
+        echo["subs"] = []
+    return frame
+
+
+def _placed(frame: dict, copies: list[tuple[str, int]]) -> dict:
+    """`frame` wearing these substats, each (stat, its step up the rolls): five an echo, never
+    one stat twice on an echo -- the most-repeated stats first, each on the emptiest echo."""
+    built = copy.deepcopy(frame)
+    echoes = built["echoes"]
+    by_stat: dict[str, list[int]] = {}
+    for stat, step in copies:
+        by_stat.setdefault(stat, []).append(step)
+    for stat in sorted(by_stat, key=lambda s: (-len(by_stat[s]), s)):
+        for step in sorted(by_stat[stat], reverse=True):
+            free = [e for e in echoes
+                    if len(e["subs"]) < 5 and all(x["stat"] != stat for x in e["subs"])]
+            if free:
+                min(free, key=lambda e: len(e["subs"]))["subs"].append(
+                    {"stat": stat, "value": SUB_TIERS[stat][step]})
+    return built
+
+
+def _er_copies(have: float, target: float, top: bool) -> list[list]:
+    """As few 共鸣效率 substats as reach `target` from `have`: at their top roll for the best,
+    else each as low as it can be -- the lowest raised a step at a time (D325)."""
+    tiers = SUB_TIERS["er"]
+    missing = target - have
+    if missing <= 1e-9:
+        return []
+    count = min(5, math.ceil(missing / tiers[-1] - 1e-9))
+    copies = [["er", len(tiers) - 1 if top else 0] for _ in range(count)]
+    while sum(tiers[i] for _, i in copies) < missing - 1e-9:
+        low = min(copies, key=lambda c: c[1])
+        if low[1] >= len(tiers) - 1:
+            break
+        low[1] += 1
+    return copies
+
+
+#: The references worked out lately (D325), by what they are built from: an edit to a substat
+#: does not change them, so the page's next answer does not search again.
+_REFERENCES: collections.OrderedDict[tuple, dict] = collections.OrderedDict()
+
+
+def _references(data: dict, name: str, setup: dict, er_target: float) -> dict:
+    """The scale's three builds (D325), on one frame: `bare` (no echoes), the `reference` a player
+    can reach, and the `top` -- 25 substats, every useful one at its top roll, the same
+    共鸣效率."""
+    frame = _frame(data, name, setup)
+    key = (id(data), name, json.dumps(frame, sort_keys=True, ensure_ascii=False),
+           round(er_target, 6))
+    if key in _REFERENCES:
+        _REFERENCES.move_to_end(key)
+        return copy.deepcopy(_REFERENCES[key])
+    said = _searched(data, name, frame, er_target)
+    _REFERENCES[key] = copy.deepcopy(said)
+    while len(_REFERENCES) > 64:
+        _REFERENCES.popitem(last=False)
+    return said
+
+
+def _searched(data: dict, name: str, frame: dict, er_target: float) -> dict:
+    """`_references`, worked out."""
+    kind = _puts_out(data, name)
+
+    def out(copies: list) -> float:
+        built = _placed(frame, [tuple(c) for c in copies])
+        return _output(compute(data, built, name, _grade=False), kind)
+
+    none = {**copy.deepcopy(frame), "echoes": []}
+    bare = _output(compute(data, none, name, _grade=False), kind)
+    have = float(panel(data, {**frame, "_role": name}).get("er") or 1.0)
+    # the stats that count, ranked by what one lowest roll adds; 共鸣效率 only as the target asks
+    low_er = _er_copies(have, er_target, top=False)
+    start = out(low_er)
+    gains = {stat: out(low_er + [[stat, 0]]) - start for stat in SUB_TIERS if stat != "er"}
+    ranked = sorted((s for s, g in gains.items() if g > abs(start) * 1e-9), key=lambda s: -gains[s])
+
+    def fill(er: list, room: int, step: int, counts: dict[str, int]) -> dict[str, int]:
+        """Add a copy at a time -- at `step` -- of whichever adds most, up to `room` copies."""
+        while sum(counts.values()) < room:
+            base = [[s, step] for s in ranked for _ in range(counts[s])]
+            now = out(er + base)
+            pick, gain = None, 0.0
+            for stat in ranked:
+                if counts[stat] >= 5:
+                    continue
+                more = out(er + base + [[stat, step]]) - now
+                if more > gain:
+                    pick, gain = stat, more
+            if pick is None:
+                break
+            counts[pick] += 1
+        return counts
+
+    # the reference: at most 16 that count, two of the fifth, then 32 steps up the rolls
+    counts = dict.fromkeys(ranked, 0)
+    room = max(REF_COUNTED - len(low_er), 0)
+    if len(ranked) >= 5 and room >= 2:
+        counts[ranked[4]] = 2
+    counts = fill(low_er, room, 0, counts)
+    chosen = [s for s in ranked if counts[s]]
+    copies = [[s, 0] for s in chosen for _ in range(counts[s])]
+
+    def cap(stat: str) -> int:
+        last = len(SUB_TIERS[stat]) - 1
+        return int(REF_TOP_SHARE * last) if stat in ranked[:2] else last
+
+    if len(chosen) > 2 and chosen[-1] not in ranked[:2]:
+        floor = math.ceil(REF_LOW_SHARE * (len(SUB_TIERS[chosen[-1]]) - 1))
+        for c in copies:
+            if c[0] == chosen[-1]:
+                c[1] = floor
+    left = REF_STEPS - sum(i for _, i in low_er) - sum(i for _, i in copies)
+    while left > 0:
+        now = out(low_er + copies)
+        pick, gain = None, 0.0
+        for stat in chosen:
+            can = [c for c in copies if c[0] == stat and c[1] < cap(stat)]
+            if not can:
+                continue
+            lowest = min(can, key=lambda c: c[1])
+            lowest[1] += 1
+            more = out(low_er + copies) - now
+            lowest[1] -= 1
+            if more > gain:
+                pick, gain = lowest, more
+        if pick is None:
+            break
+        pick[1] += 1
+        left -= 1
+    reference = low_er + copies
+    # the top: 25 substats, every useful one at its top roll, the 共鸣效率 at its top too
+    top_er = _er_copies(have, er_target, top=True)
+    tops = {s: len(SUB_TIERS[s]) - 1 for s in ranked}
+    top_counts = dict.fromkeys(ranked, 0)
+    top_copies: list[list] = []
+    while len(top_er) + len(top_copies) < 25:
+        now = out(top_er + top_copies)
+        pick, gain = None, 0.0
+        for stat in ranked:
+            if top_counts[stat] >= 5:
+                continue
+            more = out(top_er + top_copies + [[stat, tops[stat]]]) - now
+            if more > gain:
+                pick, gain = stat, more
+        if pick is None:
+            break
+        top_counts[pick] += 1
+        top_copies.append([pick, tops[pick]])
+    top = top_er + top_copies
     return {
-        "small": have + (SMALL * best - now) / slope,
-        "need": have + (BIG * best - now) / slope,
+        "bare": bare,
+        "reference": {"setup": _placed(frame, [tuple(c) for c in reference]),
+                      "output": out(reference), "ranked": ranked, "chosen": chosen,
+                      "steps": sum(i for _, i in reference)},
+        "top": {"setup": _placed(frame, [tuple(c) for c in top]), "output": out(top)},
     }
 
 #: The order a best build fills its five substats in, when they count (D274).
@@ -1796,6 +2024,7 @@ def team_given(data: dict, members: list[dict], rotation: list[dict]) -> list[li
                         "source": "team",
                         "from": name,
                         "title": f"{name} · {given['title']}",
+                        "own": given["title"],
                         "text": given["text"],
                         "effects": [_mine(e) for e in given["effects"]],
                         **({"off": True} if short else {}),
@@ -1812,6 +2041,7 @@ def team_given(data: dict, members: list[dict], rotation: list[dict]) -> list[li
                         "source": "team",
                         "from": name,
                         "title": f"{name} · {buff['title']}",
+                        "own": buff["title"],
                         "text": buff["text"],
                         "effects": [_mine(e) for e in shared],
                     }

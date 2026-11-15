@@ -21,8 +21,6 @@ import re
 from functools import lru_cache
 from itertools import islice, product
 
-from pypinyin import lazy_pinyin
-
 #: Characters people really do read two ways, with the other reading. Every
 #: reading a dictionary lists would be far too many: 射 has three, 朴 four, and a
 #: long name would be found by spellings nobody types.
@@ -36,6 +34,9 @@ _CHINESE = re.compile(r"[一-鿿]+|[0-9A-Za-z]")
 
 def _readings(name: str) -> list[list[str]]:
     """Per character, the reading it has in this name and any other common one."""
+    # imported when first wanted (a fifth of a second): an English page never needs it (D327)
+    from pypinyin import lazy_pinyin
+
     out: list[list[str]] = []
     for run in _CHINESE.findall(name):
         if not ("一" <= run[0] <= "鿿"):
@@ -49,16 +50,24 @@ def _readings(name: str) -> list[list[str]]:
     return out
 
 
-@lru_cache(maxsize=8192)
-def keys(name: str, english: str = "") -> str:
+def keys(name: str, english: str = "", lang: str | None = None) -> str:
     """Lowercase, space-separated: every pinyin spelling of `name`, each one's
-    initials, and the English name as written and as letters only."""
-    parts = _readings(name)
+    initials, and the English name as written and as letters only.
+
+    `lang`: "zh" keeps the pinyin and initials, "en" the English alone -- the two parts of
+    the search index (D327, D328). None: both, as every page's box finds by both."""
+    return _keys(name, english, lang if lang in ("zh", "en") else None)
+
+
+@lru_cache(maxsize=16384)
+def _keys(name: str, english: str, lang: str | None) -> str:
     out: list[str] = []
-    for spelling in islice(product(*parts), MAX_SPELLINGS) if parts else []:
-        out.append("".join(spelling))
-        out.append("".join(s[0] for s in spelling))
-    said = " ".join(english.lower().split())
+    if lang != "en":
+        parts = _readings(name)
+        for spelling in islice(product(*parts), MAX_SPELLINGS) if parts else []:
+            out.append("".join(spelling))
+            out.append("".join(s[0] for s in spelling))
+    said = " ".join(english.lower().split()) if lang != "zh" else ""
     if said:
         out.append(said)
         out.append("".join(c for c in said if c.isalnum()))

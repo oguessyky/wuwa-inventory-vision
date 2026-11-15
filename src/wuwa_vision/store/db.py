@@ -137,6 +137,15 @@ CREATE TABLE IF NOT EXISTS calc_setups (
     updated_at TEXT NOT NULL
 );
 
+-- The picker's 大毕业 tick for a kept setup (D330), worked out once and kept: `key` says what it
+-- was worked out from (the setup, the game data, the grading's rules), so a change to any of them
+-- works it out again. Kept here only; nothing else reads it.
+CREATE TABLE IF NOT EXISTS calc_grades (
+    name  TEXT PRIMARY KEY,
+    key   TEXT NOT NULL,
+    grade TEXT
+);
+
 -- 配队's teams (D287), kept under a name: the members, the rotation and what is switched off,
 -- as JSON. Each member is worked out on their own setup in calc_setups.
 CREATE TABLE IF NOT EXISTS calc_teams (
@@ -971,6 +980,25 @@ class Store:
                 "updated_at = excluded.updated_at",
                 (name, json.dumps(setup, ensure_ascii=False),
                  datetime.now(UTC).isoformat(timespec="microseconds")))
+
+    def calc_grade(self, name: str) -> tuple[str, str | None] | None:
+        """The kept grade of this resonator's kept setup (D330) as (key, grade), or None."""
+        with closing(self.conn.execute(
+            "SELECT key, grade FROM calc_grades WHERE name = ?", (name,)
+        )) as cur:
+            row = cur.fetchone()
+        return (row[0], row[1]) if row else None
+
+    def save_calc_grade(self, name: str, key: str, grade: str | None) -> None:
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO calc_grades (name, key, grade) VALUES (?, ?, ?) "
+                "ON CONFLICT(name) DO UPDATE SET key = excluded.key, grade = excluded.grade",
+                (name, key, grade))
+
+    def forget_calc_grade(self, name: str) -> None:
+        with self.conn:
+            self.conn.execute("DELETE FROM calc_grades WHERE name = ?", (name,))
 
     def calc_teams(self) -> list[dict]:
         """配队's kept teams (D287), the newest first."""

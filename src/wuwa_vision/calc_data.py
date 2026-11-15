@@ -1604,17 +1604,24 @@ def _with_guides(data: dict, directory: Path) -> dict:
 _CACHE: dict[str, tuple[tuple, dict | None]] = {}
 
 
-def cached(directory: Path) -> dict | None:
-    """`load`, read again only when the file changed (a fetch on 更新 replaces it)."""
+def stamp(directory: Path) -> tuple | None:
+    """When calc.json and the guides read in with it (D313) last changed: a fetch on 更新 is a
+    change. None without calc.json."""
     path = Path(directory) / NAME
     try:
-        stamp = path.stat().st_mtime
+        own = path.stat().st_mtime
     except OSError:
         return None
-    # the guides beside it are read in too (D313): a fetch of them is a change
     guide = Path(directory) / "guides.json"
-    stamp = (stamp, guide.stat().st_mtime if guide.exists() else None)
-    key = str(path)
-    if key not in _CACHE or _CACHE[key][0] != stamp:
-        _CACHE[key] = (stamp, load(directory))
+    return (own, guide.stat().st_mtime if guide.exists() else None)
+
+
+def cached(directory: Path) -> dict | None:
+    """`load`, read again only when the file changed (a fetch on 更新 replaces it)."""
+    now = stamp(directory)
+    if now is None:
+        return None
+    key = str(Path(directory) / NAME)
+    if key not in _CACHE or _CACHE[key][0] != now:
+        _CACHE[key] = (now, load(directory))
     return _CACHE[key][1]

@@ -101,8 +101,8 @@ def rover_forms(wanted: set[str], names: dict[str, str]) -> dict[str, str]:
 
 def wanted_names(directory: Path) -> set[str]:
     """Everything the catalogue names: items, dishes, resonators and weapons, shops
-    and the names the wiki gives them, the countries and towns they are in, and the
-    elements (for the rover's forms)."""
+    and the names the wiki gives them, the countries and towns they are in, the
+    elements (for the rover's forms), and the bosses things drop from (D329)."""
     out: set[str] = set()
     index = directory / "index.json"
     if index.exists():
@@ -121,19 +121,25 @@ def wanted_names(directory: Path) -> set[str]:
             out |= {n for n in [shop.get("name"), *shop.get("also", [])] if n}
             for r in shop.get("regions") or []:
                 out |= {w for w in (r.get("country"), r.get("town")) if w}
+    bosses = directory / "bosses.json"
+    if bosses.exists():
+        out |= set(json.loads(bosses.read_text(encoding="utf-8")))
     out.add("漂泊者")
     return out
 
 
 def wanted_terms(directory: Path) -> set[str]:
     """计算's own words (D322): each resonator's skills and their rows (第一段伤害), the titles
-    of their chain, inherent skills and gifts, and their states -- kept apart from the names, so
-    the 更新 page's list of names to fix stays the catalogue's."""
+    of their chain, inherent skills and gifts, and their states; and every echo set, echo and
+    全息 (D326) -- kept apart from the names, so the 更新 page's list of names to fix stays the
+    catalogue's."""
     path = directory / "calc.json"
     if not path.exists():
         return set()
-    out: set[str] = set()
-    for role in (json.loads(path.read_text(encoding="utf-8")).get("roles") or {}).values():
+    data = json.loads(path.read_text(encoding="utf-8"))
+    out: set[str] = set(data.get("sets") or {}) | set(data.get("echoes") or {})
+    out |= {h.get("name") or "" for h in data.get("holograms") or []}
+    for role in (data.get("roles") or {}).values():
         for skill in role.get("skills") or []:
             out.add(skill.get("name") or "")
             out |= {row.get("name") or "" for row in skill.get("rows") or []}
