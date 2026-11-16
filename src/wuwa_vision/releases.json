@@ -2,6 +2,30 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.4.2",
+   "date": "2026-11-17",
+   "scanner": [
+    {
+     "zh": "修复：扫描时打开共鸣者的界面（属性详情、技能、武器）会让扫描报错退出（RunRecorder.event() got multiple values for argument 'kind'）",
+     "en": "fixed: opening a resonator's screen (属性详情, 技能, 武器) during a scan stopped the scan with an error (RunRecorder.event() got multiple values for argument 'kind')"
+    },
+    {
+     "zh": "修复：背包的标签名读错时（例如把「素材」读成「国」），扫描不会再把它当成一个新标签来扫，而是在同一页重新读标签名；一直读不出来时会提示你切换标签再切回来",
+     "en": "fixed: when a bag tab's name is misread (素材 once came out as 国), the scan no longer scans it as a tab of its own; it reads the name again on the same page, and if it still cannot, tells you to switch tabs and back"
+    },
+    {
+     "zh": "扫描更快：左上角的标题只读一次，就知道是背包的哪个标签还是共鸣者的哪个界面；看过的标题不再重读，跳过的标签在找物品之前就跳过。扫描页面会显示现在在哪里：背包和标签，或者是哪位共鸣者的哪个界面",
+     "en": "a faster scan: one read of the title at the top left says which bag tab or which resonator screen it is, a title seen before is not read again, and a skipped tab is left before its items are looked for. The scan's page shows where the scan is: the bag and its tab, or whose screen"
+    }
+   ],
+   "home": [
+    {
+     "zh": "修复：在「设置」里把「计算」拖进「日常」后，手机底部的导航栏会被挤乱、跑出一行；现在「计算」和其他页面一样是一个按钮，在「单人」「配队」页都会亮起，这两页仍在菜单里",
+     "en": "fixed: with 计算 dragged into 日常 in Settings, the phone's bar along the bottom was pushed out of its one row; 计算 is now a tab like the others, lit on both Solo and Team, and those two pages are still in the menu"
+    }
+   ]
+  },
+  {
    "version": "1.4.1",
    "date": "2026-11-16",
    "scanner": [],

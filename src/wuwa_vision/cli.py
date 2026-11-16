@@ -555,6 +555,15 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
         if kind == "character":  # a resonator's own screen, read (D270)
             who = data.get("resonator") or "?"
             say(f"  -> {who}: {screen_words.get(str(data.get('kind')), data.get('kind'))} read")
+        elif kind == "unread-tab":  # a title that names none of the bag's tabs (D333)
+            say(f"  ? the tab's name was read as {data.get('label')}, which is none of the bag's"
+                " tabs -- not read. Reading it again; if this stays, switch tabs and back.")
+
+    def screen_seen(said: dict) -> None:
+        # the bag and which tab, or a resonator's screen (D331): on the scan's page
+        state.set_screen(said)
+        if recorder is not None:
+            recorder.event("screen", seen=said)
 
     def tab_skipped(label: str) -> None:
         say(f"  -> tab {label}: skipped, nothing here is read or saved")
@@ -597,6 +606,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
             on_frame=(lambda f: state.offer_preview(f.rgb)) if args.web and args.preview else None,
             on_event=gate_event,
             screens=CharacterScreens(store),
+            on_screen=screen_seen,
         )
     finally:
         capture.stop()

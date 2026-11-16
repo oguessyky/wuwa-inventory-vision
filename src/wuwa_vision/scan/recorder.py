@@ -61,10 +61,14 @@ class RunRecorder:
         self.views = 0
         self._events = (self.dir / "events.jsonl").open("a", encoding="utf-8")
 
-    def event(self, kind: str, **data: Any) -> None:
+    def event(self, kind: str, /, **data: Any) -> None:
+        """One line: the time, the event's kind and its data. Data that has a field of the
+        line's own name (a resonator's screen says its `kind`) is kept whole under `data`:
+        1.4.1 died on that (`got multiple values for argument 'kind'`)."""
         if self._events.closed:
             return
-        line = {"t": round(time.time(), 3), "kind": kind, **data}
+        line: dict[str, Any] = {"t": round(time.time(), 3), "kind": kind}
+        line.update({"data": data} if {"t", "kind", "data"} & data.keys() else data)
         self._events.write(json.dumps(line, ensure_ascii=False) + "\n")
         self._events.flush()
 

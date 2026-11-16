@@ -121,6 +121,9 @@ class LiveState:
     """The tabs this scan covers, in the game's order (D190): each is on the page from the
     start, so the user sees which are not scanned yet."""
     current_tab: str | None = None
+    screen: dict[str, Any] | None = None
+    """Which screen the scan is looking at (D331): the bag and its tab, or a resonator's screen
+    and whose (`run_live_scan`, on_screen). None until it has looked."""
     items: list[dict[str, Any]] = field(default_factory=list)
     panel: dict[str, Any] | None = None
     sync: dict[str, Any] | None = None
@@ -158,6 +161,11 @@ class LiveState:
         with self._lock:
             self.phase = phase
             self.phase_since = time.time()
+            self.version += 1
+
+    def set_screen(self, screen: dict[str, Any] | None) -> None:
+        with self._lock:
+            self.screen = dict(screen) if screen is not None else None
             self.version += 1
 
     def set_status(self, status: str) -> None:
@@ -338,6 +346,7 @@ class LiveState:
                 "boxes": list(self.boxes),
                 "tabs": self._tabs(),
                 "current_tab": self.current_tab,
+                "screen": dict(self.screen) if self.screen is not None else None,
                 "items": list(self.items),
                 "panel": self.panel,
                 "sync": self.sync,

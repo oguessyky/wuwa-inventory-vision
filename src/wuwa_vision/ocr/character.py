@@ -196,9 +196,11 @@ def read(
     echoes: list[str] | None = None,
     sets: list[str] | None = None,
     weapons: list[str] | None = None,
+    kind: str | None = None,
 ) -> dict | None:
-    """What this screen says, or None when it is not a resonator's screen (D270)."""
-    kind = kind_of(rgb)
+    """What this screen says, or None when it is not a resonator's screen (D270). `kind`: the
+    screen, when it is known already (`ocr.screen`, D331) -- its title is then not read again."""
+    kind = kind or kind_of(rgb)
     if kind is None:
         return None
     if kind == "attributes":

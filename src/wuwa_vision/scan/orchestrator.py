@@ -17,7 +17,6 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import cv2
 import numpy as np
 
 from ..capture.base import Frame
@@ -25,6 +24,7 @@ from ..catalogue import Catalogue
 from ..ocr import currency as currency_mod
 from ..ocr import header as header_mod
 from ..ocr.engine import read_tile_count
+from ..ocr.screen import ScreenMemo
 from ..ocr.weapon import read_level
 from ..pulls import resolve as resolve_pulls
 from ..recognize.appearance import describe, hue_signature
@@ -121,6 +121,9 @@ SAME_SELECTION = 0.97
 MAX_PANEL_TRIES = 2
 #: While the screen is still, look for a moved selection outline this often (s).
 SELECTION_PROBE = 0.4
+#: A bag title that names none of the game's tabs is read this many times on one page (the
+#: first read and the retries), then left until the page moves (D333).
+TITLE_TRIES = 3
 
 
 @dataclass
@@ -159,54 +162,9 @@ class SelectionMemo:
         self.look, self.box, self.tries, self.settled = look, box, 0, False
         return True
 
-    def ignore(self, rgb: np.ndarray, tiles: list[Tile], scrolled: bool) -> None:
-        """Settle the visible selection without reading it (a skipped tab).
-
-        Otherwise the click probe finds it unread every 0.4 s, forever.
-        """
-        chosen = selected_index(rgb, tiles)
-        if chosen is not None:
-            self.needs_read(describe(tiles[chosen].icon), tiles[chosen].box, scrolled)
-            self.settled = True
-
     def result(self, attached: bool) -> None:
         self.tries += 1
         self.settled = attached or self.tries >= MAX_PANEL_TRIES
-
-
-#: Largest per-cell change (0-255, on a 64x16 thumbnail of the header) that still
-#: counts as "same header". MAX, not mean: the label is a small part of the strip,
-#: and a real tab switch (素材 -> 补给) moved the MEAN by only 1.6 while its max was
-#: 143. Within one tab, views differed by at most 8 (D29).
-HEADER_CHANGE = 20.0
-
-
-@dataclass
-class HeaderMemo:
-    """Re-reads the header only when its pixels change.
-
-    The header (`补给 170/1000`) is constant while scrolling a tab, yet OCR'ing it
-    cost ~1.7 s of every view on CPU. It changes on a tab switch or when an item
-    runs out -- both change the pixels, so a pixel check loses nothing.
-    """
-
-    signature: np.ndarray | None = None
-    header: header_mod.Header | None = None
-    reads: int = 0
-
-    def parse(self, rgb: np.ndarray) -> header_mod.Header:
-        crop = header_mod.crop_header(rgb, header_mod.HEADER_BOX_TALL)
-        small = cv2.resize(crop, (64, 16), interpolation=cv2.INTER_AREA).astype(np.float32)
-        if (
-            self.header is not None
-            and self.signature is not None
-            and float(np.abs(small - self.signature).max()) < HEADER_CHANGE
-        ):
-            return self.header
-        self.signature = small
-        self.header = header_mod.parse(rgb)
-        self.reads += 1
-        return self.header
 
 
 def _detect(frame: Frame, report: ScanReport) -> list[Tile] | None:
@@ -874,6 +832,7 @@ def run_live_scan(
     on_frame: Callable[[Frame], None] | None = None,
     on_event: Callable[[str, dict[str, object]], None] | None = None,
     screens: CharacterScreens | None = None,
+    on_screen: Callable[[dict[str, object]], None] | None = None,
 ) -> LiveResult:
     """Drive the pipeline from live capture.
 
@@ -922,6 +881,13 @@ def run_live_scan(
     looked at as the bag; `on_event` gets ("character", {kind, resonator}). Another echo
     clicked in the bag changes too little for the gate, so on that screen a still frame is also
     compared with the panel last read.
+
+    **Which screen (D331).** Every read frame is first told apart by one read of its title strip
+    (`ocr.screen`), remembered per title, so a title seen before -- scrolling a tab, a click,
+    coming back to a tab or a screen -- is not read again: the bag (`资源 111/1000`: the tab and
+    its count) or a resonator's screen (`属性详情`, no count). A resonator's screen goes to
+    `screens` and is never looked at as the bag; a skipped tab is dropped before its tiles are
+    looked for. `on_screen` gets {kind, tab, screen, resonator, skipped} whenever that changes.
     """
     from ..capture.gating import FrameGate as _FrameGate
 
@@ -932,8 +898,14 @@ def run_live_scan(
     result = LiveResult(tabs=tabs)
     memo = SelectionMemo()
     probed_at = 0.0
-    header_memo = HeaderMemo()
+    screen_memo = ScreenMemo()
+    where: list[dict[str, object] | None] = [None]
 
+    def tell(said: dict[str, object]) -> None:
+        if said != where[0]:
+            where[0] = said
+            if on_screen is not None:
+                on_screen(said)
 
     phase: list[str | None] = [None]
 
@@ -946,6 +918,8 @@ def run_live_scan(
     unfocused_since: float | None = None
     skip_tabs = tuple(skip_tabs)
     skipping: str | None = None
+    title_tries = 0                     # reads of a title that is no tab, on this page (D333)
+    said_unread: str | None = None
 
     for frame in frames:
         if panic is not None and panic.triggered:
@@ -985,7 +959,8 @@ def run_live_scan(
                 and screens.panel_changed(frame.rgb)):
             gated = frame
             gate.accept(frame)
-        if gated is None and gate.stats.repeat > before[2] and read_panel:
+        on_bag = where[0] is None or (where[0]["kind"] == "bag" and not where[0]["skipped"])
+        if gated is None and gate.stats.repeat > before[2] and read_panel and on_bag:
             # Still and unchanged. A click changes too little of the screen for
             # the gate (the outline, a strip of the panel), so look for it: is a
             # different tile selected than the panel was last read for?
@@ -998,6 +973,8 @@ def run_live_scan(
                     gate.accept(frame)
                     if on_event is not None:
                         on_event("selection", {})
+        if gate.stats.moving > before[0]:
+            title_tries = 0  # a new page: its title gets its own tries
         if gated is None:
             if gate.stats.repeat > before[2] and phase[0] != "ready" and on_event is not None:
                 on_event("repeat", {"novelty": round(gate.last_novelty, 3)})
@@ -1009,41 +986,63 @@ def run_live_scan(
                 set_phase("ready")
             continue
         set_phase("reading")
-        if screens is not None and probed is None:
-            said = screens.look(gated.rgb)
-            if said is not None:
-                if on_event is not None:
-                    on_event("character", said)
+        watch = Stopwatch(gate.moved_at)
+        # Which screen (D331): one read of the title strip, none for a title seen before.
+        reads = screen_memo.reads
+        seen = screen_memo.look(gated.rgb)
+        watch.lap("header")
+        if seen.kind == "resonator":
+            # a resonator's own screen: read as one (D270), never looked at as the bag
+            said = screens.look(gated.rgb, kind=seen.screen) if screens is not None else None
+            tell({"kind": "resonator", "tab": None, "screen": seen.screen,
+                  "resonator": said.get("resonator") if said else None, "skipped": False})
+            if said is not None and on_event is not None:
+                on_event("character", said)
+            set_phase("ready")
+            continue
+        head = seen.header
+        if seen.kind == "bag" and screen_memo.reads != reads:
+            _read_wallet(gated.rgb, store)  # the bar was re-read: so is the wallet (D48)
+        if seen.kind == "bag" and head.label is not None \
+                and head.label not in header_mod.KNOWN_TABS:
+            open_tab = result.current
+            if _misread_label(head.label, head.unique_items, open_tab.label,
+                              open_tab.report.header_total, {t.label for t in tabs}):
+                head = replace(head, label=open_tab.label)  # a slip on the open tab (D28)
+            else:
+                # None of the game's tabs, and not a slip on the open one: a misread (素材 as
+                # 国), never a tab of its own (D333). Not read; the title is read again on this
+                # page a few times, then when the page moves.
+                title_tries += 1
+                if on_event is not None and head.label != said_unread:
+                    on_event("unread-tab", {"label": head.label, "count": head.unique_items})
+                said_unread = head.label
+                if title_tries < TITLE_TRIES:
+                    gate.retry()
                 set_phase("ready")
                 continue
-        watch = Stopwatch(gate.moved_at)
+        said_unread = None
+        if is_skipped(head.label, skip_tabs):
+            # dropped before its tiles are looked for (D28, D331)
+            if head.label != skipping:
+                book.leave(result.current)        # left for a tab not scanned (D173)
+                if on_skip is not None:
+                    on_skip(head.label)
+            skipping = head.label
+            tell({"kind": "bag", "tab": head.label, "screen": None, "resonator": None,
+                  "skipped": True})
+            continue
+        if head.label is None and skipping is not None:
+            continue  # still on the skipped tab as far as we can tell
+        if seen.kind == "bag":
+            tell({"kind": "bag", "tab": head.label, "screen": None, "resonator": None,
+                  "skipped": False})
         scrolled = probed is None
         tiles = probed if probed is not None else _detect(gated, result.current.report)
         watch.lap("detect")
         if tiles is None:
             continue
 
-        # A click changes nothing in the header: keep the last read (~2 s saved).
-        reads = header_memo.reads
-        head = (
-            header_memo.header
-            if not scrolled and header_memo.header is not None
-            else header_memo.parse(gated.rgb)
-        )
-        if header_memo.reads != reads:  # the bar was re-read: so is the wallet (D48)
-            _read_wallet(gated.rgb, store)
-        watch.lap("header")
-        if is_skipped(head.label, skip_tabs):
-            if head.label != skipping:
-                book.leave(result.current)        # left for a tab not scanned (D173)
-                if on_skip is not None:
-                    on_skip(head.label)
-            skipping = head.label
-            memo.ignore(gated.rgb, tiles, scrolled)
-            continue
-        if head.label is None and skipping is not None:
-            memo.ignore(gated.rgb, tiles, scrolled)
-            continue  # still on the skipped tab as far as we can tell
         entered_from_skip = skipping is not None
         skipping = None
 

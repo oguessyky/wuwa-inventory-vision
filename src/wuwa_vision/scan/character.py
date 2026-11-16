@@ -120,8 +120,9 @@ class CharacterScreens:
         self.last_kind: str | None = None
         self._panel: np.ndarray | None = None
 
-    def look(self, rgb: np.ndarray) -> dict | None:
-        said = character.read(rgb, **self.lists)
+    def look(self, rgb: np.ndarray, kind: str | None = None) -> dict | None:
+        """`kind`: which screen this is, when the scan knows it already (D331)."""
+        said = character.read(rgb, kind=kind, **self.lists)
         if said is None:
             self.last_kind = None
             return None

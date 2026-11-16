@@ -150,6 +150,12 @@ class FrameGate:
         """The gate for a real screen: stillness is measured in time, not frames."""
         return cls(motion_window=MOTION_WINDOW, min_still_seconds=MIN_STILL_SECONDS, **kwargs)
 
+    def retry(self) -> None:
+        """Offer the page last accepted again, once it has settled again: its read was not
+        used (a tab title that is none of the game's, read again on the same page)."""
+        self.reset()
+        self._accepted = None
+
     def accept(self, frame: Frame) -> None:
         """Record `frame` as read although `offer` did not pass it (a click view).
 

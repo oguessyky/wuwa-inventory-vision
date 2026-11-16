@@ -61,6 +61,17 @@
        color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
   .modal button.primary{border-color:var(--accent);color:var(--accent)}
   @media (prefers-reduced-motion:reduce){ .phase.busy .dot{animation:none} }
+  /* Which screen the scan is on (D331): the bag and its tab, or a resonator's screen. */
+  .where{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;padding:6px 12px;
+         border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:13.5px;
+         max-width:100%;overflow-wrap:anywhere}
+  .where[hidden]{display:none}
+  .where b{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+           padding:1px 7px;border-radius:999px;color:var(--panel);background:var(--accent)}
+  .where[data-kind="resonator"] b{background:var(--r4)}
+  .where span{font-weight:650}
+  .where small{color:var(--muted);font-size:12.5px}
+  .where[data-skipped] span{color:var(--muted)}
   .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
   .tab{border:1px solid var(--line);border-radius:8px;padding:4px 10px 6px;min-width:130px;
        background:var(--bg)}
@@ -145,6 +156,7 @@
   <h1>Live scan</h1>
   <div class="phase" id="phase" role="status" aria-live="polite"><span class="dot"></span><span>connecting…</span></div>
   <button class="stop" id="stop" type="button" data-state="idle" hidden>Stop the scan</button>
+  <div class="where" id="where" role="status" aria-live="polite" hidden></div>
   <div class="tabs" id="tabs"></div>
   <div class="sync" id="sync" role="status" hidden>
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
@@ -274,6 +286,30 @@ function renderTabs(d){
       <span class="n">${todo ? '未扫描' : `${t.found}/${t.total ?? '?'}${t.complete ? ' ✓' : ''}`}</span></div>
       <div class="meter"><i style="width:${pct}%"></i></div></div>`;
   }).join('');
+}
+
+// Which screen the scan is on (D331): told apart before anything is read, so the bag's reader
+// and a resonator's never run on each other's screens.
+const SCREEN_WORDS = {attributes: '属性详情', skills: '技能', weapon: '武器', echo: '声骸',
+                      echoes: '声骸', chain: '共鸣链'};
+function renderWhere(w){
+  const el = document.getElementById('where');
+  if(!w){ el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.dataset.kind = w.kind;
+  el.toggleAttribute('data-skipped', !!w.skipped);
+  if(w.kind === 'bag'){
+    el.innerHTML = `<b>Bag</b><span>${esc(w.tab ?? '?')}</span>` +
+      (w.skipped ? '<small>skipped: nothing here is read</small>' : '');
+    return;
+  }
+  const screen = SCREEN_WORDS[w.screen] ?? w.screen ?? '?';
+  const whose = w.resonator
+    ? `${esc(w.resonator)} · ${esc(screen)}`
+    : esc(screen);
+  const hint = !w.resonator && (w.screen === 'skills' || w.screen === 'weapon')
+    ? '<small>open 属性详情 first, to say whose</small>' : '';
+  el.innerHTML = `<b>Resonator</b><span>${whose}</span>${hint}`;
 }
 
 function renderSelected(d){
@@ -415,9 +451,11 @@ async function tick(){
     if(d.status !== 'offline' && d.version !== lastVersion){
       lastVersion = d.version;
       renderTabs(d); renderView(d); renderSelected(d); renderLog(d); renderItems(d);
+      renderWhere(d.screen);
     }
   }catch(e){
     renderPhase({status: 'offline'}); renderSync(null); renderPhone(null); renderStop(null);
+    renderWhere(null); lastVersion = -1;  // back again: say where it is at once
   }
   setTimeout(tick, 250);
 }

@@ -1,6 +1,6 @@
 [project]
 name = "wuwa-vision"
-version = "1.4.1"
+version = "1.4.2"
 description = "Local-only screen-reading inventory scanner for Wuthering Waves"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -82,3 +82,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# the scan's accuracy check runs the whole scan over the fixture frames (D331, ~3.6 min): asked
+# for by name, `uv run pytest -m accuracy`, not in the everyday run (D332)
+markers = ["accuracy: the whole scan over the fixture frames, held to main's record (D331)"]
+addopts = "-m 'not accuracy'"
