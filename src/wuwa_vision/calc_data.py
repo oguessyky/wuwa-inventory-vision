@@ -1458,6 +1458,35 @@ def judge(data: dict, judged: dict) -> dict:
             tags = role.setdefault("tags", [])
             if "护盾" not in tags:
                 tags.append("护盾")
+    # who gains their own shield once a turn, and on what (D335): a shield set's effect is then
+    # one trigger, not one all turn
+    for name, at in (judged.get("shield_once") or {}).items():
+        role = (data.get("roles") or {}).get(name)
+        if role is not None:
+            role["shield_once"] = at
+            tags = role.setdefault("tags", [])
+            if "护盾" not in tags:
+                tags.append("护盾")
+    # what a resonator applies beyond the game's own tags, by hand (D335): 漂泊者·衍射's 光噪
+    for name, applied in (judged.get("applies") or {}).items():
+        role = (data.get("roles") or {}).get(name)
+        if role is not None:
+            tags = role.setdefault("tags", [])
+            tags.extend(t for t in applied if t not in tags)
+    # a 响应 tag one only responds with, not a 偏移 they apply (D335): 莫宁's
+    for name, responds in (judged.get("responds") or {}).items():
+        role = (data.get("roles") or {}).get(name)
+        if role is not None:
+            role["responds"] = list(responds)
+    # the game's table once gives a set that is not theirs (D335), left out: another element's
+    # (湮灭 弗洛洛 热熔's 奔狼燎原之焰), or one that gives them nothing -- every effect of its most
+    # pieces needs what they never do (清宵's 隐世回光 needs a heal). A set of no element is
+    # anyone's; what the hand list or a guide recommends is theirs to say
+    sets = data.get("sets") or {}
+    for name, role in (data.get("roles") or {}).items():
+        role["recommended"] = [
+            r for r in role.get("recommended") or []
+            if r.get("by") or _theirs(sets.get(r["set"]) or {}, role, name)]
     # the sets the game recommends beyond its own tables (D310): 漂泊者·气动 shows three
     for name, sets in (judged.get("recommended") or {}).items():
         role = (data.get("roles") or {}).get(name)
@@ -1582,8 +1611,46 @@ def load(directory: Path) -> dict | None:
     return _with_guides(data, directory)
 
 
+def condition_tags(role: dict, name: str) -> set[str]:
+    """The tags that meet a condition on what the wielder applies (D290, D335): the game's, and
+    their name -- less a 响应 they only respond with (莫宁 applies no 偏移, `responds`)."""
+    return (set(role.get("tags") or []) - set(role.get("responds") or [])) | {name}
+
+
+def _theirs(entry: dict, role: dict, name: str) -> bool:
+    """A set is for this resonator (D335): of their element or of none, and its most pieces give
+    them something -- an effect with no condition, or one whose condition they meet."""
+    if entry.get("element") not in (None, role.get("element")):
+        return False
+    buffs = entry.get("buffs") or {}
+    top = max((p for p in buffs if str(p).isdigit()), key=int, default=None)
+    effects = buffs.get(top) or [] if top is not None else []
+    tags = condition_tags(role, name)
+    return not effects or any(not e.get("when") or set(e["when"]) & tags for e in effects)
+
+
+def most_pieces(entry: dict | None) -> int:
+    """The most pieces of a set that count: 5 of a set of five, 3 of a set of three."""
+    return max((int(p) for p in ((entry or {}).get("text") or {}) if str(p).isdigit()), default=5)
+
+
+def build_of(rec: dict, sets: dict) -> list[dict]:
+    """A recommendation's sets with their pieces (D335): its `build` where it has one (a guide's
+    3+2 or 2+2), else its one set worn as fully as it goes."""
+    if rec.get("build"):
+        return [dict(s) for s in rec["build"]]
+    return [{"set": rec["set"], "pieces": most_pieces(sets.get(rec["set"]))}]
+
+
+def sets_in(rec: dict) -> list[str]:
+    """Every set a recommendation wears (D335): a build's 2-piece is recommended too."""
+    return [s["set"] for s in rec.get("build") or []] or [rec["set"]]
+
+
 def _with_guides(data: dict, directory: Path) -> dict:
-    """The sets Kuro's official guides recommend join the game's (D313), marked `guide`."""
+    """The builds Kuro's official guides recommend join the game's (D313), marked `guide`: a set
+    worn as fully as it goes as the set alone, as the game's are kept; anything else (3+2, 2+2)
+    with its `build` (D335)."""
     from . import guides
 
     sets = data.get("sets") or {}
@@ -1593,11 +1660,15 @@ def _with_guides(data: dict, directory: Path) -> dict:
         if role is None:
             continue
         have = role.setdefault("recommended", [])
-        for set_name in guides.recommended_sets(entry, by_id):
-            if sets and set_name not in sets:
+        for build in guides.recommended_builds(entry, by_id):
+            if sets and any(s["set"] not in sets for s in build):
                 continue                # a set 计算's data does not know (yet)
-            if not any(r["set"] == set_name and r.get("mode") is None for r in have):
-                have.append({"set": set_name, "mode": None, "by": "guide"})
+            if any(r.get("mode") is None and build_of(r, sets) == build for r in have):
+                continue
+            rec = {"set": build[0]["set"], "mode": None, "by": "guide"}
+            if build != build_of(rec, sets):
+                rec["build"] = build
+            have.append(rec)
     return data
 
 

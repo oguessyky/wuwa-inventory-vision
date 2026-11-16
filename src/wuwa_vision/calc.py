@@ -666,7 +666,7 @@ _ENEMY = {"def_ignore", "res_shred"}
 
 def _apply(
     listed: list[dict], toggles: dict, element: int | None = None, tags: set[str] | None = None,
-    field: float | None = None,
+    field: float | None = None, shield_once: bool = False,
 ) -> tuple[dict, dict, list[dict]]:
     """The buffs that are on -- every one listed, unless switched off (D272): what they add to
     the buffs, to the enemy, and the effects for one kind of hit or one skill only. An amplify
@@ -691,6 +691,8 @@ def _apply(
             # counted by the share of a turn on the field it is up (D315)
             parts = shares(buff.get("text") or "", buff["effects"], field,
                            typed=said.get("stacks") is not None)
+            if shield_once:
+                parts = _once_shielded(buff, parts, field)
             buff["effects"] = [{**e, "share": s}
                                for e, s in zip(buff["effects"], parts, strict=True)]
         if not buff["on"] or buff.get("always"):
@@ -718,6 +720,25 @@ def _apply(
             else:
                 buffs[effect["stat"]] = buffs.get(effect["stat"], 0.0) + value
     return buffs, enemy, scoped
+
+
+def _once_shielded(buff: dict, parts: list[float], field: float) -> list[float]:
+    """For one who gains a shield once a turn (D335, 千咲 at 变奏), an effect that needs a shield
+    is one trigger: one stack, up for its seconds of the turn; a bonus at full stacks never comes.
+    The rest as `shares` has them."""
+    said = timing(buff.get("text") or "", buff["effects"])
+    stacking = any(e.get("per_stack") and int(e.get("stacks") or 1) > 1 for e in buff["effects"])
+    out = []
+    for effect, part, when in zip(buff["effects"], parts, said, strict=True):
+        if "护盾" not in (effect.get("when") or []) or "uptime" in effect:
+            out.append(part)
+            continue
+        window = min(field, when["seconds"] or field) / field
+        if effect.get("per_stack"):
+            out.append(window / int(effect.get("stacks") or 1))
+        else:
+            out.append(0.0 if stacking else window)
+    return out
 
 
 def _with_buffs(setup: dict, buffs: dict, enemy: dict) -> dict:
@@ -1025,9 +1046,11 @@ def compute(
         listed = _of_mode(available(data, role_name, base), mode_of(data, role_name, base))
         # what they apply, and in a team what the others do (D290, D287)
         # and who they are: a passive may name one resonator (D303)
-        tags = set(role.get("tags") or []) | {role_name} | set(setup.get("_team_tags") or [])
+        tags = calc_data.condition_tags(role, role_name) | set(setup.get("_team_tags") or [])
+        # a shield of their own once a turn, unless a member shields throughout (D335)
+        once = bool(role.get("shield_once")) and setup.get("_team_shield") != "often"
         buffs, enemy, scoped = _apply(listed, toggles, role.get("element"), tags,
-                                      field_of(data, role_name, base))
+                                      field_of(data, role_name, base), shield_once=once)
         grows = buffs.pop("_grows", [])
         mine = _with_buffs(base, buffs, enemy)
         stats = panel(data, mine)
@@ -1166,7 +1189,7 @@ LIMIT_SMALL = 0.85
 
 #: The grading's rules, as a name: a kept 大毕业 tick (D330) worked out under other rules is
 #: worked out again. Change it with any change to how a grade is reached.
-GRADE_RULES = "D325"
+GRADE_RULES = "D335"
 
 #: The reference a player can reach (D325), after thewuwacalculator.com's build score: of the 25
 #: substats at most 16 count (the stats that change what they put out, and the 共鸣效率 they
@@ -1746,35 +1769,32 @@ def best_setup(data: dict, name: str, setup: dict) -> dict:
         }
         for i, cost in enumerate((4, 3, 3, 1, 1))
     ]
-    # the sets: as worn, or each of the game's recommended in full, whichever gives most (D310)
-    role = data["roles"][name]
-    mode = mode_of(data, name, setup)
+    # the sets: as worn, or each recommended build as it is worn -- a guide's 3+2 as it gives it,
+    # a set of three alone with the 2-piece that gives most beside it -- whichever gives most
+    # (D310, D335)
+    weigh = _weigher(data, name, best)
     tries = [[e["set"] for e in best["echoes"]]] if any(e["set"] for e in best["echoes"]) else []
-    for rec in role.get("recommended") or []:
-        if rec.get("mode") in (None, mode) and rec["set"] in (data.get("sets") or {}):
-            tries.append(_worn_as(data, rec["set"]))
-    if tries:
-        def worth(sets: list) -> float:
-            trial = copy.deepcopy(best)
-            for echo, worn_set in zip(trial["echoes"], sets, strict=True):
-                echo["set"] = worn_set
-                echo["main"] = echo["main"] or _first_main(data, echo["cost"])
-            return _score(data, name, compute(data, trial, name, _grade=False))
+    tries += [r["worn"] for r in _resolved(data, name, weigh, mode_of(data, name, setup))]
 
-        chosen = max(tries, key=worth)
-        for echo, worn_set in zip(best["echoes"], chosen, strict=True):
+    def mained(sets: list) -> dict:
+        """The build wearing these sets, each main stat the one that gives most with the others
+        as they stand -- so each build is weighed with its own (D335), not each cost's first."""
+        trial = copy.deepcopy(best)
+        for echo, worn_set in zip(trial["echoes"], sets, strict=True):
             echo["set"] = worn_set
-    # each main stat, the one that gives most with the others as they stand
-    for echo in best["echoes"]:
-        options = [
-            m["stat"] for m in (data["echo"]["main"].get("5") or {}).get(str(echo["cost"]), [])
-        ]
-        scored = []
-        for option in options or [None]:
-            echo["main"] = option
-            scored.append((_output(compute(data, best, name, _grade=False), kind), option))
-        echo["main"] = max(scored, key=lambda x: x[0])[1]
-    return best
+        for echo in trial["echoes"]:
+            options = [
+                m["stat"] for m in (data["echo"]["main"].get("5") or {}).get(str(echo["cost"]), [])
+            ]
+            scored = []
+            for option in options or [None]:
+                echo["main"] = option
+                scored.append((_output(compute(data, trial, name, _grade=False), kind), option))
+            echo["main"] = max(scored, key=lambda x: x[0])[1]
+        return trial
+
+    built = [mained(sets) for sets in tries or [[e["set"] for e in best["echoes"]]]]
+    return max(built, key=lambda b: _score(data, name, compute(data, b, name, _grade=False)))
 
 
 def _first_main(data: dict, cost: int) -> str | None:
@@ -1782,12 +1802,97 @@ def _first_main(data: dict, cost: int) -> str | None:
     return mains[0]["stat"] if mains else None
 
 
-def _worn_as(data: dict, set_name: str) -> list:
-    """Five echoes' sets wearing one set as fully as it goes (D310): five of a set of five, three
-    of a set of three, the rest none."""
-    entry = (data.get("sets") or {}).get(set_name) or {}
-    most = max((int(p) for p in (entry.get("text") or {}) if p.isdigit()), default=5)
-    return [set_name] * min(most, 5) + [None] * (5 - min(most, 5))
+def _weigher(data: dict, name: str, base: dict):
+    """What a build of five echoes' sets is worth on `base` (D310, D335), in a mode if given;
+    an echo with no main stat yet takes its cost's first."""
+
+    def weigh(worn: list, mode: int | None = None) -> float:
+        trial = copy.deepcopy(base)
+        if mode is not None:
+            trial["mode"] = mode
+        for echo, worn_set in zip(trial["echoes"], worn, strict=True):
+            echo["set"] = worn_set
+            echo["main"] = echo["main"] or _first_main(data, echo["cost"])
+        return _score(data, name, compute(data, trial, name, _grade=False))
+
+    return weigh
+
+
+def _worn(build: list[dict]) -> list:
+    """Five echoes' sets wearing a build (D335): each set's pieces in turn, the rest none."""
+    worn = [s["set"] for s in build for _ in range(int(s["pieces"]))][:5]
+    return worn + [None] * (5 - len(worn))
+
+
+def _same(worn: list) -> tuple:
+    """A build whatever order its echoes are in."""
+    return tuple(sorted(str(s) for s in worn))
+
+
+def _theirs(data: dict, name: str) -> list[str]:
+    """The sets of theirs: of their element, or of none (D302)."""
+    element = data["roles"][name].get("element")
+    return [n for n, e in (data.get("sets") or {}).items() if e.get("element") in (None, element)]
+
+
+def _with_two(data: dict, name: str, build: list[dict], weigh) -> bool:
+    """A set of three (or fewer) worn alone takes two of the 2-piece of theirs that gives most
+    beside it (D335) -- not two of the best set of five, whose 2-piece can give nothing."""
+    if len(build) != 1 or build[0]["pieces"] > 3:
+        return False
+    lead, worn = build[0]["set"], _worn(build)
+    twos = [n for n in _theirs(data, name)
+            if n != lead and "2" in ((data["sets"][n].get("text")) or {})]
+    if not twos:
+        return False
+    at = worn.index(None)
+    worth = {n: weigh(worn[:at] + [n, n] + worn[at + 2:]) for n in twos}
+    most = max(worth.values())
+    # most element sets' 2-piece is the same 10%: of those that give as much, the one their
+    # recommended builds wear first, else the game's first
+    said = [s for r in data["roles"][name].get("recommended") or [] for s in calc_data.sets_in(r)]
+    tied = [n for n in twos if worth[n] >= most - abs(most) * 1e-9]
+    best = min(tied, key=lambda n: (said.index(n) if n in said else len(said), twos.index(n)))
+    build.append({"set": best, "pieces": 2})
+    return True
+
+
+def _resolved(data: dict, name: str, weigh, mode: int | None,
+              every_mode: bool = False) -> list[dict]:
+    """The recommended builds for the mode (or for every mode), each as worn and what it puts
+    out (D335): a guide's as it gives it; a set of three alone with its best 2-piece, `worked`
+    out. The same build twice is one, the first said."""
+    out: list[dict] = []
+    seen: set[tuple] = set()
+    sets = data.get("sets") or {}
+    for rec in data["roles"][name].get("recommended") or []:
+        if not every_mode and rec.get("mode") not in (None, mode):
+            continue
+        build = calc_data.build_of(rec, sets)
+        if any(s["set"] not in sets for s in build):
+            continue
+        at = rec.get("mode") if rec.get("mode") is not None else mode
+        worked = _with_two(data, name, build, lambda worn, at=at: weigh(worn, at))
+        worn = _worn(build)
+        if (rec.get("mode"), _same(worn)) in seen:
+            continue
+        seen.add((rec.get("mode"), _same(worn)))
+        said = {"set": rec["set"], "mode": rec.get("mode"), "sets": build, "worn": worn,
+                "output": weigh(worn, at)}
+        if rec.get("by"):
+            said["by"] = rec["by"]
+        if worked:
+            said["worked"] = True
+        out.append(said)
+    return out
+
+
+def recommended_builds(data: dict, name: str, setup: dict, every_mode: bool = False) -> list[dict]:
+    """The builds recommended to them, each as worn on their best build (D335) -- what 推荐
+    shows: a guide's 3+2 as it gives it, the game's set of three with the 2-piece worked out."""
+    base = best_setup(data, name, {**setup, "echoes": []})
+    return _resolved(data, name, _weigher(data, name, base), mode_of(data, name, setup),
+                     every_mode)
 
 
 def _score(data: dict, name: str, said: dict) -> float:
@@ -1796,41 +1901,6 @@ def _score(data: dict, name: str, said: dict) -> float:
     if weapon_measure(data, name) == "brings":
         return team_gain(_brought(said)) / said["round"]["passes"]
     return _output(said, _puts_out(data, name))
-
-
-def rank_sets(data: dict, name: str, setup: dict) -> list[dict]:
-    """Every set of theirs -- of their element, or of none -- worn as fully as it goes on their
-    best build (D310), best first: what 计算 would recommend, beside what the game does."""
-    role = data["roles"][name]
-    base = best_setup(data, name, {**setup, "echoes": []})
-
-    def weigh(set_name: str, worn: list) -> dict:
-        trial = copy.deepcopy(base)
-        for echo, worn_set in zip(trial["echoes"], worn, strict=True):
-            echo["set"] = worn_set
-        return {"set": set_name, "worn": worn,
-                "output": _score(data, name, compute(data, trial, name, _grade=False))}
-
-    mine = [n for n, e in (data.get("sets") or {}).items()
-            if e.get("element") in (None, role.get("element"))]
-    # a set of five first; a smaller one is worn with two of the best of those, as it is in the game
-    full = sorted((weigh(n, _worn_as(data, n)) for n in mine if None not in _worn_as(data, n)),
-                  key=lambda s: (-s["output"], s["set"]))
-    filler = full[0]["set"] if full else None
-    bare = weigh("", [None] * 5)["output"]
-    for one in full:
-        one["adds"] = one["output"] / bare - 1 if bare else 0.0
-    out = list(full)
-    for n in mine:
-        worn = _worn_as(data, n)
-        if None in worn:
-            one = weigh(n, [s if s is not None else filler for s in worn])
-            # what it adds is beside the two pieces it is worn with
-            beside = weigh("", [None if s == n else s for s in one["worn"]])["output"]
-            one["adds"] = one["output"] / beside - 1 if beside else 0.0
-            out.append(one)
-    out.sort(key=lambda s: (-s["output"], s["set"]))
-    return out
 
 
 def weapon_stats(data: dict, name: str, level: int = 90, breach: int = 6) -> dict:
@@ -2057,12 +2127,16 @@ def team(
     so many times -- added up: the team's total and each member's share."""
     given = team_given(data, members, rotation)
     # a condition one member meets for the team: an effect another applies (D290)
-    team_tags = sorted({t for m in members for t in data["roles"][m["name"]].get("tags") or []}
-                       | {m["name"] for m in members})
+    team_tags = sorted({t for m in members
+                        for t in calc_data.condition_tags(data["roles"][m["name"]], m["name"])})
+    # a member who gains shields throughout a turn: a shield set counts in full for all (D335)
+    often = any("护盾" in (data["roles"][m["name"]].get("tags") or [])
+                and not data["roles"][m["name"]].get("shield_once") for m in members)
     toggles = toggles or [{} for _ in members]
     worked = []
     for i, member in enumerate(members):
-        setup = {**member["setup"], "_given": given[i], "_team_tags": team_tags}
+        setup = {**member["setup"], "_given": given[i], "_team_tags": team_tags,
+                 **({"_team_shield": "often"} if often else {})}
         mine = toggles[i] if i < len(toggles) else {}
         setup["toggles"] = {**(member["setup"].get("toggles") or {}), **(mine or {})}
         result = compute(data, setup, member["name"], _grade=False)

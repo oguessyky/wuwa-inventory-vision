@@ -24,7 +24,7 @@ MODES = {
 #: a healer 辅助; the page changes the seconds.
 KINDS = {name: "副C" for name in (
     "散华", "莫特斐", "丹瑾", "渊武", "秧秧", "桃祈", "夏空", "坎特蕾拉", "洛可可", "釉瑚",
-    "漂泊者·气动")}
+    "漂泊者·气动", "千咲")}
 
 
 def V(stat: str, value: float, **more: object) -> dict:

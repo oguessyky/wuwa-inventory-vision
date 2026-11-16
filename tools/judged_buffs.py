@@ -43,6 +43,23 @@ SHIELDED = ["护盾"]
 #: Who shields themselves in their kit (D310), read from their words: the rows of a shield are
 #: found by the data; these give theirs by a skill's effect.
 SHIELDS = ["桃祈", "鉴心", "奥古斯塔", "景燃", "尤诺", "夏空", "渊武"]
+#: Who gains their own shield once a turn, and on what (D335): a set's effect "角色获得护盾时" is
+#: then one trigger -- one stack, for its seconds. 千咲's comes with her 变奏 (the user's word: her
+#: shield row is in her 共鸣回路); 夏空's and 渊武's with their 共鸣解放 (their words). The rest
+#: gain theirs on hits or skills used throughout a turn.
+SHIELD_ONCE = {"千咲": "变奏", "夏空": "共鸣解放", "渊武": "共鸣解放"}
+#: What a resonator applies beyond the game's own tags (D335), from every resonator's skill words:
+#: 漂泊者·衍射 applies 光噪 (the user's word too), which the game's 此间永驻之光 for her needs;
+#: 夏空's 共鸣解放 adds 光噪 when its main note is yellow; 漂泊者·导电's air attack heals the team
+#: (生存治疗); 忌炎's, 卡卡罗's and 锁暝's 协同攻击 are their own; 莫宁 casts 谐度破坏 (her
+#: 响应 being responses only, RESPONDS).
+APPLIES = {"漂泊者·衍射": ["光噪"], "夏空": ["光噪"], "漂泊者·导电": ["生存治疗"],
+           "忌炎": ["协同攻击"], "卡卡罗": ["协同攻击"], "锁暝": ["协同攻击"],
+           "莫宁": ["谐度破坏增幅"]}
+#: A 响应 tag a resonator only responds with, applying no 偏移 (D335): 莫宁 responds to
+#: 震谐·干涉 and 集谐·干涉 (「莫宁拥有响应…的能力」); a condition on applying a 偏移 is not
+#: hers. Every other kit's 偏移 agrees with its tags.
+RESPONDS = {"莫宁": ["集谐响应", "震谐响应"]}
 TUNE = ["集谐响应", "震谐响应", "骇破响应", "谐度破坏增幅"]
 HEAL = ["生存治疗"]
 SELF_HEAL = "回复自己生命：不是伤害，也不是治疗加成"
@@ -461,6 +478,15 @@ def main() -> None:
     if set(KINDS) - set(data["roles"]):
         sys.exit(f"kinds: not in the data {sorted(set(KINDS) - set(data['roles']))}")
     old["kinds"] = KINDS
+    if set(SHIELD_ONCE) - set(data["roles"]):
+        sys.exit(f"shield_once: not in the data {sorted(set(SHIELD_ONCE) - set(data['roles']))}")
+    old["shield_once"] = SHIELD_ONCE
+    if set(APPLIES) - set(data["roles"]):
+        sys.exit(f"applies: not in the data {sorted(set(APPLIES) - set(data['roles']))}")
+    old["applies"] = APPLIES
+    if set(RESPONDS) - set(data["roles"]):
+        sys.exit(f"responds: not in the data {sorted(set(RESPONDS) - set(data['roles']))}")
+    old["responds"] = RESPONDS
     calc_data.JUDGED_PATH.write_text(
         json.dumps(old, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     texts = sum(len(v) for r in old["roles"].values() for v in r.values())

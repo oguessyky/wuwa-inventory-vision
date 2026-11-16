@@ -2,6 +2,29 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
  "releases": [
   {
+   "version": "1.4.3",
+   "date": "2026-11-17",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "「计算」推荐的声骸套装改为实际怎么穿：库洛攻略里的 3+2、2+2 搭配保留件数，显示为「荣斗铸锋之冠 3 + 彻空冥雷 2」；游戏单独推荐的三件套，会配上旁边最有用的两件套。最佳配置会逐个试这些搭配，每个都配上它自己最好的主词条",
+     "en": "计算's recommended echo sets are builds as worn: Kuro's guides' 3+2 and 2+2 plans keep their pieces and show as 「荣斗铸锋之冠 3 + 彻空冥雷 2」, and a set of three the game recommends alone is worn with the 2-piece that gives most beside it. The best build tries each of them, each with its own best main stats"
+    },
+    {
+     "zh": "去掉了「计算推荐」：它推荐的套装常常对角色没用（比如给漂泊者推荐只加声骸技能的套装）",
+     "en": "计算推荐 is gone: the sets it suggested often did nothing for the resonator (a set that only boosts echo skills, for the Rover)"
+    },
+    {
+     "zh": "修复：游戏推荐了别的属性的套装、或对角色没有任何加成的套装时不再列出；每回合只得一次的护盾（千咲、夏空、渊武）只算一层；千咲算作副C；按每位共鸣者的技能原文核对了套装条件（光噪、偏移、谐度破坏、治疗、协同攻击）",
+     "en": "fixed: a recommended set of another element, or one that gives the resonator nothing, is left out; a shield gained once a turn (千咲, 夏空, 渊武) counts as one stack; 千咲 is a sub-DPS; every set condition is checked against each resonator's own skill words (光噪, 偏移, 谐度破坏, healing, 协同攻击)"
+    },
+    {
+     "zh": "「套装」页可以用拼音、拼音首字母搜索套装，也可以用声骸名字的拼音找到它所在的套装；「手动校对」改名为「已核对」",
+     "en": "the 套装 page finds a set by its pinyin or its initials, and by the pinyin of an echo in it; 手动校对 is now Checked"
+    }
+   ]
+  },
+  {
    "version": "1.4.2",
    "date": "2026-11-17",
    "scanner": [

@@ -1920,11 +1920,9 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                  if k not in ("from", "panel", "scanned_at", "kept_at")}
         setup = {**calc_mod.default_setup(data, found), **start, **(kept or {})}
         reply = calc_reply(data, found, setup, kept is not None, known)
-        # the sets that work out best for them, beside the ones recommended (D310): asked once,
-        # when the page opens -- each edit does not need it again
-        rec = {r["set"] for r in data["roles"][found].get("recommended") or []}
-        reply["suggested"] = [s["set"] for s in calc_mod.rank_sets(data, found, setup)
-                              if s["set"] not in rec and s["adds"] > 0.001][:3]
+        # the builds recommended, as worn -- a set of three's 2-piece worked out -- for every
+        # mode (D335): asked once, when the page opens -- each edit does not need them again
+        reply["recommended"] = calc_mod.recommended_builds(data, found, setup, every_mode=True)
         return reply
 
     @app.post("/api/calc/{name}")
@@ -2954,6 +2952,9 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         for shop in cat.shops:
             names |= {shop["name"], *shop.get("also", [])}
             names |= {w for r in shop.get("regions") or [] for w in (r["country"], r["town"]) if w}
+        # 套装's sets, and the echoes its box finds a set by (D336)
+        calc = calc_tables() or {}
+        names |= set(calc.get("sets") or {}) | set(calc.get("echoes") or {})
         return {name: keys for name in sorted(names)
                 if (keys := search.keys(name, (cat.english(name) or "") if english else "",
                                         lang=None if english else "zh"))}

@@ -13,6 +13,7 @@ from __future__ import annotations
 from collections import Counter
 
 from .calc import set_gives
+from .calc_data import sets_in
 
 #: What a set gives, as the page's 效果 chips name it, in the order they are shown: each stat an
 #: effect raises falls under one of them (the element of a 属性伤害 is the 属性 chips' to say).
@@ -106,7 +107,8 @@ def recommended_for(data: dict, name: str) -> list[dict]:
     out: dict[str, dict] = {}
     for who, role in (data.get("roles") or {}).items():
         for said in role.get("recommended") or []:
-            if said.get("set") != name:
+            # a build's every set (D335): a guide's 3+2 recommends its 2-piece too
+            if name not in sets_in(said):
                 continue
             by = said.get("by") or "game"
             mode = next((m["name"] for m in role.get("modes") or []
@@ -158,7 +160,7 @@ def listing(data: dict, pictures: dict, mine: dict[str, list[dict]]) -> list[dic
     icons = pictures.get("sets") or {}
     counted: Counter[str] = Counter()
     for role in (data.get("roles") or {}).values():
-        for said in {r.get("set") for r in role.get("recommended") or []}:
+        for said in {n for r in role.get("recommended") or [] for n in sets_in(r)}:
             counted[said] += 1
     rows = []
     for name, entry in (data.get("sets") or {}).items():

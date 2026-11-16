@@ -81,18 +81,28 @@ def article(info: dict) -> dict:
     }
 
 
-def recommended_sets(entry: dict, names: dict[int, str] | None = None) -> list[str]:
-    """A resonator's sets as their guides recommend them, the most named first (D313): by the
+def recommended_builds(entry: dict, names: dict[int, str] | None = None) -> list[list[dict]]:
+    """A resonator's builds as their guides recommend them (D313, D335): each plan's sets with
+    their pieces, as worn -- the set of more pieces first -- the most named first. A set by the
     game's id where `names` (id -> 计算's name) knows it, else as the article names it."""
-    counts: collections.Counter[str] = collections.Counter()
-    first: dict[str, int] = {}
+    counts: collections.Counter[tuple] = collections.Counter()
+    first: dict[tuple, int] = {}
     for one in entry.get("articles") or []:
         for plan in one.get("plans") or []:
-            for worn in plan.get("sets") or []:
-                name = (names or {}).get(worn.get("id")) or worn["set"]
-                counts[name] += 1
-                first.setdefault(name, len(first))
-    return sorted(counts, key=lambda s: (-counts[s], first[s]))
+            worn = [((names or {}).get(s.get("id")) or s["set"], int(s.get("pieces") or 0))
+                    for s in plan.get("sets") or []]
+            # five echoes hold what fits: a guide's 5 + 2 is the five alone
+            build, room = [], 5
+            for one in sorted(worn, key=lambda s: -s[1]):
+                if 0 < one[1] <= room:
+                    build.append(one)
+                    room -= one[1]
+            build = tuple(build)
+            if build:
+                counts[build] += 1
+                first.setdefault(build, len(first))
+    return [[{"set": s, "pieces": p} for s, p in build]
+            for build in sorted(counts, key=lambda b: (-counts[b], first[b]))]
 
 
 def language(listed: dict) -> str:
