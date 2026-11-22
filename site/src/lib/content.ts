@@ -158,7 +158,8 @@ export function compose(): string {
 }
 
 
-export interface Release { version: string; date: string; scanner: { zh: string; en: string }[]; home: { zh: string; en: string }[] }
+export type { Release } from './versions';
+import type { Release } from './versions';
 
 /** Every release and what it changed on each side (D227): the app's own list, read at build. */
 export function releases(): Release[] {

@@ -112,6 +112,8 @@ class LiveState:
     phase: str = "starting"
     """What the scanner is doing right now (orchestrator.run_live_scan, on_phase)."""
     phase_since: float = field(default_factory=time.time)
+    started_at: float = field(default_factory=time.time)
+    """When this scan started (D361): a resonator's screen read since is this scan's."""
     version: int = 0
     frame_jpeg: bytes | None = None
     frame_size: tuple[int, int] = (0, 0)
@@ -124,6 +126,13 @@ class LiveState:
     screen: dict[str, Any] | None = None
     """Which screen the scan is looking at (D331): the bag and its tab, or a resonator's screen
     and whose (`run_live_scan`, on_screen). None until it has looked."""
+    resonator_read: dict[str, Any] | None = None
+    """The last screen of a resonator's read (D340): whose, which screen, when (`at`), every
+    value it said (`summary`), and where each piece of text was (`boxes`, in the height's units,
+    on a window of `frame`) -- shown on both pages, not only as a log line (D343)."""
+    resonator_holds: list[dict[str, Any]] = field(default_factory=list)
+    """Everything the scan holds for the resonator on screen, screen by screen (D343): listed
+    in place of the bag's items while a resonator's screens are read."""
     items: list[dict[str, Any]] = field(default_factory=list)
     panel: dict[str, Any] | None = None
     sync: dict[str, Any] | None = None
@@ -166,6 +175,16 @@ class LiveState:
     def set_screen(self, screen: dict[str, Any] | None) -> None:
         with self._lock:
             self.screen = dict(screen) if screen is not None else None
+            self.version += 1
+
+    def set_resonator_read(self, said: dict[str, Any]) -> None:
+        with self._lock:
+            self.resonator_read = {**said, "at": time.time()}
+            self.version += 1
+
+    def set_resonator_holds(self, held: list[dict[str, Any]]) -> None:
+        with self._lock:
+            self.resonator_holds = list(held)
             self.version += 1
 
     def set_status(self, status: str) -> None:
@@ -347,6 +366,10 @@ class LiveState:
                 "tabs": self._tabs(),
                 "current_tab": self.current_tab,
                 "screen": dict(self.screen) if self.screen is not None else None,
+                "resonator_read": (dict(self.resonator_read)
+                                   if self.resonator_read is not None else None),
+                "resonator_holds": list(self.resonator_holds),
+                "started_at": self.started_at,
                 "items": list(self.items),
                 "panel": self.panel,
                 "sync": self.sync,

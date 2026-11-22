@@ -114,6 +114,8 @@ STATS: dict[str, str] = {
     "dmg_6": "湮灭伤害加成",
     # how fast a resonator builds 偏谐值, 100% to start (D296)
     "tune_eff": "偏谐值累积效率",
+    # points, not a share (D351): what one who responds to 【集谐·干涉】 gains final damage by
+    "tune_break": "谐度破坏增幅",
     # an echo's own skill's damage (D290, D298): read, and named
     "dmg_echo": "声骸技能伤害加成",
 }
@@ -178,6 +180,10 @@ def _fill(text: str, params: list[str]) -> str:
     for i, p in enumerate(params):
         text = text.replace("{" + str(i) + "}", p)
     return text
+
+
+#: A heal or shield written as an amount and a share with its % left out: "4750+17.1" (D348).
+_AMOUNT_SHARE = re.compile(r"\d+(?:\.\d+)?\+\d+(?:\.\d+)?")
 
 
 def _kind(name: str) -> str:
@@ -424,9 +430,16 @@ def _skills(
         ):
             values = ((row.get("SkillDetailNum") or [{}])[0].get("ArrayString")) or []
             name = text.get(row.get("AttributeName"), "")
+            kind = _kind(name)
+            if kind in ("heal", "shield") and values and all(_AMOUNT_SHARE.fullmatch(v)
+                                                             for v in values):
+                # the table left out the % (布兰特's 护盾量 "4750+17.1"; every other reads
+                # "831+35.83%"): the amount and a share, as theirs are (D348)
+                values = [f"{v}%" for v in values]
+            # what is left out: a cooldown, energy, a duration -- and 固定伤害 (嘉贝莉娜's 地狱穿行,
+            # 景燃's 潜影...), whose own words say 伤害加成 does not count for it (D348)
             if not name or not any("%" in v for v in values):
                 continue
-            kind = _kind(name)
             rows.append(
                 {
                     "name": name,
@@ -716,9 +729,11 @@ _STACKS = re.compile(r"(?:最多|可)叠加(\d+|[一二两三四五六七八九�
 _SCALE = re.compile(
     r"每(?:超过)?(?P<per>\d+(?:\.\d+)?)%的?(?P<by>共鸣效率|偏谐值累积效率|攻击|生命|防御)"
     r"(?:计算为(?P<rate>\d+(?:\.\d+)?)%的?(?P<what>[^，。]+?)提升"
-    r"|使(?P<what2>[^，。]+?)提升(?P<rate2>\d+(?:\.\d+)?)%)"
-    r"，上限(?P<cap>\d+(?:\.\d+)?)%"
+    r"|使(?P<what2>[^，。]+?)提升(?P<rate2>\d+(?:\.\d+)?)(?P<unit>%|点))"
+    r"，上限(?P<cap>\d+(?:\.\d+)?)(?:%|点)"
 )
+#: 谐度破坏增幅 raised by a number of points (D351): "队伍中的角色谐度破坏增幅提升10点".
+_POINTS = re.compile(r"谐度破坏增幅(?:提升|增加)(\d+(?:\.\d+)?)点")
 _OVER = re.compile(
     r"(共鸣效率|偏谐值累积效率|攻击|生命|防御)(?:大于|超过)(\d+(?:\.\d+)?)%时[，,]?$"
 )
@@ -816,6 +831,8 @@ def _stat_of(subject: str, verb: str) -> str | None:
         return None
     if "偏谐值累积效率" in subject:
         return "tune_eff"           # D296
+    if "谐度破坏增幅" in subject:
+        return "tune_break"         # D351
     if "抗性" in subject:
         return "res_shred" if verb in ("降低", "减少") else None
     if verb in ("降低", "减少"):
@@ -885,11 +902,13 @@ def effects(raw: str, params: list[str] | None = None) -> list[dict]:
             # where it starts counting kept apart (D296): the stat's own threshold, if any
             grows: dict = {
                 "stat": key,
-                "value": cap / 100,
+                # a share, or points (谐度破坏增幅, D351)
+                "value": cap if scale.group("unit") == "点" else cap / 100,
                 "needs": {"stat": need, "value": round((base + cap / rate * per) / 100, 6),
                           "from": round(base / 100, 6)},
             }
-            if "队伍" in what:
+            # "队伍中的角色…超过100%时，每超过10%…使对应角色…": each one of the team
+            if "队伍" in what or "对应角色" in what:
                 grows["team"] = True
             found.append(grows)
         if found:
@@ -904,6 +923,11 @@ def effects(raw: str, params: list[str] | None = None) -> list[dict]:
             if not words:
                 continue
             named = [_plain(n) for n in _NAMED.findall(clause)]
+            for points in _POINTS.finditer(words):
+                effect = {"stat": "tune_break", "value": float(points.group(1))}
+                if "队伍" in words[: points.start()]:
+                    effect["team"] = True
+                found.append(effect)
             ignored = _IGNORE.search(words)
             if ignored:
                 found.append({"stat": "def_ignore", "value": float(ignored.group(1)) / 100})
@@ -1157,6 +1181,10 @@ def _gives(
     return out
 
 
+#: An echo skill's words for the one who comes in next, not the wearer (D349).
+_NEXT = re.compile(r"下一个变奏|下一位|变奏登场的角色")
+
+
 def _main_buff(skill: dict | None, text: dict[str, str]) -> dict | None:
     """What an echo gives when it is the main echo, in the first slot (D272), at 5★."""
     if not skill:
@@ -1170,7 +1198,23 @@ def _main_buff(skill: dict | None, text: dict[str, str]) -> dict | None:
             continue
         words = line[at:]
         return {"text": _plain(_fill(words, params)).strip(), "effects": effects(words, params)}
-    return None
+    # Only the main echo's skill can be used: what it gives is the main echo's buff (D349),
+    # though the words do not say 在首位 -- 云闪之鳞's 导电伤害加成, 无归的谬误's 共鸣效率.
+    # What it gives the one who comes in next (海维夏, 无常凶鹭) is said, never counted on the
+    # wearer.
+    said, mine, theirs = [], [], []
+    for line in raw.split("\n"):
+        if "技能冷却" in line:
+            continue
+        for sentence in (s for s in re.split(r"(?<=[。；])", line) if "提升" in s):
+            said.append(sentence)
+            (theirs if _NEXT.search(sentence) else mine).append(sentence)
+    if not said:
+        return None
+    words = "".join(mine)
+    return {"text": _plain(_fill("".join(said), params)).strip(),
+            "effects": effects(words, params) if words else [],
+            "notes": [_plain(_fill(s, params)).strip() for s in theirs]}
 
 
 def _recommended(tables: dict[str, list], set_names: dict[int, str]) -> dict[int, list[dict]]:
@@ -1608,6 +1652,8 @@ def load(directory: Path) -> dict | None:
         data = judge(_words_read_again(_effect_damage_dropped(_heal_rows_read(data))), JUDGED)
     except (OSError, ValueError):
         return None
+    # the stats' names are 计算's, not the game's: one named since the fetch is named (D351)
+    data["stats"] = {**(data.get("stats") or {}), **STATS}
     return _with_guides(data, directory)
 
 

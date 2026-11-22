@@ -34,7 +34,8 @@ TAGS: dict[str, tuple[str, ...]] = {
     "声骸技能": ("dmg_echo",),
     "伤害加深": ("amplify", "final", "taken", "mv"),
     "无视防御 · 抗性": ("def_ignore", "res_shred"),
-    "偏谐": ("tune_eff",),
+    # 谐度破坏增幅 too, the points one who responds to 集谐 hits harder by (D351)
+    "偏谐": ("tune_eff", "tune_break"),
     "增益队友": (),
 }
 _TAG_OF = {stat: tag for tag, stats in TAGS.items() for stat in stats}
@@ -130,6 +131,25 @@ def echoes_in(data: dict, name: str, pictures: dict) -> list[dict]:
              "icon": icons.get(n) or icons.get(n.removeprefix("异相·"))}
             for n, e in (data.get("echoes") or {}).items() if name in (e.get("sets") or [])]
     return sorted(rows, key=lambda r: (-(r["cost"] or 0), r["name"]))
+
+
+def echo_listing(data: dict, pictures: dict) -> list[dict]:
+    """Every echo one can wear, for 套装's 声骸 view (D350): its cost, the sets it comes in, and
+    what it gives as the main echo (D349) -- the costliest first, then the game's newest. A summon
+    named after a resonator, or the game's own `dnt/` entries, is not an echo one wears."""
+    icons = pictures.get("echoes") or {}
+    people = set(data.get("roles") or {})
+    rows = []
+    for name, entry in (data.get("echoes") or {}).items():
+        if name.startswith("dnt/") or name in people:
+            continue
+        rows.append({
+            "name": name, "id": entry.get("id") or 0, "cost": entry.get("cost"),
+            "sets": list(entry.get("sets") or []),
+            "icon": icons.get(name) or icons.get(name.removeprefix("异相·")),
+            "main_buff": entry.get("main_buff"),
+        })
+    return sorted(rows, key=lambda r: (-(r["cost"] or 0), r["id"], r["name"]))
 
 
 def worn(echoes_by_resonator: dict[str, list[dict]]) -> dict[str, list[dict]]:

@@ -54,6 +54,11 @@ MIN_STILL_SECONDS = 0.30
 #: scores 17+. A click (3.9) is no longer caught here -- the scan loop probes for
 #: a moved selection outline instead (D39).
 NOVELTY_THRESHOLD = 6.0
+#: The same, while a resonator's panel is watched (D356). There the next echo piece differs from
+#: the last only in its text: two pieces of one set and cost with the same main stats scored
+#: about 3.8, under 6.0, and 吟霖's fifth was never read. The panel held still at 0.29-0.48
+#: per 0.1 s (D340), so 1.5 leaves room for that and takes any other piece.
+PANEL_NOVELTY_THRESHOLD = 1.5
 
 
 def signature(frame: Frame, roi: tuple[float, float, float, float] = DEFAULT_ROI) -> np.ndarray:
@@ -132,6 +137,8 @@ class FrameGate:
     """How far the last settled frame was from the last accepted one (diagnostics)."""
     moved_at: float | None = None
     """time.monotonic() of the last frame that was still moving (diagnostics)."""
+    panel: bool = False
+    """On a resonator's screen (D367): a page is new at the panels' threshold."""
 
     def reset(self) -> None:
         """Make the grid re-settle (after a focus change).
@@ -155,6 +162,18 @@ class FrameGate:
         used (a tab title that is none of the game's, read again on the same page)."""
         self.reset()
         self._accepted = None
+
+    def watch(self, roi: tuple[float, float, float, float], frame: Frame | None = None,
+              panel: bool = False) -> None:
+        """Watch another region from now on (D340): a resonator's screen is still where it is
+        read while its model moves in the middle. `frame`: the one just read there, so it is
+        not read again; without it the region must settle and is then read. `panel`: a
+        resonator's screen, where a page is new at PANEL_NOVELTY_THRESHOLD whatever region is
+        watched (D367: 技能 watches the middle, and two resonators' 技能 measured 4.53 apart)."""
+        self.roi = roi
+        self.panel = panel
+        self.reset()
+        self._accepted = signature(frame, roi) if frame is not None else None
 
     def accept(self, frame: Frame) -> None:
         """Record `frame` as read although `offer` did not pass it (a click view).
@@ -209,7 +228,9 @@ class FrameGate:
         self.last_novelty = (
             difference(current, self._accepted) if self._accepted is not None else float("inf")
         )
-        if self.last_novelty < self.novelty_threshold:
+        novelty = (self.novelty_threshold if self.roi == DEFAULT_ROI and not self.panel
+                   else min(self.novelty_threshold, PANEL_NOVELTY_THRESHOLD))
+        if self.last_novelty < novelty:
             self.stats.repeat += 1
             return None
 

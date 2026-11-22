@@ -131,6 +131,11 @@ def judge(lines: list[tuple[tuple[float, float, float, float], str, float]]) -> 
                 break  # 武器 with numbers beside it: the bag's, its count not made out
             return Screen("resonator", screen=kind, box=box(title))
     snapped = canonical_label(label)
+    if snapped == "声骸":
+        # the bag's 声骸 tab says its count (声骸 1402/3000); a 声骸 title with none is a
+        # resonator's 声骸 page, read a little wrong (声骼, 骸): taken for the bag's, it was
+        # skipped (D340). The bag's, its count unread, is skipped either way: nothing is lost.
+        return Screen("resonator", screen="echoes", box=box(title))
     if snapped in KNOWN_TABS:  # the bag, its count unread: the tab is still known (D28)
         head = Header(label=snapped, unique_items=None, capacity=None, confidence=conf)
         return Screen("bag", tab=snapped, header=head, box=box(title))

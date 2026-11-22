@@ -528,8 +528,21 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
 
 /* every version (D227): each release, its two sides */
 .doc .releases{list-style:none;padding:0;margin:24px 0;display:grid;gap:16px;max-width:880px}
-.doc .releases > li{padding:18px 20px;margin:0;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.doc .releases > li{padding:18px 20px;margin:0;border-radius:14px;background:var(--panel);border:1px solid var(--line);
+  scroll-margin-top:84px}
 .doc .releases > li::before{content:none}
+/* 「请用 vX」 scrolls to vX smoothly and lights it for a moment, so the eye knows where it landed;
+   the gold edge stays after. The glow peaks once the scroll has arrived. */
+@media (prefers-reduced-motion:no-preference){
+  html:has(.releases){scroll-behavior:smooth}
+}
+.doc .releases > li:target{border-color:var(--accent);animation:rel-here 3s ease-out}
+@keyframes rel-here{
+  0%,20%{box-shadow:0 0 0 0 rgba(232,201,90,0);background:var(--panel)}
+  45%{box-shadow:0 0 0 4px rgba(232,201,90,.45),0 0 28px rgba(232,201,90,.25);background:#262318}
+  100%{box-shadow:0 0 0 0 rgba(232,201,90,0);background:var(--panel)}
+}
+@media (prefers-reduced-motion:reduce){.doc .releases > li:target{animation:none}}
 .releases .rel-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:12px}
 .releases .rel-h b{font-size:18px}
 .releases .rel-h small{color:var(--faint)}
@@ -546,6 +559,21 @@ a.on .nav-ic{color:var(--accent);border-color:rgba(232,201,90,.4)}
   background:var(--faint);transform:none;opacity:1}
 .releases .nothing{margin:0;color:var(--faint);font-size:14px}
 @media (max-width:600px){.releases .sides{grid-template-columns:minmax(0,1fr)}}
+/* a version's downloads: each side's under its changes, the two-sided ones under the card */
+.releases .rel-side-dl{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.releases .rel-zips,.releases .rel-dl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.releases .rel-zip{display:inline-flex;align-items:center;min-height:32px;padding:4px 12px;border-radius:999px;font-size:13.5px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none}
+.releases .rel-zip:hover{border-color:var(--accent);color:var(--accent)}
+.doc .releases .rel-sync{margin:8px 0 0;font-size:13.5px;color:#c9ced8}
+.releases .rel-pin{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px;color:#c9ced8}
+.releases .rel-pin code{font-size:12.5px}
+.releases .rel-pin .copy{position:relative;top:auto;right:auto;flex:none;width:30px;height:30px}
+.releases .rel-dl{margin-top:12px}
+.releases .rel-dl-n{font-size:12.5px;font-weight:700;color:var(--faint);margin-right:2px}
+.releases .rel-sums{font-size:13px;color:var(--faint)}
+.doc .releases .rel-no{margin:12px 0 0;padding:10px 14px;border-radius:10px;font-size:14px;color:#c9ced8;
+  border:1px dashed var(--line)}
 
 /* ---- after a download (D267): the guide's first steps, one at a time, over the page */
 .after{padding:0;border:1px solid var(--line-2);border-radius:18px;background:var(--panel);color:var(--ink);

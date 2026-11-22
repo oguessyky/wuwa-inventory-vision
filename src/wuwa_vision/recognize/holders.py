@@ -64,6 +64,15 @@ SUGGESTIONS = 5
 #: right name came first for 22 and was among the five offered for 31. The busts
 #: these replaced, with the box tuned for them, gave 0.492, 8 and 16.
 REFERENCE_BOX = (0.15, 0.10, 0.85, 0.80)
+#: A badge named by its head icon's artwork (D345), as a resonator's portrait is (D344): the
+#: icon's image this many of the badge's widths across, the badge's middle this share of it.
+#: On the user's 46 faces: each of the 44 named came out as its name, at 0.78-0.99 for all but
+#: the skins (散华 0.659, 今汐 0.695) and 卜灵 (0.696); the unnamed one as 丽贝卡, 0.861.
+ICON_ACROSS = (1.6, 1.7, 1.8, 1.9, 2.0)
+BADGE_MIDDLE = 0.55
+#: A name is taken at this or more, this far ahead of the next.
+ICON_SAME = 0.75
+ICON_LEAD = 0.07
 #: What the avatar's transparent background is composited onto: the tile's own
 #: dark panel, so the reference and the crop share a background.
 BACKDROP = (44, 48, 58, 255)
@@ -116,6 +125,38 @@ class Holders:
         self._faces: list[str] = []
         self._face_names: list[str | None] = []
         self._face_vectors = np.zeros((0, FACE_SIZE * FACE_SIZE * 3), dtype=np.float32)
+        #: the head icons as pictures, for naming a badge by its artwork (D345)
+        self.icons: dict[str, np.ndarray] = {}
+        self._sized: dict[tuple[int, float], list[tuple[str, np.ndarray]]] = {}
+
+    def icon_name(self, crop: np.ndarray) -> str | None:
+        """Whose head icon this badge is (D345): the icon's image ICON_ACROSS of the badge
+        across, the badge's middle matched in it; a name only when one is clearly it."""
+        if not self.icons or crop is None or crop.size == 0:
+            return None
+        s = min(crop.shape[:2])
+        half = max(4, round(s * BADGE_MIDDLE / 2))
+        c0, c1 = crop.shape[0] // 2, crop.shape[1] // 2
+        middle = np.ascontiguousarray(crop[c0 - half:c0 + half, c1 - half:c1 + half, :3])
+        best: dict[str, float] = {}
+        for across in ICON_ACROSS:
+            key = (s, across)
+            if key not in self._sized:
+                d = max(8, round(s * across))
+                self._sized[key] = [(ROVER if ROVER in n else n,
+                                     cv2.resize(icon, (d, d), interpolation=cv2.INTER_AREA))
+                                    for n, icon in self.icons.items()]
+            for name, icon in self._sized[key]:
+                if middle.shape[0] >= icon.shape[0] or middle.shape[1] >= icon.shape[1]:
+                    continue
+                score = float(cv2.matchTemplate(icon, middle, cv2.TM_CCOEFF_NORMED).max())
+                best[name] = max(best.get(name, -1.0), score)
+        if not best:
+            return None
+        ranked = sorted(best.items(), key=lambda kv: -kv[1])
+        top, score = ranked[0]
+        lead = score - (ranked[1][1] if len(ranked) > 1 else -1.0)
+        return top if score >= ICON_SAME and lead >= ICON_LEAD else None
 
     # ------------------------------------------------------------- loading
 
@@ -140,6 +181,15 @@ class Holders:
             if images:
                 self._refs = self.encoder.embed(images, mask_badges=False)
                 self._names = names
+            # and as pictures, to name a badge by its artwork (D345), on the tile's backdrop
+            self.icons = {}
+            for name, file in resonators.items():
+                path = self.dir / "avatars" / file
+                if path.exists():
+                    image = Image.open(path).convert("RGBA")
+                    image = Image.alpha_composite(Image.new("RGBA", image.size, BACKDROP), image)
+                    self.icons[name] = np.asarray(image.convert("RGB"))
+            self._sized = {}
         self._load_faces()
         return len(self._names)
 
@@ -222,6 +272,13 @@ class Holders:
                 self._face_names.append(None)
                 self._face_vectors = np.vstack([self._face_vectors, vector[None]])
                 added = True
+            if name is None:
+                # nobody has named this face: its head icon does, when it clearly is one (D345);
+                # a name the user gave is never touched
+                name = self.icon_name(crop)
+                if name is not None:
+                    self.store.set_holder_name(key, name)
+                    self._face_names[self._faces.index(key)] = name
             out[index] = HolderRead(
                 key=key, name=name, likeness=best, suggestions=suggestions
             )

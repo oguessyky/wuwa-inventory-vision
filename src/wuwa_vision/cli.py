@@ -549,12 +549,49 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     screen_words = {"attributes": "属性详情", "skills": "技能", "weapon": "武器", "echo": "声骸",
                     "echoes": "声骸", "chain": "共鸣链"}
 
+    from .scan.character import pictures
+
+    drawn: dict = {}  # the catalogue's pictures, loaded on the first resonator screen read
+
     def gate_event(kind: str, data: dict) -> None:
         if recorder is not None:
             recorder.event(kind, **data)
         if kind == "character":  # a resonator's own screen, read (D270)
             who = data.get("resonator") or "?"
-            say(f"  -> {who}: {screen_words.get(str(data.get('kind')), data.get('kind'))} read")
+            what = screen_words.get(str(data.get("kind")), data.get("kind"))
+            say(f"  -> {who}: {what} read")
+            # whose, asked (D370): held until 属性详情 says, with the same portrait selected
+            asked, settled = data.get("ask"), data.get("settled")
+            if asked:
+                say("     ? which 漂泊者: their element is read on 属性详情 -- click it, keeping"
+                    " 漂泊者 selected on the right" if asked.get("why") == "rover" else
+                    "     ? the 漂泊者's element was not read: hold 属性详情 still"
+                    if asked.get("why") == "rover-element" else
+                    "     ? whose screen is this: click 属性详情 to confirm, keeping the same"
+                    " resonator selected on the right")
+            if settled:
+                words = [screen_words.get(k, k) for k in settled.get("kept") or []]
+                gone = [screen_words.get(k, k) for k in settled.get("dropped") or []]
+                say(f"     confirmed: {', '.join(words)} kept for {settled.get('to')}" if words
+                    else f"     the selection on the right changed: {', '.join(gone)} not kept")
+            # and on both pages, as what was read, not only a log line (D340): every value,
+            # where each was read, and all the scan holds for them (D343)
+            from .scan.character import dress, holds_of
+
+            # laid out with its values and the catalogue's pictures (D357)
+            if not drawn:
+                drawn.update(pictures())
+            state.set_resonator_read(dress({"resonator": data.get("resonator"),
+                                            "kind": data.get("kind"),
+                                            "summary": list(data.get("summary") or []),
+                                            "data": data.get("data") or {},
+                                            "boxes": list(data.get("boxes") or []),
+                                            "frame": data.get("frame"),
+                                            "ask": data.get("ask"),
+                                            "settled": data.get("settled")}, drawn))
+            who_now = data.get("resonator")
+            state.set_resonator_holds([dress({**h, "resonator": who_now}, drawn)
+                                       for h in holds_of(store, who_now)] if who_now else [])
         elif kind == "unread-tab":  # a title that names none of the bag's tabs (D333)
             say(f"  ? the tab's name was read as {data.get('label')}, which is none of the bag's"
                 " tabs -- not read. Reading it again; if this stays, switch tabs and back.")
@@ -1314,9 +1351,15 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     from .recognize.encoder import ModelMissingError
+    from .store.db import NewerDatabase
 
     try:
         return int(args.func(args))
+    except NewerDatabase as exc:
+        # data from a newer version: left untouched, and said so (version downloads)
+        print()
+        print(exc)
+        return 1
     except ModelMissingError as exc:
         # Weights are vendored, never fetched at runtime (D41): say how to get them.
         print()

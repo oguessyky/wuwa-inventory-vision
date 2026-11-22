@@ -52,6 +52,8 @@ BUFFS = (
     # kind of hit, the enemy's defence and resistance, and the energy a round runs on
     "er",
     "tune_eff",
+    # points (D351)
+    "tune_break",
     "dmg_elem",
     "amplify_basic",
     "amplify_heavy",
@@ -118,6 +120,22 @@ def find_role(roles: dict, name: str) -> str | None:
     return None
 
 
+def starter_weapon(data: dict, name: str) -> str | None:
+    """The weapon the game gives a resonator (D363): the 1★ one of their type (教学长刃, 教学迅刀,
+    教学佩枪, 教学臂铠, 教学音感仪); None when the data has none."""
+    kind = ((data.get("roles") or {}).get(name) or {}).get("weapon_type")
+    return next((w for w, arm in (data.get("weapons") or {}).items()
+                 if arm.get("type") == kind and int(arm.get("rarity") or 0) == 1), None)
+
+
+def starter_setup(data: dict, name: str) -> dict:
+    """The starter as it comes (D363): Lv 1, 精1; with none, no weapon."""
+    starter = starter_weapon(data, name)
+    if starter is None:
+        return {"name": None, "level": 90, "breach": 6, "rank": 1}
+    return {"name": starter, "level": 1, "breach": 0, "rank": 1}
+
+
 def default_setup(data: dict, name: str) -> dict:
     role = data["roles"][name]
     return {
@@ -126,7 +144,8 @@ def default_setup(data: dict, name: str) -> dict:
         "nodes": dict(ALL_NODES),
         "mode": None,
         "skills": {str(s["type"]): 10 for s in role.get("skills") or []},
-        "weapon": {"name": None, "level": 90, "breach": 6, "rank": 1},
+        # every resonator holds a weapon: with none known, the one the game gives (D363)
+        "weapon": starter_setup(data, name),
         "echoes": [],
         "buffs": {},
         "chain": 0,
@@ -141,6 +160,13 @@ SKILL_NAMES = {"常态攻击": "1", "共鸣技能": "2", "共鸣回路": "6", "�
 #: Every node taken, per skill as the detail panel draws them (D272): 共鸣回路's two are the
 #: inherent skills, the others' are the stat nodes.
 ALL_NODES = {kind: 2 for kind in SKILL_NAMES.values()}
+
+
+def nodes_taken(read: dict) -> dict[str, int]:
+    """The nodes a 技能 screen showed taken, per skill by its name (D358): how many, for each skill
+    whose every node was told; a skill with one not told (None) is not said."""
+    return {name: sum(n is True for n in shown) for name, shown in read.items()
+            if shown and all(n is not None for n in shown)}
 
 
 def node_counts(setup: dict) -> dict[str, int]:
@@ -185,6 +211,70 @@ def _scanned_echo(read: dict, data: dict) -> dict:
         "main": main.get("stat") or "crit",
         "subs": [dict(sub) for sub in read.get("subs") or []],
     }
+
+
+def no_main_echo(worn: dict) -> bool:
+    """The 声骸 page says no main echo is fitted (D367): "尚未装配主声骸"."""
+    return "尚未装配" in (worn.get("skill") or "").replace(" ", "")
+
+
+def _worn_echoes(read: list[dict], worn: dict, data: dict) -> list[dict]:
+    """The echoes a scan read on them, as they wear them (D346): five, the main echo first.
+
+    `read` is newest first. With the 声骸 page read (`worn`), only echoes its sets have room for
+    are taken -- one read on them before it was moved to someone else is not -- and the main echo
+    is the one whose main-echo words the page's 声骸技能 shows. Else the costliest is the main,
+    as it nearly always is; the rest by cost."""
+    import difflib
+
+    # a set's "(2/2)" on the page is its 2-piece effect on: the least it is worn, not how many
+    # (D367: 莉莉 wears four of 茜染怀想之花, which says 2/2). Each set may have as many as the
+    # slots leave after the others' least; the main slot empty, four slots (D367)
+    least = {s["name"]: int(s.get("pieces") or 0) for s in worn.get("sets") or [] if s.get("name")}
+    slots = 4 if no_main_echo(worn) else 5
+    taken: list[dict] = []
+    seen: set[str] = set()
+    count: dict[str, int] = {}
+    for echo in read:
+        name = echo.get("name")
+        if not name or name in seen or len(taken) == slots:
+            continue
+        if least:
+            kind = echo.get("set") or ""
+            cap = slots - sum(n for s, n in least.items() if s != kind)
+            if count.get(kind, 0) >= cap:
+                continue
+            count[kind] = count.get(kind, 0) + 1
+        seen.add(name)
+        taken.append(echo)
+    if not taken:
+        return []
+
+    def cost(echo: dict) -> int:
+        known = (data.get("echoes") or {}).get(echo.get("name") or "") or {}
+        return int(echo.get("cost") or known.get("cost") or 0)
+
+    skill = (worn.get("skill") or "").replace(" ", "")
+    main = None
+    if no_main_echo(worn):
+        # no main echo fitted: none is, and the rest go by cost (D367)
+        return sorted(taken, key=lambda e: -cost(e))
+    if skill:
+        scored = []
+        for echo in taken:
+            words = ((((data.get("echoes") or {}).get(echo["name"]) or {}).get("main_buff") or {})
+                     .get("text") or "")
+            if words:
+                fit = difflib.SequenceMatcher(None, words, skill).find_longest_match(
+                    0, len(words), 0, len(skill)).size / len(words)
+                scored.append((fit, echo))
+        best = max(scored, key=lambda x: x[0], default=None)
+        if best is not None and best[0] >= 0.5:
+            main = best[1]
+    if main is None:
+        main = max(taken, key=cost)
+    rest = sorted((e for e in taken if e is not main), key=lambda e: -cost(e))
+    return [main, *rest]
 
 
 def known(
@@ -241,6 +331,13 @@ def known(
             **{SKILL_NAMES[k]: int(v) for k, v in skills.items() if k in SKILL_NAMES},
         }
         took = True
+    taken = nodes_taken((scanned.get("skills") or {}).get("nodes") or {})
+    if taken:
+        out["nodes"] = {
+            **(out.get("nodes") or {}),
+            **{SKILL_NAMES[k]: v for k, v in taken.items() if k in SKILL_NAMES},
+        }
+        took = True
     arm = scanned.get("weapon") or {}
     if arm.get("name") in weapons:
         level = int(arm.get("level") or 90)
@@ -252,10 +349,17 @@ def known(
         }
         took = True
     if scanned.get("echoes"):
-        out["echoes"] = [_scanned_echo(e, data) for e in scanned["echoes"]]
+        worn = _worn_echoes(scanned["echoes"], scanned.get("worn") or {}, data)
+        out["echoes"] = [_scanned_echo(e, data) for e in worn]
+        if no_main_echo(scanned.get("worn") or {}):
+            out["main_echo"] = False  # the first is no main echo: its buff does not count (D367)
         took = True
     if took:
         out["from"].append("scan")
+    if "weapon" not in out and starter_weapon(data, name):
+        # no weapon seen on them: they hold the one the game gives (D363), and the page says so
+        out["weapon"] = starter_setup(data, name)
+        out["weapon_default"] = True
     return out
 
 
@@ -427,7 +531,7 @@ def available(data: dict, name: str, setup: dict, echoes: list | None = None) ->
                 if pieces == "2":
                     buff["always"] = True  # a panel stat, counted there (D272)
                 out.append(buff)
-    first = (worn or [{}])[0].get("echo") if worn else None
+    first = (worn or [{}])[0].get("echo") if worn and setup.get("main_echo") is not False else None
     main = ((data.get("echoes") or {}).get(first or "") or {}).get("main_buff")
     if main:
         out.append(
@@ -457,9 +561,11 @@ def available(data: dict, name: str, setup: dict, echoes: list | None = None) ->
                 "notes": list(rank.get("not_counted") or []),
             }
         )
-    for buff in role.get("buffs") or []:
-        if _unlocked(buff, data, name, setup):
-            out.append(dict(buff))
+    own = [dict(b) for b in role.get("buffs") or [] if _unlocked(b, data, name, setup)]
+    out.extend(_led_in(own))
+    tune = _tune_response(data, name, setup)
+    if tune:
+        out.append(tune)
     # what the others in a team give them (D287): listed like their own, on until switched off
     for given in setup.get("_given") or []:
         out.append(copy.deepcopy(given))
@@ -495,8 +601,59 @@ def _of_mode(buffs: list[dict], mode: int | None) -> list[dict]:
     return out
 
 
+def _led_in(buffs: list[dict]) -> list[dict]:
+    """A paragraph that only leads in to the parts after it, and ends on its colon -- 洛瑟菈's
+    "施放共鸣技能·追光时，洛瑟菈将根据共鸣模态提供不同的强化效果：" -- shown with the part of
+    the mode chosen, as the game shows them, not as a card of its own that says nothing
+    (D353)."""
+    out: list[dict] = []
+    for buff in buffs:
+        text = (buff.get("text") or "").rstrip()
+        parts = [b for b in buffs if b["id"].startswith(f"{buff['id']}:")]
+        if not buff.get("effects") and text.endswith(("：", ":")) and parts:
+            for part in parts:
+                part["text"] = f"{text}\n{part.get('text') or ''}"
+            continue
+        out.append(buff)
+    return out
+
+
+#: The buff the game's tag 集谐响应 gives (D351): "根据自身谐度破坏增幅对目标造成最终伤害提升".
+TUNE_RESPONSE = "tune:集谐响应"
+#: Each point of 谐度破坏增幅, for each layer of 【集谐·干涉】 on the target: the same in every
+#: responder's 谐度破坏 skill (清宵, 达妮娅, 陆·赫斯, 莫宁, 琳奈 -- `SkillDetailNum` 0.12%).
+TUNE_PER_POINT = 0.0012
+#: The layers counted until the page says otherwise.
+TUNE_LAYERS = 2
+
+
+def _tune_response(data: dict, name: str, setup: dict) -> dict | None:
+    """What one who responds to 【集谐·干涉】 gains (D351), in the mode it is theirs in
+    (达妮娅's and 琳奈's 共鸣模态·集谐): final damage by each point of their 谐度破坏增幅 and
+    each layer."""
+    role = data["roles"][name]
+    if "集谐响应" not in (role.get("tags") or []):
+        return None
+    modes = role.get("modes") or []
+    if modes:
+        chosen = mode_of(data, name, setup)
+        if not any(m.get("id") == chosen and "集谐" in (m.get("name") or "") for m in modes):
+            return None
+    return {
+        "id": TUNE_RESPONSE,
+        "source": "inherent",
+        "title": "响应【集谐·干涉】",
+        "text": (f"目标每有一层【集谐·干涉】效果，{name}自身的每点谐度破坏增幅"
+                 f"会使自身对该目标造成的最终伤害提升{TUNE_PER_POINT * 100:.2f}%。"),
+        "effects": [{"stat": "final", "value": TUNE_PER_POINT, "per_stack": True,
+                     "stacks": TUNE_LAYERS, "needs": {"stat": "tune_break", "per": 1}}],
+        "checked": True,
+        "notes": [f"【集谐·干涉】按 {TUNE_LAYERS} 层算，可改"],
+    }
+
+
 #: Stats that are an amount, not a share: written in their words without a %.
-_FLAT_STATS = {"atk", "hp", "def", "energy", "concerto"}
+_FLAT_STATS = {"atk", "hp", "def", "energy", "concerto", "tune_break"}
 #: Seconds on the field each round, by what a resonator is in a team (D315): changeable per setup.
 FIELD = {"主C": 14.0, "副C": 7.0, "辅助": 4.0}
 #: What is done once a turn on the field: a buff it starts lasts its seconds, not throughout.
@@ -504,6 +661,8 @@ _ONCE = ("变奏", "入场", "共鸣解放", "延奏", "声骸技能")
 #: What is done again and again in a turn: a buff it starts is up throughout.
 _OFTEN = ("普攻", "重击", "共鸣技能", "空中攻击", "治疗", "护盾", "附加")
 _LASTS = re.compile(r"持续(\d+(?:\.\d+)?)秒")
+#: A window after what starts it (D360): "造成声骸技能伤害后12秒内，…" lasts 12 s.
+_WITHIN = re.compile(r"后(\d+(?:\.\d+)?)秒内")
 _RATE = re.compile(
     r"每(\d*(?:\.\d+)?)秒(?:可|最多|至多)?(?:通过\S{0,8})?(?:获得|叠加|获取|触发)(\d+)[层次]")
 _GROWS = re.compile(r"延长(\d+(?:\.\d+)?)秒(?:，最多可延长(\d+)次)?")
@@ -569,7 +728,7 @@ def _timing_at(sentences: list[str], i: int) -> dict:
     names = set(_NAMED.findall(own))
     related = [s for s in sentences if s == own or names & set(_NAMED.findall(s))]
     whole = "".join(related)
-    lasts = _LASTS.search(own) or _LASTS.search(whole)
+    lasts = _LASTS.search(own) or _WITHIN.search(own) or _LASTS.search(whole)
     rate = _RATE.search(whole)
     full = _FULL_AT.search(own)
     # "…持续8秒；施放共鸣技能时，该效果延长5秒，最多可延长3次": it lasts as long as it can grow
@@ -587,6 +746,11 @@ def _timing_at(sentences: list[str], i: int) -> dict:
               if "时" in c or c.endswith("后") or any(w in c for w in ("命中", "每次", "每当"))]
     starts = [c for c in starts
               if not any(w in c for w in ("持续", "同时", "时间", "离场", "层时", "秒后"))]
+    # in a window ("造成声骸技能伤害后12秒内，…且造成伤害时…"), what opens it starts it; what is
+    # done in it does not (D360)
+    opens = [c for c in clauses if _WITHIN.search(c)]
+    if opens and not _LASTS.search(own):
+        starts = opens
     return {
         "seconds": lasts_for,
         "refresh": any(_starts_often(c) for c in starts),
@@ -741,6 +905,28 @@ def _once_shielded(buff: dict, parts: list[float], field: float) -> list[float]:
     return out
 
 
+#: A manual buff's key with a scope (D347): `stat@kind:heavy`, `stat@skill:<a skill's name>`.
+SCOPE = "@"
+
+
+def manual_buffs(setup: dict) -> tuple[dict, list[dict]]:
+    """The buffs typed by hand: those for every hit, and those 仅 one kind of hit or one skill
+    (D347), as the game's own scoped effects are (`_for_row`)."""
+    flat: dict = {}
+    scoped: list[dict] = []
+    for key, value in (setup.get("buffs") or {}).items():
+        stat, _, scope = str(key).partition(SCOPE)
+        if not scope:
+            flat[key] = value
+            continue
+        if not value:
+            continue
+        by, _, what = scope.partition(":")
+        if by in ("kind", "skill") and what:
+            scoped.append({"stat": stat, "value": float(value), by: what})
+    return flat, scoped
+
+
 def _with_buffs(setup: dict, buffs: dict, enemy: dict) -> dict:
     out = dict(setup)
     out["buffs"] = {**(setup.get("buffs") or {})}
@@ -837,6 +1023,7 @@ def panel(data: dict, setup: dict, echoes: list | None = None) -> dict:
         "dmg_intro",
         "dmg_outro",
         "tune_eff",
+        "tune_break",
         *(f"dmg_{e}" for e in range(1, 7)),
     ):
         add(key, buffs.get(key) or 0)
@@ -923,16 +1110,29 @@ def _rows(
     ignore = float(enemy.get("def_ignore") or 0) + float(buffs.get("def_ignore") or 0)
     shred = float(enemy.get("res_shred") or 0) + float(buffs.get("res_shred") or 0)
     element = f"dmg_{role['element']}"
+    # a row named after one mode's effect is that mode's (D348): 爱弥斯's 震谐响应·星爆 is
+    # 共鸣模态·震谐's, not 共鸣模态·聚爆's
+    modes = {m["id"]: m["name"].split("·")[-1] for m in role.get("modes") or [] if m.get("name")}
+    mode = setup.get("mode")
+    others = [word for i, word in modes.items() if i != mode] if mode in modes else []
     out = []
     for skill in role.get("skills") or []:
         at = int((setup.get("skills") or {}).get(str(skill["type"]), 10))
         rows = []
         for row in skill["rows"]:
+            if others and any(word and word in row["name"] for word in others) \
+                    and modes[mode] not in row["name"]:
+                continue
             text = row["values"][min(max(at, 1), len(row["values"])) - 1]
             said = parse_multiplier(text)
             if said is None:
                 continue
             scale = stats[row.get("stat") or "atk"]
+            # a hit a buff makes another kind (D352): 达妮娅's 黯核 hits "本次伤害为共鸣解放伤害"
+            became = next((e["as"] for e in scoped or [] if e.get("as") and e.get("skill")
+                           and (e["skill"] == skill["name"] or e["skill"] in row["name"])), None)
+            if became:
+                row = {**row, "bonus": became}
             extra = _for_row(scoped or [], skill, row)
             mv = sum(said["hits"]) * (1 + float(buffs.get("mv") or 0) + extra.get("mv", 0))
             defence = def_mult(
@@ -970,8 +1170,10 @@ def _rows(
                     expected=noncrit * expected_crit(crit, crit_dmg),
                 )
             elif row["kind"] == "heal":
+                # a heal raised for one skill counts on its rows (D369: 莉莉's 梦乡 at 4链)
                 entry["amount"] = (scale * mv + said["flat"]) * (
-                    1 + stats.get("heal", 0) + float(buffs.get("received") or 0)
+                    1 + stats.get("heal", 0) + extra.get("heal", 0)
+                    + float(buffs.get("received") or 0)
                 )
             else:
                 entry["amount"] = (scale * mv + said["flat"]) * (
@@ -1039,6 +1241,9 @@ def compute(
         setup["_role"] = name
     role_name = setup["_role"] if "_role" in setup else next(iter(data["roles"]))
     role = data["roles"][role_name]
+    if not (setup.get("weapon") or {}).get("name") and starter_weapon(data, role_name):
+        # a setup kept with no weapon: they hold the one the game gives (D363)
+        setup["weapon"] = starter_setup(data, role_name)
     toggles = setup.get("toggles") or {}
     typed = {k: float(v) for k, v in (setup.get("panel") or {}).items() if v is not None}
 
@@ -1051,6 +1256,10 @@ def compute(
         once = bool(role.get("shield_once")) and setup.get("_team_shield") != "often"
         buffs, enemy, scoped = _apply(listed, toggles, role.get("element"), tags,
                                       field_of(data, role_name, base), shield_once=once)
+        # a buff typed by hand for one kind of hit or one skill is that row's, not the panel's
+        flat, by_hand = manual_buffs(base)
+        scoped = [*scoped, *by_hand]
+        base = {**base, "buffs": flat}
         grows = buffs.pop("_grows", [])
         mine = _with_buffs(base, buffs, enemy)
         stats = panel(data, mine)
@@ -1060,8 +1269,14 @@ def compute(
             # to its cap (D296): before, each counted at its cap whatever the stat was
             for effect in grows:
                 need = effect["needs"]
-                start, top = float(need.get("from") or 0), float(need["value"])
                 have = float(stats.get(need["stat"]) or 0)
+                start = float(need.get("from") or 0)
+                if need.get("per"):
+                    # by each step of the stat, with no cap (D351): 0.12% for each point
+                    steps = max(have - start, 0.0) / float(need["per"])
+                    buffs[effect["stat"]] = buffs.get(effect["stat"], 0.0) + effect["value"] * steps
+                    continue
+                top = float(need["value"])
                 share = 1.0 if top <= start else min(max((have - start) / (top - start), 0.0), 1.0)
                 buffs[effect["stat"]] = buffs.get(effect["stat"], 0.0) + effect["value"] * share
             mine = _with_buffs(base, buffs, enemy)
@@ -1104,14 +1319,51 @@ def compute(
         for key in ("echoes", "weapon", "chain"):
             if compare.get(key) is not None:
                 other[key] = compare[key]
+        if not (other.get("weapon") or {}).get("name") and starter_weapon(data, role_name):
+            # B copied from a setup kept with no weapon: the starter, as A holds it (D363)
+            other["weapon"] = starter_setup(data, role_name)
         theirs, their_skills, their_buffs, _, _ = side(other, raw)
         said["compare"] = {
             "panel": theirs,
             "skills": _with_change(skills, their_skills),
             "buffs": their_buffs,
             "changed": _changed(setup, other),
+            # what B gives the team, at B's chain and weapon (D369)
+            "gives": gives(data, role_name, other, theirs),
+            "chain": chain_nodes(data, role_name, setup, other),
         }
     return said
+
+
+#: Stats that make a round's energy, not a hit's number (D303).
+_ENERGY = {"concerto", "energy"}
+
+
+def chain_nodes(data: dict, name: str, a: dict, b: dict) -> list[dict]:
+    """Each chain node between A's and B's (D369), and what it does as 计算 counts it: `own`,
+    its own rows; `team`, to the others only (a gift, or effects all for the team); `energy`, a
+    round's energy, which moves no hit; `none`, nothing counted -- with its notes, where one
+    says why. `b`: B has it and A has not."""
+    role = data["roles"][name]
+    low, high = sorted((int(a.get("chain") or 0), int(b.get("chain") or 0)))
+    more = int(b.get("chain") or 0) > int(a.get("chain") or 0)
+    buffs = {int(x.get("n") or 0): x for x in role.get("buffs") or [] if x.get("source") == "chain"}
+    gifts = {int(g.get("n") or 0): g for g in role.get("gives") or [] if g.get("source") == "chain"}
+    out = []
+    for n in range(low + 1, high + 1):
+        buff, gift = buffs.get(n) or {}, gifts.get(n)
+        said = buff.get("effects") or []
+        if any(not e.get("team") and e["stat"] not in _ENERGY for e in said):
+            does = "own"
+        elif gift or (said and all(e.get("team") for e in said)):
+            does = "team"
+        elif said:
+            does = "energy"
+        else:
+            does = "none"
+        out.append({"n": n, "title": buff.get("title") or (gift or {}).get("title"),
+                    "does": does, "notes": list(buff.get("notes") or []), "b": more})
+    return out
 
 
 def _graded(data: dict, name: str, setup: dict, typed: dict, game: dict | None) -> dict:
@@ -1937,20 +2189,26 @@ def rank_weapons(
     # five echoes missing: on their best build, where crit is what a built resonator has (D312) --
     # on a bare one, at 5% crit, 暴击伤害 is worth nothing
     built = "setup" if len(base.get("echoes") or []) >= 5 else "best"
-    if built == "best":
-        base = best_setup(data, name, base)
 
     def worked(weapon: str, rank: int) -> dict:
         trial = {**base, "weapon": {"name": weapon, "level": 90, "breach": 6, "rank": rank}}
+        if built == "best":
+            # each weapon on its own best build (D364): one built for the weapon held favoured it,
+            # and the change did not hold both ways (琼枝冰绡 −13.4% against 玉阙玄华, which was
+            # −4.2% against it)
+            trial = best_setup(data, name, trial)
         return compute(data, trial, name, _grade=False)
 
     def score(said: dict) -> float:
         # a healer: what they bring, by how soon it comes again (D303)
         return _score(data, name, said)
 
-    held = (setup.get("weapon") or {}).get("name")
+    # none held: the one the game gives them (D363)
+    held = (setup.get("weapon") or {}).get("name") or starter_weapon(data, name)
     weapons = data.get("weapons") or {}
-    held_rank = int((setup.get("weapon") or {}).get("rank") or 1)
+    # the starter, held for want of another, as the game gives it: 精1 (D363)
+    named = (setup.get("weapon") or {}).get("name")
+    held_rank = int((setup.get("weapon") or {}).get("rank") or 1) if named else 1
     now = score(worked(held, held_rank)) if held in weapons else None
     out = []
     for weapon, arm in weapons.items():
@@ -1962,6 +2220,8 @@ def rank_weapons(
         # in all, a 5★ they already hold above 精1 is at the rank they hold
         mine = max(owned.get(weapon, 0), held_rank if weapon == held else 0)
         rank = owned[weapon] if only_owned else max(1 if rarity >= 5 else 5, mine)
+        if weapon == held and not only_owned:
+            rank = held_rank  # the one held, as it is held (D363): listed first, it reads true
         rank = min(max(int(rank), 1), 5)
         said = worked(weapon, rank)
         got = score(said)

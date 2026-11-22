@@ -500,10 +500,47 @@ def _stop_route(app: FastAPI, live: LiveState) -> None:
         return Response(status_code=204)
 
 
+def _picture_routes(app: FastAPI) -> None:
+    """The catalogue's pictures a resonator's screens are laid out with on the scan's page
+    (D357): a resonator's head icon, an echo's or a set's art. Never a picture of the game."""
+
+    def served(folder: str, filename: str, pattern: re.Pattern[str]) -> FileResponse:
+        from ..catalogue import CATALOGUE_DIR
+
+        path = CATALOGUE_DIR / folder / filename
+        if not pattern.fullmatch(filename) or not path.is_file():
+            raise HTTPException(404, "no such picture")
+        return FileResponse(path, media_type="image/webp",
+                            headers={"Cache-Control": "max-age=86400"})
+
+    @app.get("/api/avatar/{filename}")
+    def monitor_avatar(filename: str) -> FileResponse:
+        return served("avatars", filename, re.compile(r"r-[0-9]{1,12}\.webp"))
+
+    @app.get("/api/echo/{filename}")
+    def monitor_echo(filename: str) -> FileResponse:
+        return served("echoes", filename, re.compile(r"[0-9]{1,12}\.webp"))
+
+    @app.get("/api/reference/{filename}")
+    def monitor_reference(filename: str) -> FileResponse:
+        """A weapon's picture (D365): only files in the catalogue's index, as the main app's."""
+        if filename not in set(name_to_file().values()):
+            raise HTTPException(404, "no such picture")
+        path = reference_dir() / filename
+        if not path.is_file():
+            raise HTTPException(404, "no such picture")
+        copy = web_icons.copy_for(path)
+        if copy is not None:
+            return FileResponse(copy, media_type="image/webp")
+        return FileResponse(path, media_type="image/png" if filename.endswith(".png")
+                            else "image/webp", headers={"Cache-Control": "max-age=86400"})
+
+
 def _monitor_app(db_path: Path, live: LiveState) -> FastAPI:
     app = FastAPI(title="WuWa Inventory Vision -- scan monitor", docs_url="/api/docs")
     _shared_routes(app, db_path, live)
     _stop_route(app, live)
+    _picture_routes(app)
 
     @app.get("/", response_class=HTMLResponse)
     @app.get("/live", response_class=HTMLResponse)
@@ -1691,7 +1728,9 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         return {"have": True, "version": data.get("version"),
                 "elements": data.get("elements") or {}, "stats": data.get("stats") or {},
                 "tags": list(echo_sets_mod.TAGS),
-                "sets": echo_sets_mod.listing(data, echo_pictures(), sets_worn())}
+                "sets": echo_sets_mod.listing(data, echo_pictures(), sets_worn()),
+                # and every echo, for the 声骸 view beside them (D350)
+                "echoes": echo_sets_mod.echo_listing(data, echo_pictures())}
 
     def set_people(rows: list[dict]) -> list[dict]:
         """Each resonator a set names, as the app draws them (D319): their face, whether they
@@ -1830,7 +1869,7 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             rows = roster.resonators(cat, build_inventory(st, cat), done_tabs(st), progress,
                                      read_pulls(st), skip=hidden(st))
             row = next((r for r in rows if r["name"] == app_name), None)
-            scanned = st.character_reads(found)
+            scanned = st.character_reads(found, echoes=12)  # room to pick the five worn (D346)
             held = [{"name": c.name, "level": c.level, "rank": c.rank,
                      "holder": found if who in (app_name, roster.ROVER if rover else None) else who}
                     for who, c in weapons_mod.held(st).items()]

@@ -508,12 +508,17 @@ def _take(store: Store, said: dict, scans: list[dict], took: dict) -> None:
         for row in said.get("character_reads") or []:
             if not _valid_read(row):
                 continue
-            took["characters"] += store.conn.execute(
+            kept = store.conn.execute(
                 "INSERT INTO character_reads (resonator, screen, key, data, read_at) "
                 "VALUES (?, ?, ?, ?, ?) ON CONFLICT(resonator, screen, key) DO UPDATE SET "
                 "data = excluded.data, read_at = excluded.read_at "
                 "WHERE excluded.read_at > character_reads.read_at",
                 (row["resonator"], row["screen"], row["key"], row["data"], row["read_at"])).rowcount
+            took["characters"] += kept
+            if kept and row["screen"] in ("attributes", "skills"):
+                # and into their progress, as the scanner's own moved (D342): 规划 counts from it
+                store.progress_from_read(row["resonator"], json.loads(row["data"]),
+                                         row["read_at"])
 
 
 def _valid_read(row: object) -> bool:

@@ -61,6 +61,27 @@
   @keyframes pulse{from{opacity:1}to{opacity:.25}}
   @media (prefers-reduced-motion:reduce){ .phase .dot{animation:none !important} }
 
+  /* Where the scan is (D331, D340): the bag and its tab, or a resonator's screen and whose. */
+  .where{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin:10px 12px 0;padding:8px 12px;
+         border-radius:10px;border:1px solid var(--line);font-size:15px;overflow-wrap:anywhere}
+  .where[hidden]{display:none}
+  .where b{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+           padding:1px 8px;border-radius:999px;color:#fff;background:var(--accent)}
+  .where[data-kind="resonator"] b{background:var(--r4)}
+  .where span{font-weight:650}
+  .where small{color:var(--muted);font-size:13px}
+  .rread h3{margin:0 0 6px;font-size:18px}
+  .rread .ok{color:var(--ok);font-weight:650;margin:0 0 8px}
+  .rread .wait{color:var(--muted);margin:0}
+  .rread ul{margin:0;padding-left:18px;line-height:1.6}
+  .rread small{color:var(--muted)}
+  .rboxes{display:block;width:100%;height:auto;margin-top:10px;background:#000;border-radius:6px;border:1px solid var(--line)}
+  .rboxes rect{fill:rgba(87,208,140,.12);stroke:#57d08c;stroke-width:.002}
+  .rboxes text{fill:#e6edf3}
+  #items:has(.hold){grid-template-columns:1fr}
+  .hold{padding:10px 12px;border:1px solid var(--line);border-radius:8px;line-height:1.5}
+  .hold small{display:block;color:var(--muted);font-size:12px}
+  .hold ul{margin:6px 0 0;padding-left:18px}
   .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:12px 12px 0}
   .tabs:empty{display:none}
   .tab{border:1px solid var(--line);border-radius:10px;padding:8px 12px 10px;background:var(--panel);min-width:0}
@@ -173,6 +194,7 @@
   <div class="phase" id="phase" role="status" aria-live="polite" data-state="connecting">
     <span class="dot"></span><div><b>Connecting…</b><small></small></div>
   </div>
+  <div class="where" id="where" role="status" aria-live="polite" hidden></div>
   <div class="tabs" id="tabs"></div>
 </header>
 <button class="stop" id="stop" type="button" data-state="idle" hidden>Stop the scan</button>
@@ -181,7 +203,8 @@
     <div class="said"><b></b><span class="what"></span><span class="left"></span><span class="rate"></span></div>
     <div class="meter" role="progressbar" aria-label="Sync with the server" aria-valuemin="0" aria-valuemax="100"><i></i></div>
   </section>
-  <section class="card view-card">
+  <section class="card rread" id="rread" role="status" aria-live="polite" hidden></section>
+  <section class="card view-card" id="view-card">
     <div class="view" id="view"><div class="none">Waiting for the first view.<br>Open the bag in game and hold still for a moment.</div></div>
     <div class="legend">
       <span><i style="background:var(--box-panel)"></i>read from panel</span>
@@ -234,6 +257,70 @@ function renderPhase(d){
   el.dataset.state = key; el.dataset.note = d.note ?? '';
   document.body.classList.toggle('stale', key === 'offline');
   el.innerHTML = `<span class="dot"></span><div><b>${esc(title)}</b><small>${esc(d.note || hint)}</small></div>`;
+}
+
+// Where the scan is (D331), as the PC's page says it: it was missing here (D340).
+const SCREEN_WORDS = {attributes: '属性详情', skills: '技能', weapon: '武器', echo: '声骸',
+                      echoes: '声骸', chain: '共鸣链'};
+function renderWhere(w){
+  const el = $('where');
+  if(!w){ el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.dataset.kind = w.kind;
+  if(w.kind === 'bag'){
+    el.innerHTML = `<b>Bag</b><span>${esc(w.tab ?? '?')}</span>` +
+      (w.skipped ? '<small>skipped: nothing here is read</small>' : '');
+    return;
+  }
+  const screen = SCREEN_WORDS[w.screen] ?? w.screen ?? '?';
+  el.innerHTML = `<b>Resonator</b><span>${w.resonator ? `${esc(w.resonator)} · ` : ''}${esc(screen)}</span>`;
+}
+
+// On a resonator's screen (D340): whose, whether it has been read, and what -- in the view's place.
+function renderResonatorRead(d){
+  const card = $('rread'), view = $('view-card');
+  const w = d.screen, on = !!w && w.kind === 'resonator';
+  card.hidden = !on;
+  view.hidden = on;
+  if(!on) return;
+  const screen = SCREEN_WORDS[w.screen] ?? w.screen ?? '?';
+  const r = d.resonator_read;
+  const read = r && r.kind === w.screen;
+  const who = (read ? r.resonator : w.resonator) ?? '?';
+  card.innerHTML = `<h3>${esc(who)} · ${esc(screen)}</h3>` + (
+    w.screen === 'chain' ? '<p class="wait">共鸣链 is not read.</p>'
+    : read ? `<p class="ok">✓ Read ${new Date(r.at * 1000).toLocaleTimeString()}`
+        + (r.resonator ? '' : ' <small>— whose? open 属性详情 or pick them on the right</small>') + '</p>'
+        + `<ul>${(r.summary ?? []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
+        + rreadBoxes(r)
+    : '<p class="wait">Not read yet: it is read once the panel holds still.</p>');
+}
+
+// The window, drawn to its shape, with a box round each piece of text read and what it was read
+// as (D343): what the scan looked at -- boxes and words, never a picture of the game (D153).
+function rreadBoxes(r){
+  if(!r.frame || !(r.boxes ?? []).length) return '';
+  // framed on what was read, so its words can be read; the text sits in its own box
+  const b = r.boxes, m = 0.02;
+  const x0 = Math.min(...b.map(x => x[0])) - m, y0 = Math.min(...b.map(x => x[1])) - m;
+  const x1 = Math.max(...b.map(x => x[2])) + m, y1 = Math.max(...b.map(x => x[3])) + m;
+  const boxes = b.map(([a, c, e, f, t]) => {
+    const fs = Math.max(0.008, (f - c) * 0.8);
+    return `<rect x="${a}" y="${c}" width="${e - a}" height="${f - c}"></rect>`
+      + `<text x="${a + 0.002}" y="${f - (f - c) * 0.2}" font-size="${fs}">${esc(t)}</text>`;
+  }).join('');
+  return `<svg class="rboxes" id="rreadBoxes" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" role="img"
+    aria-label="Where each value was read">${boxes}</svg>`;
+}
+
+// On a resonator's screens, what the scan holds for them, in the bag's items' place (D343).
+function renderHolds(d){
+  const who = d.resonator_read?.resonator ?? d.screen?.resonator;
+  $('items-title').textContent = who ? `What the scan holds for ${who}` : 'Not told whose yet';
+  $('items').innerHTML = (d.resonator_holds ?? []).map(x =>
+    `<div class="hold"><b>${esc(SCREEN_WORDS[x.kind] ?? x.kind)}${x.key ? ` · ${esc(x.key)}` : ''}</b>
+     <small>${new Date(x.read_at).toLocaleString()}</small>
+     <ul>${(x.summary ?? []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`).join('');
 }
 
 function renderTabs(d){
@@ -343,6 +430,7 @@ function renderLog(d){
 }
 
 function renderItems(d){
+  if(d.screen?.kind === 'resonator') return renderHolds(d);
   const newKeys = new Set(d.boxes.filter(b => b.new).map(b => b.key));
   const tab = d.tabs.find(t => t.label === d.current_tab);
   $('items-title').textContent = `Items${d.current_tab ? ' · ' + d.current_tab : ''}` +
@@ -433,6 +521,7 @@ async function tick(){
       version = d.version;
       renderPhase(d); renderTabs(d); renderNeeds(d); renderSelected(d);
       renderView(d); fadeBoxes(d); renderLog(d); renderItems(d); renderStop(d);
+      renderWhere(d.screen); renderResonatorRead(d);
       document.body.dataset.version = d.version;
     }
   }catch(e){

@@ -1,6 +1,83 @@
 {
- "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it.",
+ "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
+  {
+   "version": "1.4.4",
+   "date": "2026-11-23",
+   "scanner": [
+    {
+     "zh": "修复：1.4.2、1.4.3 扫描共鸣者界面时，技能、武器、声骸页可能记到别的共鸣者身上；现在按右边选中的头像认人，看不准时会先请你确认",
+     "en": "fixed: in 1.4.2 and 1.4.3, scanning a resonator's screens could keep 技能, 武器 and the 声骸 page under another resonator; now whose screen it is comes from the portrait selected on the right, and when unclear the scan asks you first"
+    },
+    {
+     "zh": "扫描时会读共鸣者自己的界面：属性详情、武器、技能（连同技能上的节点）、声骸页和每一件声骸。扫描页按游戏里的样子显示读到的内容，每个界面有自己的颜色和图标，还会列出这位共鸣者哪些界面已经扫过、哪些还没扫",
+     "en": "the scan reads a resonator's own screens: 属性详情, 武器, 技能 (with the nodes on each skill), the 声骸 page and each echo. The scan's page lays out what was read as the game does, each screen in its own colour and icon, and lists which of their screens are scanned and which are not yet"
+    },
+    {
+     "zh": "是谁的界面，看右边选中的头像就知道；看不准时不会乱猜，会请你点一下「属性详情」确认（右边选中的人不要换），换了人就不记。漂泊者按「属性详情」上的属性分开记录，所有属性共用同一把武器",
+     "en": "whose screen it is comes from the portrait selected on the right; when that is unclear the scan does not guess, it asks you to click 属性详情 to confirm (keep the same resonator selected), and keeps nothing if you picked someone else. The Rover is kept per element, as 属性详情 shows it, with one weapon for all elements"
+    },
+    {
+     "zh": "读到的等级、技能等级和技能节点会填进培养进度；读到的声骸和武器会带进「计算」，没装主声骸时也认得出来",
+     "en": "the level, skill levels and skill nodes read fill their progress; the echoes and weapon read go into 计算, and an empty main-echo slot is recognised"
+    },
+    {
+     "zh": "修复：停在同一页时不会一遍遍重复记录；一件声骸这次漏读的等级、COST 或套装会沿用之前读到的；属性名差一个字、等级后面多一个符号也能读出来",
+     "en": "fixed: a page held still is no longer read and kept again and again; an echo's level, COST or set missed in one read keeps what an earlier read had; a stat name one character off, or a level with a stray mark after it, is still read"
+    },
+    {
+     "zh": "武器背包里，装备者的小头像按游戏的头像认人，没认出过的下次扫武器时补上名字",
+     "en": "in the weapon bag, the holder's small portrait is told by the resonator's own head icon, and one not named before is named on the next 武器 scan"
+    },
+    {
+     "zh": "如果数据是更新的版本写的，这个版本不会打开它，也不会改动它，而是说明原因；以前旧版本会把自己的数据格式号写进去",
+     "en": "data written by a newer version is left alone, untouched, with a message saying why; before, an older version wrote its own format number over it"
+    }
+   ],
+   "home": [
+    {
+     "zh": "「计算」：扫描读到的声骸按实际穿戴放进去，主声骸在前；「换一把会怎样」把手上的武器排第一；每位共鸣者都有武器（没装备时就是游戏默认的 1 星武器）；每把武器在它自己的最佳配置上比较，换过去和换回来的结果一致",
+     "en": "计算: the echoes a scan read go in as worn, the main echo first; 换一把会怎样 lists the weapon held first; every resonator holds a weapon (the game's 1★ one when none is equipped); each weapon is weighed on its own best build, so changing and changing back agree"
+    },
+    {
+     "zh": "「计算」A/B 对比：B 的变化对齐在各自那一行；B 改了共鸣链时，会逐个说明每一链做了什么（计入数值、只给队友、只加能量，或没算的原因），给队友的增益也显示 B 的；莉莉 4 链的梦乡治疗加成现在计入",
+     "en": "A against B in 计算: B's change sits in its own row; a chain changed on B says what each node does (counted, for the team only, energy only, or why it is not counted), and the gifts to the team show B's too; 莉莉's 4链 heal for 梦乡 is now counted"
+    },
+    {
+     "zh": "「计算」换人时会显示正在载入下一位",
+     "en": "switching resonator in 计算 shows the next one is loading"
+    },
+    {
+     "zh": "修复：在「计算」里换人后，声骸选择器还留着上一位的筛选（比如绯雪的「推荐」），下一个选的声骸会被套上上一位的套装（雪落无声之愿跑到了鉴心身上）；现在每位共鸣者有自己的筛选",
+     "en": "fixed: after 换人 in 计算, the echo picker kept the one before's chips (绯雪's 推荐, say), and the next echo picked was dressed in their set (雪落无声之愿 on 鉴心); each resonator now has their own"
+    },
+    {
+     "zh": "修复：刚改完就换人时，上一位的保存结果晚到会把页面带回上一位，下一次修改可能存到别人身上；现在晚到的结果只保存，不再改动页面",
+     "en": "fixed: a save answered after 换人 took the page back to the one before, so the next edit could be saved under the wrong resonator; a late answer is now saved and leaves the page alone"
+    },
+    {
+     "zh": "「计算」新算进去的：谐度破坏增幅（按点数，集谐响应把它变成最终伤害）；达妮娅的黯核按共鸣解放伤害；「后12秒内」这类限时增益按持续时间算；只对声骸技能有效的效果标为「仅声骸技能」；手动输入的增益可以只算某一种攻击或某个技能；只在某个形态生效的技能行只在那个形态算；声骸主技能的增益按游戏原文读出（异相·无归的谬误、云闪之鳞等 24 个）",
+     "en": "newly counted in 计算: 谐度破坏增幅 (in points; 集谐响应 turns it into final damage); 达妮娅's 黯核 hits as 共鸣解放 damage; a buff for a set time (\"后12秒内\") lasts that time; an effect for echo skills only says 仅声骸技能; a buff typed by hand can count for one kind of hit or one skill; a skill row for one mode counts in that mode only; an echo's main-echo buff is read from the game's words (异相·无归的谬误, 云闪之鳞 and 22 more)"
+    },
+    {
+     "zh": "「计算」声骸副词条的数值从游戏的档位里选；游戏和攻略都推荐的同一套搭配只显示一个「推荐」",
+     "en": "in 计算, an echo's substat values are picked from the game's rolls, and a build both the game and a guide recommend is one 推荐 chip"
+    },
+    {
+     "zh": "「套装」页新增「声骸」视图：所有声骸，COST 4 在前，附上所属套装和主声骸增益",
+     "en": "the 套装 page has a 声骸 view: every echo, cost 4 first, with its sets and its main-echo buff"
+    },
+    {
+     "zh": "扫描器读到的等级和技能会同步到服务器的培养进度，除非之后手动改过；漂泊者按存档的性别和读到的属性记入",
+     "en": "the levels and skills a scanner read move the server's progress too, unless set by hand since; the Rover's go to the save's own Rover of the element read"
+    },
+    {
+     "zh": "如果数据是更新的版本写的，这个版本不会打开它，也不会改动它，而是说明原因；以前旧版本会把自己的数据格式号写进去",
+     "en": "data written by a newer version is left alone, untouched, with a message saying why; before, an older version wrote its own format number over it"
+    }
+   ],
+   "needs_server": "1.4.0"
+  },
   {
    "version": "1.4.3",
    "date": "2026-11-17",
@@ -22,7 +99,13 @@
      "zh": "「套装」页可以用拼音、拼音首字母搜索套装，也可以用声骸名字的拼音找到它所在的套装；「手动校对」改名为「已核对」",
      "en": "the 套装 page finds a set by its pinyin or its initials, and by the pinyin of an echo in it; 手动校对 is now Checked"
     }
-   ]
+   ],
+   "needs_server": "1.4.0",
+   "no_download": {
+    "use": "1.4.4",
+    "zh": "扫描共鸣者的界面时问题较多：技能、武器、声骸页可能记到别的共鸣者身上，停在同一页会被反复记录，声骸也常有读漏。",
+    "en": "scanning a resonator's screens had problems: 技能, 武器 and the 声骸 page could be kept under another resonator, a page held still was read again and again, and parts of an echo were often missed."
+   }
   },
   {
    "version": "1.4.2",
@@ -46,7 +129,13 @@
      "zh": "修复：在「设置」里把「计算」拖进「日常」后，手机底部的导航栏会被挤乱、跑出一行；现在「计算」和其他页面一样是一个按钮，在「单人」「配队」页都会亮起，这两页仍在菜单里",
      "en": "fixed: with 计算 dragged into 日常 in Settings, the phone's bar along the bottom was pushed out of its one row; 计算 is now a tab like the others, lit on both Solo and Team, and those two pages are still in the menu"
     }
-   ]
+   ],
+   "needs_server": "1.4.0",
+   "no_download": {
+    "use": "1.4.4",
+    "zh": "扫描共鸣者的界面时问题较多：技能、武器、声骸页可能记到别的共鸣者身上，停在同一页会被反复记录，声骸也常有读漏。",
+    "en": "scanning a resonator's screens had problems: 技能, 武器 and the 声骸 page could be kept under another resonator, a page held still was read again and again, and parts of an echo were often missed."
+   }
   },
   {
    "version": "1.4.1",
@@ -73,7 +162,13 @@
      "zh": "「配队」里有共鸣模态按钮的成员，「配置」按钮和其他人对齐了",
      "en": "on Team, a member with mode buttons has their Setup button level with the others'"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.4.4",
+    "zh": "扫描时打开共鸣者的界面（属性详情、技能、武器）会让扫描报错退出。",
+    "en": "opening a resonator's screen (属性详情, 技能, 武器) during a scan stops the scan with an error."
+   },
+   "needs_server": "1.4.0"
   },
   {
    "version": "1.4.0",
@@ -145,7 +240,13 @@
      "zh": "「版权与致谢」加上致谢：leongiscoding（Mac 版的测试和改进）和 BaconCoding74（扫描器的基础）",
      "en": "版权与致谢 now thanks leongiscoding (testing and improving the Mac side) and BaconCoding74 (the scanner's base)"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.4.4",
+    "zh": "扫描时打开共鸣者的界面（属性详情、技能、武器）会让扫描报错退出。",
+    "en": "opening a resonator's screen (属性详情, 技能, 武器) during a scan stops the scan with an error."
+   },
+   "needs_server": "1.4.0"
   },
   {
    "version": "1.3.3",
@@ -175,7 +276,12 @@
      "zh": "鼠标停在头像上会显示这个规划还缺哪些材料、各要多少；都够了就显示「材料都够了」",
      "en": "resting on a face shows the materials its plan is still short of, with this plan's amount of each, or 材料都够了 when nothing is"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "扫描端和 v1.3.3 完全一样；v1.3.3 的服务器还多了之后的修复。",
+    "en": "its scanner is the same as v1.3.3's, and v1.3.3's server has the fixes made after it."
+   }
   },
   {
    "version": "1.3.1",
@@ -202,7 +308,12 @@
      "zh": "「帮助」的第一步和第三步改成双击文件，不用再打命令；背包是空的时候也这样提示",
      "en": "帮助's first steps are double-clicks now, with no commands to type, and an empty 库存 says the same"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "扫描端和 v1.3.3 完全一样；v1.3.3 的服务器还多了之后的修复。",
+    "en": "its scanner is the same as v1.3.3's, and v1.3.3's server has the fixes made after it."
+   }
   },
   {
    "version": "1.3.0",
@@ -266,7 +377,12 @@
      "zh": "修复：「可能认错」会把名字没错的物品也标出来（如 异响空灵、漪澜浮录、超级豹风雪）。现在会把游戏里的图和图鉴的图放在一起比，图也不一样才标",
      "en": "fixed: 可能认错 flagged items whose names were right, such as 异响空灵, 漪澜浮录 and 超级豹风雪. It now compares the game's picture with the catalogue's, and flags a name only when the pictures differ too"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "扫描端和 v1.3.3 完全一样；v1.3.3 的服务器还多了之后的修复。",
+    "en": "its scanner is the same as v1.3.3's, and v1.3.3's server has the fixes made after it."
+   }
   },
   {
    "version": "1.2.3",
@@ -298,7 +414,12 @@
      "zh": "服务器有了自己的身份，换了新服务器的扫描器能认出来",
      "en": "a server now says who it is, so a scanner can tell when it has been moved to a new one"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.2.2",
@@ -322,7 +443,12 @@
      "zh": "网页里的物品图标改用 WebP：库存页的图标从 15.6 MB 变成 4.0 MB，打开更快；发给扫描端的图鉴仍是 PNG",
      "en": "the pages' item icons are WebP: the inventory's icons go from 15.6 MB to 4.0 MB and open faster; the catalogue sent to scanners stays PNG"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.2.1",
@@ -337,7 +463,12 @@
      "en": "fixed: a saved wuwa-home renamed to wuwa-server stopped the scanner; it now follows the new name, and with no server found it scans on its own and sends the scans next time"
     }
    ],
-   "home": []
+   "home": [],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.2.0",
@@ -369,7 +500,12 @@
      "zh": "「更新 › 数据 › 版本」只列最新的和正在用的版本，全部版本在帮助网站",
      "en": "Update › Data › Versions lists the newest and the versions in use; every version is on the help site"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "扫描前会因「database is locked」停下；服务器改名为 wuwa-server 后扫描端会停。另外，数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "it could stop with 「database is locked」 before scanning, and a server renamed to wuwa-server stopped the scanner. Also, a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.1.4",
@@ -380,7 +516,12 @@
      "en": "Connect server takes the key from Downloads when you press Enter: the newest server.key there (for a NAS that cannot open .key files)"
     }
    ],
-   "home": []
+   "home": [],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.1.3",
@@ -399,7 +540,12 @@
      "zh": "手机上商店的价格和底数是格子自己的底栏；版本列表分开写扫描端和服务器改了什么",
      "en": "on a phone a shop tile's price and base are its own foot; the version list shows what each side changed, and what to update"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.1.2",
@@ -414,7 +560,12 @@
      "zh": "下拉列表不会被会滚动的列表挡住；逐个命名悬停时不再变暗；数据页两个方块之间有间距",
      "en": "a dropdown is never cut off by a list that scrolls; Name them one by one no longer dims under the pointer; the Data page's two boxes have a gap"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.1.1",
@@ -458,7 +609,12 @@
      "zh": "识别不列一模一样的物品，说明也改清楚了",
      "en": "Recognition leaves out items drawn exactly alike, and says better what it is"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.1.0",
@@ -490,7 +646,12 @@
      "zh": "批量标记已练满一次完成，进行中有提示",
      "en": "marking many resonators is one quick save that says it is working"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.0.3",
@@ -506,7 +667,12 @@
      "zh": "总览显示商店位置和低于目标的材料；待确认一键找到；规划成为日常页",
      "en": "Overview shows where shops are and materials below target; items to confirm are found in one click; Planner is a daily page"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   },
   {
    "version": "1.0.2",
@@ -522,7 +688,12 @@
      "zh": "第一个公开版本",
      "en": "the first public release"
     }
-   ]
+   ],
+   "no_download": {
+    "use": "1.3.3",
+    "zh": "数据多的扫描端换到新服务器时会因「上传的内容太大」停下，之后每次上传都失败；滚动时被截断的一行也可能被读成假的 1 星物品。v1.3.0 修好了这些。",
+    "en": "a scanner with a lot of data stops with 「上传的内容太大」 (the upload is too big) when moved to a new server, and every upload after fails too; a row cut by the scroll could also be read as false 1-star items. v1.3.0 fixed these."
+   }
   }
  ]
 }

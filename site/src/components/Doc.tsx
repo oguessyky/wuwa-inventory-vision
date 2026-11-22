@@ -8,6 +8,8 @@ import { GuideSteps, type Part } from './GuideSteps';
 import { Icon } from './Icons';
 import { Nav, type NavPage } from './Nav';
 import { describe, ld, pageMetadata, SITE } from '@/lib/seo';
+import { offer, type Offer, type VersionFile } from '@/lib/versions';
+import { Copy } from './Copy';
 
 export const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export const REPO = 'https://github.com/oguessyky/wuwa-inventory-vision';
@@ -273,27 +275,81 @@ function Words({ text, lang, slug }: { text: string; lang: Lang; slug: string })
 /** Every release, each side's changes or 没有改动 (D227): the list the app shows only the newest
  * and in-use part of, whole. */
 function Releases({ lang }: { lang: Lang }) {
-  const said = (c: { zh: string; en: string }) => (lang === 'en' ? c.en : c.zh);
-  const sides = [['scanner', lang === 'en' ? 'Scanner' : '扫描端'], ['home', lang === 'en' ? 'Server' : '服务器']] as const;
+  const en = lang === 'en';
+  const said = (c: { zh: string; en: string }) => (en ? c.en : c.zh);
+  const sides = [['scanner', en ? 'Scanner' : '扫描端'], ['home', en ? 'Server' : '服务器']] as const;
+  const all = releases();
   return (
     <ol className="releases">
-      {releases().map((r, i) => (
-        <li key={r.version} id={`v${r.version}`}>
-          <div className="rel-h"><b>v{r.version}</b><small>{r.date}</small>
-            {i === 0 ? <span className="rel-tag">{lang === 'en' ? 'newest' : '最新'}</span> : null}</div>
-          <div className="sides">
-            {sides.map(([k, name]) => (
-              <div key={k} className={`side by-${k}${r[k].length ? '' : ' none'}`}>
-                <span className="side-n">{name}</span>
-                {r[k].length
-                  ? <ul>{r[k].map((c, j) => <li key={j}>{said(c)}</li>)}</ul>
-                  : <p className="nothing">{lang === 'en' ? 'No changes' : '没有改动'}</p>}
-              </div>
-            ))}
-          </div>
-        </li>
-      ))}
+      {all.map((r, i) => {
+        const got = offer(all, r.version);
+        return (
+          <li key={r.version} id={`v${r.version}`}>
+            <div className="rel-h"><b>v{r.version}</b><small>{r.date}</small>
+              {i === 0 ? <span className="rel-tag">{en ? 'newest' : '最新'}</span> : null}</div>
+            <div className="sides">
+              {sides.map(([k, name]) => (
+                <div key={k} className={`side by-${k}${r[k].length ? '' : ' none'}`}>
+                  <span className="side-n">{name}</span>
+                  {r[k].length
+                    ? <ul>{r[k].map((c, j) => <li key={j}>{said(c)}</li>)}</ul>
+                    : <p className="nothing">{en ? 'No changes' : '没有改动'}</p>}
+                  {got.offered ? <SideDownloads side={k} got={got} lang={lang} /> : null}
+                </div>
+              ))}
+            </div>
+            {got.offered
+              ? <div className="rel-dl">
+                  <span className="rel-dl-n">{en ? 'Both sides' : '两边一起'}</span>
+                  {got.files.filter(f => f.kind === 'full' || f.kind === 'mac-full').map(f => <Zip key={f.kind} f={f} lang={lang} />)}
+                  <a className="rel-sums" href={got.sums}>{en ? 'Checksums' : '校验码'}</a>
+                </div>
+              : <p className="rel-no">
+                  {en ? 'Not offered for download: ' : '不提供下载：'}{said(got)}{' '}
+                  {en ? 'Take ' : '请用 '}<a href={`#v${got.use}`}>v{got.use}</a>{en ? ' instead.' : '。'}
+                </p>}
+          </li>
+        );
+      })}
     </ol>
+  );
+}
+
+const ZIP_NAMES: Record<string, [string, string]> = {
+  full: ['完整版', 'Full'], scanner: ['扫描端', 'Scanner'], home: ['服务器', 'Server'],
+  server: ['服务器', 'Server'], 'mac-full': ['Mac 完整版', 'Mac full'],
+  'mac-scanner': ['Mac 扫描端', 'Mac scanner'],
+};
+
+function Zip({ f, lang }: { f: VersionFile; lang: Lang }) {
+  const [zh, en] = ZIP_NAMES[f.kind] ?? [f.kind, f.kind];
+  return <a className="rel-zip" href={f.url} title={f.file}>{lang === 'en' ? en : zh} .zip</a>;
+}
+
+/** A side's own downloads, under its changes: the scanner's zips and the servers it syncs
+ * with; the server's zip and, from 1.2.0, the image pinned to this version. */
+function SideDownloads({ side, got, lang }: { side: 'scanner' | 'home'; got: Extract<Offer, { offered: true }>; lang: Lang }) {
+  const en = lang === 'en';
+  const range = (a: string, b: string) => (a === b ? `v${a}` : `v${a}–v${b}`);
+  if (side === 'scanner') {
+    return (
+      <div className="rel-side-dl">
+        <div className="rel-zips">{got.files.filter(f => f.kind === 'scanner' || f.kind === 'mac-scanner').map(f => <Zip key={f.kind} f={f} lang={lang} />)}</div>
+        <p className="rel-sync">{en ? 'Made with servers ' : '配套服务器：'}<b>{range(got.madeWith.from, got.madeWith.to)}</b></p>
+        <p className="rel-sync">{en ? `Also syncs with every server from v${got.alsoFrom} on` : `也能同步：服务器 v${got.alsoFrom} 及以后`}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="rel-side-dl">
+      <div className="rel-zips">{got.files.filter(f => f.kind === 'server' || f.kind === 'home').map(f => <Zip key={f.kind} f={f} lang={lang} />)}</div>
+      {got.image
+        ? <div className="rel-pin">
+            <span>{en ? 'NAS, this version: ' : 'NAS 用这个版本：'}<code>WUWA_VERSION={got.image}</code>{en ? ' (' : '（'}<Link href={address(lang, 'server')}>{en ? 'Server guide' : '服务器教程'}</Link>{en ? ')' : '）'}</span>
+            <Copy text={`WUWA_VERSION=${got.image}`} lang={lang} />
+          </div>
+        : null}
+    </div>
   );
 }
 

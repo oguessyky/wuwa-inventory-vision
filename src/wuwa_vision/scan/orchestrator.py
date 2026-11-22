@@ -920,6 +920,10 @@ def run_live_scan(
     skipping: str | None = None
     title_tries = 0                     # reads of a title that is no tab, on this page (D333)
     said_unread: str | None = None
+    from ..capture.gating import DEFAULT_ROI
+    from ..ocr import character as character_ocr
+
+    title_gate: FrameGate | None = None  # the title strip alone (D340), made on the first frame
 
     for frame in frames:
         if panic is not None and panic.triggered:
@@ -954,6 +958,27 @@ def run_live_scan(
             on_frame(frame)
         before = (gate.stats.moving, gate.stats.settling, gate.stats.repeat)
         gated = gate.offer(frame)
+        if screens is not None:
+            # The title strip, watched on its own (D340): a resonator's model moves where the
+            # gate looks, so the screen may never hold still there. When the title is still
+            # and new, say which screen this is, and watch the region that screen is read in.
+            if title_gate is None:
+                th, tw = frame.rgb.shape[:2]
+                title_gate = _FrameGate(
+                    roi=(0.0, 0.0, min(1.0, 0.6 * th / tw), 0.12),
+                    motion_window=gate.motion_window, min_still_seconds=gate.min_still_seconds,
+                    clock=gate.clock)
+            if gated is None and title_gate.offer(frame) is not None:
+                titled = screen_memo.look(frame.rgb)
+                fh, fw = frame.rgb.shape[:2]
+                want = (character_ocr.watch_roi(titled.screen, fw, fh)
+                        if titled.kind == "resonator" else DEFAULT_ROI)
+                panel = titled.kind == "resonator"
+                if want != gate.roi or panel != gate.panel:
+                    # a resonator's screen at its own threshold (D367)
+                    gate.watch(want, panel=panel)
+            elif gated is not None:
+                title_gate.offer(frame)
         probed: list[Tile] | None = None
         if (gated is None and screens is not None and gate.stats.repeat > before[2]
                 and screens.panel_changed(frame.rgb)):
@@ -996,10 +1021,19 @@ def run_live_scan(
             said = screens.look(gated.rgb, kind=seen.screen) if screens is not None else None
             tell({"kind": "resonator", "tab": None, "screen": seen.screen,
                   "resonator": said.get("resonator") if said else None, "skipped": False})
-            if said is not None and on_event is not None:
+            # a read the same as the last is no news (D359): not told to the pages again
+            if said is not None and not said.get("same") and on_event is not None:
                 on_event("character", said)
+            # from now on watch where this screen is read, this frame as read there (D340)
+            fh, fw = gated.rgb.shape[:2]
+            gate.watch(character_ocr.watch_roi(seen.screen, fw, fh), gated, panel=True)
             set_phase("ready")
             continue
+        if gate.roi != DEFAULT_ROI or gate.panel:
+            # back from a resonator's screen: the grid is watched again from here on, this frame
+            # as read there (D340). It held still where the panel was, which on the bag is the
+            # grid's own left columns, so it is read now.
+            gate.watch(DEFAULT_ROI, gated)
         head = seen.header
         if seen.kind == "bag" and screen_memo.reads != reads:
             _read_wallet(gated.rgb, store)  # the bar was re-read: so is the wallet (D48)

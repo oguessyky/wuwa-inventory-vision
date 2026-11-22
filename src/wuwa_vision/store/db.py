@@ -332,6 +332,19 @@ def icon_hash(icon: np.ndarray) -> str:
 WRITE_WAIT = 30
 
 
+class NewerDatabase(RuntimeError):
+    """The data was written by a newer version than this one: it is not opened, nor changed."""
+
+    def __init__(self, path: Path, written: int) -> None:
+        super().__init__(
+            f"{path} 是更新的版本写的（数据格式 {written}，这个版本只认到 {SCHEMA_VERSION}），"
+            "没有打开，也没有改动它。请用更新的版本，或者把旧版本放在单独的文件夹里用它自己的数据。"
+            f" / {path} was written by a newer version (data format {written}; this version "
+            f"reads up to {SCHEMA_VERSION}). It was not opened or changed: use a newer version, "
+            "or keep the older one in its own folder with its own data.")
+        self.path, self.written = path, written
+
+
 class Store:
     """Thin SQLite wrapper. No ORM: the schema is small and explicit."""
 
@@ -341,6 +354,7 @@ class Store:
         # a real write waits for another this long, rather than failing a request (D242)
         self.conn = sqlite3.connect(self.path, timeout=WRITE_WAIT)
         self.conn.row_factory = sqlite3.Row
+        self._refuse_newer()
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(_SCHEMA)
         self._migrate()
@@ -354,6 +368,19 @@ class Store:
                 (str(SCHEMA_VERSION),),
             )
             self.conn.commit()
+
+    def _refuse_newer(self) -> None:
+        """Fail closed on data a newer version wrote, before a byte is written. Older versions
+        wrote their own, lower number over it, and the newer one then ran its migrations on it
+        again; with old versions to download from the help site, someone will try it."""
+        try:
+            row = self.conn.execute(
+                "SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+        except sqlite3.OperationalError:        # a new file: no meta table yet
+            return
+        if row is not None and str(row["value"]).isdigit() and int(row["value"]) > SCHEMA_VERSION:
+            self.conn.close()
+            raise NewerDatabase(self.path, int(row["value"]))
 
     def _migrate(self) -> None:
         """Apply forward migrations. Schema changes must never require a manual wipe."""
@@ -872,6 +899,54 @@ class Store:
                  datetime.now(UTC).isoformat(timespec="seconds")),
             )
 
+    def progress_from_read(self, name: str, reading: dict, read_at: str | None = None) -> bool:
+        """A resonator's screen read by a scan, into their progress (D57, D270): 属性详情's
+        level and the ascension its cap says, 技能's skill levels. `read_at`: a read older than
+        the progress's last change (set by hand since) leaves it (D342). The 漂泊者's forms are
+        told apart by the element read on 属性详情 (D370): a read of "漂泊者·导电" is the save's
+        own form, "漂泊者-女-导电", and none while the save's 漂泊者 is not told. True when the
+        progress moved."""
+        if not name:
+            return False
+        if name.startswith("漂泊者"):
+            gender = self.setting("rover.gender")
+            if "·" not in name or gender not in ("女", "男"):
+                return False
+            name = f"漂泊者-{gender}-{name.split('·', 1)[1]}"
+        row = self.conn.execute(
+            "SELECT owned, state, updated_at FROM resonator_state WHERE name = ?", (name,)
+        ).fetchone()
+        if row is not None and read_at is not None and (row["updated_at"] or "") > read_at:
+            return False
+        before = json.loads(row["state"]) if row is not None else {}
+        state = dict(before)
+        level, cap = reading.get("level"), reading.get("cap")
+        if reading.get("kind") == "attributes" and level:
+            from ..calc import ascension_for_cap
+
+            state["level"] = int(level)
+            state["ascension"] = ascension_for_cap(int(cap or level))
+        if reading.get("kind") == "skills" and reading.get("skills"):
+            state["skills"] = {**(state.get("skills") or {}), **reading["skills"]}
+        if reading.get("kind") == "skills" and reading.get("nodes"):
+            # the nodes taken per skill (D358); a skill with a node not told is left as it was
+            from ..calc import nodes_taken
+
+            state["nodes"] = {**(state.get("nodes") or {}), **nodes_taken(reading["nodes"])}
+        if state == before:
+            return False
+        state.setdefault("nodes", {})
+        state.setdefault("skills", {})
+        # within the caller's transaction (a home taking an upload whole): no commit of its own.
+        # A resonator whose screen was read is owned.
+        self.conn.execute(
+            "INSERT INTO resonator_state (name, owned, state, updated_at) VALUES (?, 1, ?, ?) "
+            "ON CONFLICT(name) DO UPDATE SET owned=1, state=excluded.state, "
+            "updated_at=excluded.updated_at",
+            (name, json.dumps(state, ensure_ascii=False),
+             datetime.now(UTC).isoformat(timespec="seconds")))
+        return True
+
     def set_chain(self, name: str, chain: int | None) -> None:
         """Set 共鸣链 alone, for a resonator with no saved progress yet."""
         now = datetime.now(UTC).isoformat(timespec="seconds")
@@ -1040,6 +1115,13 @@ class Store:
                 (resonator, screen, key, json.dumps(data, ensure_ascii=False),
                  datetime.now(UTC).isoformat(timespec="microseconds")))
 
+    def character_read(self, resonator: str, screen: str, key: str = "") -> dict | None:
+        """The newest reading of one of this resonator's screens, or None (D359)."""
+        row = self.conn.execute(
+            "SELECT data FROM character_reads WHERE resonator = ? AND screen = ? AND key = ?",
+            (resonator, screen, key)).fetchone()
+        return json.loads(row["data"]) if row is not None else None
+
     def character_reads(self, resonator: str, echoes: int = 5) -> dict:
         """What the scan read of this resonator (D270): each screen's newest reading, and the
         newest `echoes` echoes seen equipped on them, newest first."""
@@ -1055,7 +1137,21 @@ class Store:
                         out["echoes"].append(data)
                 else:
                     out.setdefault(row["screen"], data)
+        if resonator.startswith("漂泊者·"):
+            # every element of the 漂泊者 holds the one weapon (D370): the newest read on any
+            shared = self.rover_weapon_read()
+            if shared is not None:
+                out["weapon"] = json.loads(shared["data"])
+            else:
+                out.pop("weapon", None)
         return out
+
+    def rover_weapon_read(self) -> sqlite3.Row | None:
+        """The newest 武器 read of any 漂泊者 form (D370): the one weapon they all hold."""
+        return self.conn.execute(
+            "SELECT resonator, screen, key, data, read_at FROM character_reads "
+            "WHERE resonator LIKE '漂泊者·%' AND screen = 'weapon' ORDER BY read_at DESC LIMIT 1"
+        ).fetchone()
 
     def add_plan(self, kind: str, name: str, state: dict) -> int:
         with self.conn:

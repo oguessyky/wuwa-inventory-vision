@@ -2345,10 +2345,20 @@
       "stat": "atk_pct",
       "value": 0.15,
       "others": true
+     },
+     {
+      "stat": "atk_pct",
+      "value": 0.15,
+      "others": true,
+      "needs": {
+       "stat": "tune_break",
+       "value": 50,
+       "from": 0
+      }
      }
     ],
     "notes": [
-     "给下一位登场的角色；随它的谐度破坏增幅额外加的部分不算"
+     "给下一位登场的角色；每点谐度破坏增幅再加 0.3%，50 点加满 15%"
     ]
    }
   },
@@ -2480,9 +2490,16 @@
   "剪心辑梦之影": {
    "5": {
     "key": "0a3daf36db272569",
-    "effects": [],
-    "notes": [
-     "谐度破坏增幅不算：计算还没有谐度破坏"
+    "effects": [
+     {
+      "stat": "tune_break",
+      "value": 20,
+      "team": true,
+      "when": [
+       "震谐响应",
+       "集谐响应"
+      ]
+     }
     ]
    }
   },
@@ -9025,7 +9042,12 @@
        "value": 0.3,
        "when": [
         "集谐响应"
-       ]
+       ],
+       "needs": {
+        "stat": "tune_break",
+        "value": 60,
+        "from": 0
+       }
       },
       {
        "stat": "atk_pct",
@@ -9036,7 +9058,7 @@
       }
      ],
      "notes": [
-      "伤害加深按满 30% 算"
+      "每 10 点谐度破坏增幅加深 5%，60 点满 30%"
      ]
     }
    ],
@@ -9067,11 +9089,16 @@
        "value": 0.3,
        "when": [
         "集谐响应"
-       ]
+       ],
+       "needs": {
+        "stat": "tune_break",
+        "value": 60,
+        "from": 0
+       }
       }
      ],
      "notes": [
-      "无因的医谕的加深上限提到 60%"
+      "无因的医谕：每 10 点谐度破坏增幅加深 10%，60 点满 60%"
      ]
     }
    ],
@@ -9682,11 +9709,29 @@
       {
        "stat": "dmg_2",
        "value": 0.3,
-       "team": true
+       "team": true,
+       "mode": 121101
+      },
+      {
+       "stat": "tune_break",
+       "value": 10,
+       "team": true,
+       "mode": 121102
+      },
+      {
+       "stat": "tune_break",
+       "value": 40,
+       "team": true,
+       "mode": 121102,
+       "needs": {
+        "stat": "tune_eff",
+        "value": 1.5,
+        "from": 1.0
+       }
       }
      ],
      "notes": [
-      "共鸣模态·聚爆时；集谐时的谐度破坏增幅不算"
+      "集谐：偏谐值累积效率过 100% 后每 10% 再加 8 点，150% 加满 40 点"
      ]
     }
    ],
@@ -9728,6 +9773,11 @@
      "key": "d3144c1c6cc28c5c",
      "effects": [
       {
+       "stat": "tune_break",
+       "value": 20,
+       "team": true
+      },
+      {
        "stat": "mv",
        "value": 0.4,
        "kind": "skill",
@@ -9749,7 +9799,14 @@
       {
        "stat": "mv",
        "value": 12.0,
-       "skill": "拟态泡泡·布景之形"
+       "skill": "普攻·布景之形第四段",
+       "as": "lib"
+      },
+      {
+       "stat": "mv",
+       "value": 12.0,
+       "skill": "拟态泡泡·布景之形",
+       "as": "lib"
       },
       {
        "stat": "concerto",
@@ -9757,7 +9814,7 @@
       }
      ],
      "notes": [
-      "【黯核】满时的倍率按共鸣技能算"
+      "【黯核】满时：普攻·布景之形第4段和拟态泡泡·布景之形按共鸣解放伤害算"
      ]
     }
    ],
@@ -9857,10 +9914,14 @@
        "value": 0.1,
        "per_stack": true,
        "stacks": 2
+      },
+      {
+       "stat": "tune_break",
+       "value": 30,
+       "when": [
+        "骇破响应"
+       ]
       }
-     ],
-     "notes": [
-      "谐度破坏增幅不算"
      ]
     }
    ],
@@ -11714,7 +11775,13 @@
    "chain:4": [
     {
      "key": "a479a4394bce3d3e",
-     "effects": []
+     "effects": [
+      {
+       "stat": "heal",
+       "value": 0.3,
+       "skill": "梦乡"
+      }
+     ]
     }
    ],
    "chain:5": [

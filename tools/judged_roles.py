@@ -36,6 +36,8 @@ def S(n: int) -> dict:
 
 
 NO_ROW = "额外的伤害不算：计算没有这一行"
+#: 陆·赫斯's 加深 grows with 谐度破坏增幅 to 60 points (D351).
+LU_TUNE = {"stat": "tune_break", "value": 60, "from": 0}
 
 
 def ROW(name: str, value: str, bonus: str | None = None, stat: str = "atk") -> dict:
@@ -758,14 +760,17 @@ ROLES: dict[str, dict[str, object]] = {
     },
     "陆·赫斯": {
         "inherent:1004704": OK,
+        # 5% for each 10 points of 谐度破坏增幅, to 30% at 60 (D351)
         "inherent:1004705": (
-            [V("amplify", 0.3, when=["集谐响应"]), V("atk_pct", 0.25, when=["集谐响应"])],
-            ["伤害加深按满 30% 算"],
+            [V("amplify", 0.3, when=["集谐响应"], needs=LU_TUNE),
+             V("atk_pct", 0.25, when=["集谐响应"])],
+            ["每 10 点谐度破坏增幅加深 5%，60 点满 30%"],
         ),
         "chain:1": OK,
         "chain:2": (
-            [V("mv", 0.6, kind="lib", skill="于永冻中释义"), V("amplify", 0.3, when=["集谐响应"])],
-            ["无因的医谕的加深上限提到 60%"],
+            [V("mv", 0.6, kind="lib", skill="于永冻中释义"),
+             V("amplify", 0.3, when=["集谐响应"], needs=LU_TUNE)],
+            ["无因的医谕：每 10 点谐度破坏增幅加深 10%，60 点满 60%"],
         ),
         "chain:3": ([V("mv", 1.36, skill=s) for s in ("斩杀日冕", "判决大地裂响", "日髓阵列")], []),
         "chain:4": OK,
@@ -854,23 +859,33 @@ ROLES: dict[str, dict[str, object]] = {
     },
     "达妮娅": {
         "inherent:1005304": OK,
+        # 聚爆: 热熔 for the team; 集谐: 谐度破坏增幅, more with the 偏谐值累积效率 of the one who
+        # gets it
         "inherent:1005305": (
-            [V("dmg_2", 0.3, team=True)],
-            ["共鸣模态·聚爆时；集谐时的谐度破坏增幅不算"],
+            [V("dmg_2", 0.3, team=True, mode=121101),
+             V("tune_break", 10, team=True, mode=121102),
+             V("tune_break", 40, team=True, mode=121102,
+               needs={"stat": "tune_eff", "value": 1.5, "from": 1.0})],
+            ["集谐：偏谐值累积效率过 100% 后每 10% 再加 8 点，150% 加满 40 点"],
         ),
         "chain:1": OK,
         "chain:2:121101": (
             [V("dmg_2", 0.5, when=["聚爆"]), V("res_shred", 0.1, element=2)],
             ["简并虚质按满 10 层算"],
         ),
-        "chain:2:121102": OK,
+        "chain:2:121102": (
+            [V("tune_break", 20, team=True), V("mv", 0.4, kind="skill", skill="放逐·幻灭之形")],
+            [],
+        ),
+        # both 黯核 hits, each "本次伤害为共鸣解放伤害" (D352)
         "chain:3": (
             [
                 V("mv", 0.8, kind="lib", skill="帷幕终景·幻灭之形"),
-                V("mv", 12.0, skill="拟态泡泡·布景之形"),
+                V("mv", 12.0, skill="普攻·布景之形第四段", **{"as": "lib"}),
+                V("mv", 12.0, skill="拟态泡泡·布景之形", **{"as": "lib"}),
                 V("concerto", 30),
             ],
-            ["【黯核】满时的倍率按共鸣技能算"],
+            ["【黯核】满时：普攻·布景之形第4段和拟态泡泡·布景之形按共鸣解放伤害算"],
         ),
         "chain:4": OK,
         "chain:5": OK,
@@ -882,7 +897,8 @@ ROLES: dict[str, dict[str, object]] = {
         "outro:1005309:2": OK,
     },
     "丽贝卡": {
-        "inherent:1004804": ([V("atk_pct", 0.1, **S(2))], ["谐度破坏增幅不算"]),
+        "inherent:1004804": (
+            [V("atk_pct", 0.1, **S(2)), V("tune_break", 30, when=["骇破响应"])], []),
         "inherent:1004805": OK,
         "chain:1": ([V("mv", 0.5, skill="猎手"), V("mv", 0.5, skill="铁胆")], []),
         "chain:2": (
