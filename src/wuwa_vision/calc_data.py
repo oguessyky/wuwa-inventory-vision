@@ -22,7 +22,9 @@ from pathlib import Path
 NAME = "calc.json"
 #: What `build` makes, by number (D280): 更新 makes calc.json again when its builder is older,
 #: though the game version is the same. 2: each row's stat read from its own kind of hits.
-BUILD = 7
+#: 8: the echoes one can wear only, and the gifts for the next one in kept (D373) -- and what
+#: D349 and D351 changed in `build`, which 7 never made again where it was fetched before.
+BUILD = 8
 
 
 def up_to_date(have: dict | None, version: str) -> bool:
@@ -575,6 +577,11 @@ def _echoes(tables: dict[str, list], text: dict[str, str], set_names: dict[int, 
     skills = {row["PhantomSkillId"]: row for row in tables.get("phantomskill") or []}
     out: dict[str, dict] = {}
     for row in tables.get("phantomitem") or []:
+        # an event mode's copy (`PhantomType` 2, items 602xxxxx) is never worn: under a real
+        # echo's name it has another skill (阿嗞嗞's 「狂热」), under a resonator's or a
+        # `dnt/…召唤技能` it is no echo at all (D373)
+        if row.get("PhantomType", 1) != 1:
+            continue
         name = text.get(row.get("MonsterName"), "")
         group = int((row.get("MainProp") or {}).get("RandGroupId") or 0)
         if not name or group % 100 not in cost:
@@ -1181,8 +1188,10 @@ def _gives(
     return out
 
 
-#: An echo skill's words for the one who comes in next, not the wearer (D349).
-_NEXT = re.compile(r"下一个变奏|下一位|变奏登场的角色")
+#: An echo skill's words for the one who comes in next, not the wearer (D349). Its own name:
+#: named `_NEXT` too, it took the place of the gifts' own, and 8 gifts for the next one in
+#: were lost (D373).
+_NEXT_IN = re.compile(r"下一个变奏|下一位|变奏登场的角色")
 
 
 def _main_buff(skill: dict | None, text: dict[str, str]) -> dict | None:
@@ -1208,7 +1217,7 @@ def _main_buff(skill: dict | None, text: dict[str, str]) -> dict | None:
             continue
         for sentence in (s for s in re.split(r"(?<=[。；])", line) if "提升" in s):
             said.append(sentence)
-            (theirs if _NEXT.search(sentence) else mine).append(sentence)
+            (theirs if _NEXT_IN.search(sentence) else mine).append(sentence)
     if not said:
         return None
     words = "".join(mine)

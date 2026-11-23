@@ -732,6 +732,8 @@ ROLES: dict[str, dict[str, object]] = {
             [FULL],
         ),
         "skill:1004503:1": OK,
+        # 色光混合律: 谐度破坏增幅 +40 点 for the team, 30 s (D351, D373)
+        "skill:1004507:1": OK,
         "outro:1004509": OK,
         "chain:2:1": OK,
     },
@@ -893,6 +895,8 @@ ROLES: dict[str, dict[str, object]] = {
         "chain:6:121101": ([], ["聚爆效应的倍率提升：计算的异常效应伤害只算光噪"]),
         "chain:6:121102": OK,
         "inherent:1005305:1": OK,
+        # 集谐's part, given to the team as the whole one reads it (D351, D373)
+        "inherent:1005305:2": OK,
         "outro:1005309": OK,
         "outro:1005309:2": OK,
     },
@@ -1159,7 +1163,8 @@ ROLES: dict[str, dict[str, object]] = {
         "chain:1": OK,
         "chain:2": ([], ["【梦芳】层数不定：没算"]),
         "chain:3": ([V("concerto", 10), V("energy", 10)], []),
-        "chain:4": OK,
+        # "梦乡提供的治疗量提升30%": 梦乡's heal rows only (D369; written here since D373)
+        "chain:4": ([V("heal", 0.3, skill="梦乡")], []),
         "chain:5": OK,
         "chain:6": (
             [

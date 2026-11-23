@@ -306,7 +306,9 @@ def _worn(rgb: np.ndarray, sets: list[str]) -> dict:
         label = next((line.text for line in row if line.text in LABELS), None)
         value = next((line.text for line in row if _value(line.text) is not None), None)
         if label and value:
-            stats[label] = value.replace(" ", "")
+            # a mark of the moving background after the number is no part of it: 攻击 "891."
+            # on 露西's page with her figure moving, 891 on the same page held still (D372)
+            stats[label] = value.replace(" ", "").rstrip(".,")
     skill = "".join(words[skill_at + 1 : sets_at]).replace(" ", "")
     worn: list[dict] = []
     for text in words[sets_at + 1 :]:

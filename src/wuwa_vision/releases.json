@@ -2,6 +2,35 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
   {
+   "version": "1.4.5",
+   "date": "2026-11-23",
+   "scanner": [
+    {
+     "zh": "修复：扫描共鸣者的声骸页时，人物在动，背景的一个点会被读进数值后面（攻击读成「891.」）；现在只取数字",
+     "en": "fixed: on a resonator's 声骸 page with their figure moving, a mark of the background was read after a total (攻击 as 「891.」); now only the number is kept"
+    }
+   ],
+   "home": [
+    {
+     "zh": "修复：1.4.4 里 8 位共鸣者给「下一个登场角色」的增益没算进去（尤诺、仇远、琳奈、露西的延奏，洛瑟菈、穗穗、达妮娅的第二个延奏，琳奈的 2 链和锁暝的沉契凝锁）；现在都回来了",
+     "en": "fixed: in 1.4.4, 8 resonators' gifts for the next one in were not counted (尤诺's, 仇远's, 琳奈's and 露西's outros, 洛瑟菈's, 穗穗's and 达妮娅's second outros, 琳奈's 2链 and 锁暝's 沉契凝锁); they are back"
+    },
+    {
+     "zh": "修复：「计算」的声骸列表里混进了活动模式里的 24 个「声骸」（如「卡提希娅」「今汐」和 dnt/…召唤技能），阿嗞嗞和异相·磐石守卫还被算上了活动技能的增益；现在只列能穿戴的声骸",
+     "en": "fixed: 计算's echo list had 24 「echoes」 from event modes (卡提希娅, 今汐, dnt/…召唤技能 and more), and 阿嗞嗞 and 异相·磐石守卫 were given an event skill's buff; only echoes one can wear are listed now"
+    },
+    {
+     "zh": "主声骸增益全部人工核对：新加的 28 个（云闪之鳞、无归的谬误、幻昼骑士等）；幻昼骑士和雪鬃狼只加声骸自己那一下，无归的谬误的攻击加给全队；琳奈的色光混合律、达妮娅蚀刻繁彩的集谐部分也已核对。「更新」里不再有未核对的效果",
+     "en": "every main echo buff is read by hand: 28 more (云闪之鳞, 无归的谬误, 幻昼骑士 and the rest); 幻昼骑士's and 雪鬃狼's raise is the echo's own hit, 无归的谬误's attack is the team's; 琳奈's 色光混合律 and the 集谐 part of 达妮娅's 蚀刻繁彩 are read too. 更新 has nothing left unchecked"
+    },
+    {
+     "zh": "下次「更新」会重新生成「计算」的数据，让以上修复生效（以前同一游戏版本不会重做，所以 1.4.4 的部分改动在更新过的电脑上没生效）",
+     "en": "the next 更新 makes 计算's data again so these fixes take effect (before, the same game version was never made again, so some of 1.4.4's changes never reached a machine updated before)"
+    }
+   ],
+   "needs_server": "1.4.0"
+  },
+  {
    "version": "1.4.4",
    "date": "2026-11-23",
    "scanner": [
@@ -76,7 +105,12 @@
      "en": "data written by a newer version is left alone, untouched, with a message saying why; before, an older version wrote its own format number over it"
     }
    ],
-   "needs_server": "1.4.0"
+   "needs_server": "1.4.0",
+   "no_download": {
+    "use": "1.4.5",
+    "zh": "服务器端「计算」少算了 8 位共鸣者给下一个登场角色的增益，声骸列表里还混进了活动模式的「声骸」，数值可能不对。",
+    "en": "its server's 计算 left out 8 resonators' gifts for the next one in and listed event modes' 「echoes」, so its numbers can be wrong."
+   }
   },
   {
    "version": "1.4.3",
@@ -102,7 +136,7 @@
    ],
    "needs_server": "1.4.0",
    "no_download": {
-    "use": "1.4.4",
+    "use": "1.4.5",
     "zh": "扫描共鸣者的界面时问题较多：技能、武器、声骸页可能记到别的共鸣者身上，停在同一页会被反复记录，声骸也常有读漏。",
     "en": "scanning a resonator's screens had problems: 技能, 武器 and the 声骸 page could be kept under another resonator, a page held still was read again and again, and parts of an echo were often missed."
    }
@@ -132,7 +166,7 @@
    ],
    "needs_server": "1.4.0",
    "no_download": {
-    "use": "1.4.4",
+    "use": "1.4.5",
     "zh": "扫描共鸣者的界面时问题较多：技能、武器、声骸页可能记到别的共鸣者身上，停在同一页会被反复记录，声骸也常有读漏。",
     "en": "scanning a resonator's screens had problems: 技能, 武器 and the 声骸 page could be kept under another resonator, a page held still was read again and again, and parts of an echo were often missed."
    }
@@ -164,7 +198,7 @@
     }
    ],
    "no_download": {
-    "use": "1.4.4",
+    "use": "1.4.5",
     "zh": "扫描时打开共鸣者的界面（属性详情、技能、武器）会让扫描报错退出。",
     "en": "opening a resonator's screen (属性详情, 技能, 武器) during a scan stops the scan with an error."
    },
@@ -242,7 +276,7 @@
     }
    ],
    "no_download": {
-    "use": "1.4.4",
+    "use": "1.4.5",
     "zh": "扫描时打开共鸣者的界面（属性详情、技能、武器）会让扫描报错退出。",
     "en": "opening a resonator's screen (属性详情, 技能, 武器) during a scan stops the scan with an error."
    },

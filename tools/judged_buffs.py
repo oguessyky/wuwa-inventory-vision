@@ -324,6 +324,8 @@ def _two(stat: str, kind: str) -> list[dict]:
 
 
 SUMMON = "召唤出来的伤害不算：计算没有这一行"
+#: A main echo's gift for the one who comes in next (D349): said, never the wearer's (D373).
+NEXT_IN = "下一个变奏登场的角色才有，佩戴者自己不算"
 #: Each main echo's buff when worn first (D305).
 ECHOES: dict[str, tuple[list[dict], list[str]]] = {
     "毒冠贵族": ([V("dmg_1", 0.12)], []),
@@ -357,7 +359,9 @@ ECHOES: dict[str, tuple[list[dict], list[str]]] = {
     "炉芯机骸": ([V("er", 0.1)], []),
     "辛吉勒姆": ([V("dmg_lib", 0.25, when=["爱弥斯"])], []),
     "无铭探索者": ([V("dmg_4", 0.12), V("dmg_echo", 0.2)], []),
-    "异相·无妄者": (_two("dmg_2", "dmg_skill"), []),
+    # the wearable one's (D373): the reading before was of an event mode's copy, whose skill is
+    # 梦魇·燎照之骑's
+    "异相·无妄者": ([V("final", 0.5, kind="echo", when=["漂泊者·湮灭"])], []),
     "异相·琉璃刀伶": ([V("dmg_3", 0.12)], []),
     "异相·异构武装": (_two("dmg_1", "dmg_skill"), []),
     "异相·罗蕾莱": (_two("dmg_6", "dmg_basic"), []),
@@ -369,7 +373,6 @@ ECHOES: dict[str, tuple[list[dict], list[str]]] = {
     "异相·双极·星升辉铳": (_two("dmg_5", "dmg_basic"), []),
     "异相·双极·渊陨重锋": (_two("dmg_3", "dmg_basic"), []),
     "异相·辛吉勒姆": ([V("dmg_lib", 0.25, when=["爱弥斯"])], []),
-    "今汐": ([V("final", 0.4, skill="协同攻击")], []),
     "共鸣回响·鸣式·虚造神型": (_two("dmg_1", "dmg_lib"), []),
     "异相·炉芯机骸": ([V("er", 0.1)], []),
     "共鸣回响·梦魇亚当·重锤": ([V("crit", 0.15, when=["露西", "丽贝卡"])],
@@ -382,6 +385,44 @@ ECHOES: dict[str, tuple[list[dict], list[str]]] = {
     "异相·万囮牢·朽躯": (_two("dmg_2", "dmg_heavy"), []),
     "解形煞": ([V("er", 0.1)], []),
     "共鸣回响·天演溯心": ([V("dmg_3", 0.1), V("dmg_3", 0.1, when=["电磁", "同奏"])], []),
+    # ---- the echoes whose skill gives it without saying 在首位 (D349), read by hand (D373) ----
+    # 幻形 and a hit of its own come in any rotation: each counts
+    "云闪之鳞": (_two("dmg_3", "dmg_lib"), []),
+    "异相·云闪之鳞": (_two("dmg_3", "dmg_lib"), []),
+    "燎照之骑": (_two("dmg_2", "dmg_basic"), []),
+    "异相·燎照之骑": (_two("dmg_2", "dmg_basic"), []),
+    "朔雷之鳞": (_two("dmg_3", "dmg_heavy"), []),
+    "无冠者": (_two("dmg_6", "dmg_skill"), []),
+    "异相·无冠者": (_two("dmg_6", "dmg_skill"), []),
+    "飞廉之猩": (_two("dmg_4", "dmg_heavy"), []),
+    "异相·飞廉之猩": (_two("dmg_4", "dmg_heavy"), []),
+    "哀声鸷": (_two("dmg_5", "dmg_lib"), []),
+    "异相·哀声鸷": (_two("dmg_5", "dmg_lib"), []),
+    # 每次冲击 4%, 最多 3 层: three 冲击 in one use, so full
+    "辉萤军势": ([V("dmg_1", 0.04, **S(3)), V("dmg_skill", 0.04, **S(3))], ["按满 3 层算"]),
+    "聚械机偶": ([V("atk_pct", 0.12)], ["废料的伤害算作延奏技能伤害：计算没有这一行"]),
+    # 回复自身10点共鸣能量 stays out: the energy a round needs is the kit's own
+    "无常凶鹭": ([], [NEXT_IN]),
+    "异相·无常凶鹭": ([], [NEXT_IN]),
+    # the echo's own hit, and only for 漂泊者·湮灭 after 临渊死寂
+    "无妄者": ([V("final", 0.5, kind="echo", when=["漂泊者·湮灭"])], []),
+    # cast in the air: the echo's own hit; the 冰锥 that fall are not a row
+    "雪鬃狼": ([V("final", 0.2, kind="echo")], ["落地生成的冰锥：计算没有这一行"]),
+    "角": ([V("dmg_skill", 0.16)], ["共鸣技能命中后每秒 16% 的衍射伤害：计算没有这一行"]),
+    # 共鸣效率 the wearer's, 攻击 the whole team's (全队角色)
+    "无归的谬误": ([V("er", 0.1), V("atk_pct", 0.1, team=True)], []),
+    "异相·无归的谬误": ([V("er", 0.1), V("atk_pct", 0.1, team=True)], []),
+    # the echo's own hit, on an enemy with 光噪效应
+    "幻昼骑士": ([V("final", 1.0, kind="echo", when=["光噪"])], []),
+    "海维夏": ([], [NEXT_IN]),
+    "格洛犸图": ([], [NEXT_IN]),
+    "异相·格洛犸图": ([], [NEXT_IN]),
+    "迷胧幻蛾": ([], [NEXT_IN]),
+    "共鸣回响·达妮娅": ([], [NEXT_IN]),
+    "绝息魄": ([], [NEXT_IN]),
+    # the shield's 10% for whoever is on the field; it goes after 3 hits taken, counted as held
+    "鸣钟之龟": ([V("dmg_all", 0.1, team=True)],
+             ["减伤 50%：计算没有这一项", "受到 3 次攻击后消失：按一直在算"]),
 }
 
 

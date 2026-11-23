@@ -2694,13 +2694,16 @@
     }
    ]
   },
-  "今汐": {
-   "key": "fb962ef4e9853532",
+  "云闪之鳞": {
+   "key": "46a9a55d27642a4a",
    "effects": [
     {
-     "stat": "final",
-     "value": 0.4,
-     "skill": "协同攻击"
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
     }
    ]
   },
@@ -2783,6 +2786,13 @@
     }
    ]
   },
+  "共鸣回响·达妮娅": {
+   "key": "667543f484276c55",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
+   ]
+  },
   "共鸣回响·鸣式·利维亚坦": {
    "key": "de730568076f9ca8",
    "effects": [
@@ -2861,6 +2871,19 @@
     }
    ]
   },
+  "哀声鸷": {
+   "key": "b90ec0f795acf578",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
   "天傀劫煞": {
    "key": "1eaa0987935bfc0d",
    "effects": [
@@ -2886,6 +2909,19 @@
     }
    ]
   },
+  "幻昼骑士": {
+   "key": "aa9ae8f080e8ea3a",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 1.0,
+     "kind": "echo",
+     "when": [
+      "光噪"
+     ]
+    }
+   ]
+  },
   "异构武装": {
    "key": "c87332b8faebd8bf",
    "effects": [
@@ -2908,6 +2944,19 @@
     },
     {
      "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "异相·云闪之鳞": {
+   "key": "46a9a55d27642a4a",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
      "value": 0.12
     }
    ]
@@ -2954,6 +3003,19 @@
     }
    ]
   },
+  "异相·哀声鸷": {
+   "key": "b90ec0f795acf578",
+   "effects": [
+    {
+     "stat": "dmg_5",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_lib",
+     "value": 0.12
+    }
+   ]
+  },
   "异相·封庭械囿": {
    "key": "f65e526d93260094",
    "effects": [
@@ -2976,17 +3038,58 @@
     }
    ]
   },
-  "异相·无妄者": {
-   "key": "4c278777232066ad",
+  "异相·无冠者": {
+   "key": "6cf2d107ca0fc0a8",
    "effects": [
     {
-     "stat": "dmg_2",
+     "stat": "dmg_6",
      "value": 0.12
     },
     {
      "stat": "dmg_skill",
      "value": 0.12
     }
+   ]
+  },
+  "异相·无妄者": {
+   "key": "0b65f158dbeaf8e5",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 0.5,
+     "kind": "echo",
+     "when": [
+      "漂泊者·湮灭"
+     ]
+    }
+   ]
+  },
+  "异相·无常凶鹭": {
+   "key": "365ca74b301a195d",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
+   ]
+  },
+  "异相·无归的谬误": {
+   "key": "d553a30748d73c9f",
+   "effects": [
+    {
+     "stat": "er",
+     "value": 0.1
+    },
+    {
+     "stat": "atk_pct",
+     "value": 0.1,
+     "team": true
+    }
+   ]
+  },
+  "异相·格洛犸图": {
+   "key": "86c78d5bbf9500db",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
    ]
   },
   "异相·梦魇·无冠者": {
@@ -3021,6 +3124,19 @@
     {
      "stat": "er",
      "value": 0.1
+    }
+   ]
+  },
+  "异相·燎照之骑": {
+   "key": "9317799e61dcdf57",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
     }
    ]
   },
@@ -3084,6 +3200,66 @@
     }
    ]
   },
+  "异相·飞廉之猩": {
+   "key": "00660c49c7cd2876",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "无冠者": {
+   "key": "6cf2d107ca0fc0a8",
+   "effects": [
+    {
+     "stat": "dmg_6",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.12
+    }
+   ]
+  },
+  "无妄者": {
+   "key": "0b65f158dbeaf8e5",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 0.5,
+     "kind": "echo",
+     "when": [
+      "漂泊者·湮灭"
+     ]
+    }
+   ]
+  },
+  "无常凶鹭": {
+   "key": "365ca74b301a195d",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
+   ]
+  },
+  "无归的谬误": {
+   "key": "d553a30748d73c9f",
+   "effects": [
+    {
+     "stat": "er",
+     "value": 0.1
+    },
+    {
+     "stat": "atk_pct",
+     "value": 0.1,
+     "team": true
+    }
+   ]
+  },
   "无铭探索者": {
    "key": "0a61a76e376b2667",
    "effects": [
@@ -3095,6 +3271,26 @@
      "stat": "dmg_echo",
      "value": 0.2
     }
+   ]
+  },
+  "朔雷之鳞": {
+   "key": "77918664a37f45c1",
+   "effects": [
+    {
+     "stat": "dmg_3",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "格洛犸图": {
+   "key": "86c78d5bbf9500db",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
    ]
   },
   "梦魇·云闪之鳞": {
@@ -3249,12 +3445,32 @@
     }
    ]
   },
+  "海维夏": {
+   "key": "8c2de6ccf5b5c383",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
+   ]
+  },
   "炉芯机骸": {
    "key": "aaa0dfe72d5eb61f",
    "effects": [
     {
      "stat": "er",
      "value": 0.1
+    }
+   ]
+  },
+  "燎照之骑": {
+   "key": "9317799e61dcdf57",
+   "effects": [
+    {
+     "stat": "dmg_2",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_basic",
+     "value": 0.12
     }
    ]
   },
@@ -3265,6 +3481,13 @@
      "stat": "dmg_3",
      "value": 0.12
     }
+   ]
+  },
+  "绝息魄": {
+   "key": "9f80c9c0dcb9b423",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
    ]
   },
   "罗蕾莱": {
@@ -3278,6 +3501,18 @@
      "stat": "dmg_basic",
      "value": 0.12
     }
+   ]
+  },
+  "聚械机偶": {
+   "key": "d6f51cf26ccb01b4",
+   "effects": [
+    {
+     "stat": "atk_pct",
+     "value": 0.12
+    }
+   ],
+   "notes": [
+    "废料的伤害算作延奏技能伤害：计算没有这一行"
    ]
   },
   "荣光节使": {
@@ -3319,6 +3554,18 @@
     }
    ]
   },
+  "角": {
+   "key": "663635398788f164",
+   "effects": [
+    {
+     "stat": "dmg_skill",
+     "value": 0.16
+    }
+   ],
+   "notes": [
+    "共鸣技能命中后每秒 16% 的衍射伤害：计算没有这一行"
+   ]
+  },
   "角鳄": {
    "key": "e043e5572f4cad6d",
    "effects": [
@@ -3351,6 +3598,26 @@
     }
    ]
   },
+  "辉萤军势": {
+   "key": "1035573ee633f6c9",
+   "effects": [
+    {
+     "stat": "dmg_1",
+     "value": 0.04,
+     "per_stack": true,
+     "stacks": 3
+    },
+    {
+     "stat": "dmg_skill",
+     "value": 0.04,
+     "per_stack": true,
+     "stacks": 3
+    }
+   ],
+   "notes": [
+    "按满 3 层算"
+   ]
+  },
   "辛吉勒姆": {
    "key": "3197b75a32308f05",
    "effects": [
@@ -3361,6 +3628,53 @@
       "爱弥斯"
      ]
     }
+   ]
+  },
+  "迷胧幻蛾": {
+   "key": "a797de6df3414a62",
+   "effects": [],
+   "notes": [
+    "下一个变奏登场的角色才有，佩戴者自己不算"
+   ]
+  },
+  "雪鬃狼": {
+   "key": "0aadbdc3aca0b67e",
+   "effects": [
+    {
+     "stat": "final",
+     "value": 0.2,
+     "kind": "echo"
+    }
+   ],
+   "notes": [
+    "落地生成的冰锥：计算没有这一行"
+   ]
+  },
+  "飞廉之猩": {
+   "key": "00660c49c7cd2876",
+   "effects": [
+    {
+     "stat": "dmg_4",
+     "value": 0.12
+    },
+    {
+     "stat": "dmg_heavy",
+     "value": 0.12
+    }
+   ]
+  },
+  "鸣钟之龟": {
+   "key": "d6674385a645cf50",
+   "effects": [
+    {
+     "stat": "dmg_all",
+     "value": 0.1,
+     "team": true
+    }
+   ],
+   "notes": [
+    "减伤 50%：计算没有这一项",
+    "受到 3 次攻击后消失：按一直在算"
    ]
   }
  },
@@ -8832,6 +9146,18 @@
      ]
     }
    ],
+   "skill:1004507:1": [
+    {
+     "key": "f0ba5a6c4c9125c0",
+     "effects": [
+      {
+       "stat": "tune_break",
+       "value": 40.0,
+       "team": true
+      }
+     ]
+    }
+   ],
    "outro:1004509": [
     {
      "key": "c62c4f4e19da48a6",
@@ -9874,6 +10200,28 @@
       {
        "stat": "dmg_2",
        "value": 0.3,
+       "team": true
+      }
+     ]
+    }
+   ],
+   "inherent:1005305:2": [
+    {
+     "key": "3a7ef5faf03c48e4",
+     "effects": [
+      {
+       "stat": "tune_break",
+       "value": 10.0,
+       "team": true
+      },
+      {
+       "stat": "tune_break",
+       "value": 40.0,
+       "needs": {
+        "stat": "tune_eff",
+        "value": 1.5,
+        "from": 1.0
+       },
        "team": true
       }
      ]
