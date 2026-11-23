@@ -504,10 +504,10 @@ def _take(store: Store, said: dict, scans: list[dict], took: dict) -> None:
                     (row["read_at"], row.get("shells"), row.get("astrite"),
                      float(row.get("confidence") or 0)))
                 last, took["wallet"] = row["read_at"], took["wallet"] + 1
-        # a resonator's screens (D299): each one's newest reading wins, wherever it was read
-        for row in said.get("character_reads") or []:
-            if not _valid_read(row):
-                continue
+        # a resonator's screens (D299): each one's newest reading wins, wherever it was read.
+        # Oldest first, so each moves the progress after the one before it (D379)
+        reads = [row for row in said.get("character_reads") or [] if _valid_read(row)]
+        for row in sorted(reads, key=lambda r: r["read_at"]):
             kept = store.conn.execute(
                 "INSERT INTO character_reads (resonator, screen, key, data, read_at) "
                 "VALUES (?, ?, ?, ?, ?) ON CONFLICT(resonator, screen, key) DO UPDATE SET "

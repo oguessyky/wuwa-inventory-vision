@@ -315,7 +315,7 @@ def resonator(catalogue: Catalogue, inventory: list[Item], name: str,
               "signature": signatures(catalogue).get(name) == n}
              for n, w in catalogue.builds.get("weapons", {}).items()
              if w.get("type") and w.get("type") == build.get("weapon")),
-            key=lambda w: (not w["signature"], -w["rarity"], w["name"])),
+            key=lambda w: (not w["signature"], order_key(w))),
         "signature_choices": sorted(
             n for n, w in catalogue.builds.get("weapons", {}).items()
             if w.get("type") == build.get("weapon") and (w.get("rarity") or 0) == 5
@@ -325,6 +325,19 @@ def resonator(catalogue: Catalogue, inventory: list[Item], name: str,
 
 def _version(v: str | None) -> tuple[int, ...]:
     return tuple(int(x) for x in (v or "").lstrip("Vv").split(".") if x.isdigit())
+
+
+def order_key(row: dict) -> tuple:
+    """The one order for every list of resonators and weapons (D378): the highest tier
+    first; within one tier the newest version first (one coming soon newest of all, one
+    with no version the oldest); within one version, by name as the pages put it (pinyin).
+    The pages sort the same way (web/src/lib/order.ts)."""
+    from pypinyin import lazy_pinyin
+
+    newest = tuple(-x for x in (_version(row.get("version")) + (0, 0, 0))[:3])
+    name = row.get("name") or ""
+    return (-int(row.get("rarity") or 0), not row.get("upcoming"), newest,
+            " ".join(lazy_pinyin(name)), name)
 
 
 def is_limited(build: dict) -> bool:
@@ -386,6 +399,7 @@ def weapon_summary(catalogue: Catalogue, name: str, build: dict, copies: int = 0
         "rank_reachable": reachable_rank([1] * copies) if copies else None,
         # 3-star and lower are often fed as EXP: pulled is not what is left
         "approx": bool(copies) and rarity <= APPROX_RARITY,
+        "version": build.get("version"),
     }
 
 
@@ -414,7 +428,7 @@ def weapon(catalogue: Catalogue, inventory: list[Item], name: str,
     people = catalogue.builds.get("resonators", {})
     users = [avatar(catalogue, n, r) for n, r in people.items()
              if r.get("weapon") and r.get("weapon") == build.get("type") and n not in skip]
-    users.sort(key=lambda u: (u["name"] != owner, -u["rarity"], u["name"]))
+    users.sort(key=lambda u: (u["name"] != owner, order_key(u)))
     return {
         **weapon_summary(catalogue, name, build, ((pulls or {}).get("weapons") or {}).get(name, 0)),
         "cost": _cost(catalogue, inventory, build.get("materials") or {}, complete_tabs,
@@ -439,5 +453,6 @@ def avatar(catalogue: Catalogue, name: str, build: dict,
             "card": _art(catalogue, build.get("card")), "icon": catalogue.avatar_file(name),
             "face": (faces or {}).get(name),
             "element": build.get("element"), "weapon": build.get("weapon"),
+            "version": build.get("version"), "upcoming": catalogue.upcoming("resonators", name),
             **badges(catalogue, build)}
 

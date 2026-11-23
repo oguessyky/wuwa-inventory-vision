@@ -560,6 +560,12 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
             who = data.get("resonator") or "?"
             what = screen_words.get(str(data.get("kind")), data.get("kind"))
             say(f"  -> {who}: {what} read")
+            # a slot whose picture names no echo surely: a click on it tells (D377)
+            unsure = [s["slot"] for s in (data.get("data") or {}).get("slots") or []
+                      if not s.get("empty") and s.get("echo") is None]
+            if unsure and not data.get("same"):
+                say(f"     ! slot {', '.join(map(str, unsure))}: not sure which echo -- click"
+                    " it to read it, or fill it in on 计算 later")
             # whose, asked (D370): held until 属性详情 says, with the same portrait selected
             asked, settled = data.get("ask"), data.get("settled")
             if asked:

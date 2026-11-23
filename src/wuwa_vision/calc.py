@@ -214,8 +214,61 @@ def _scanned_echo(read: dict, data: dict) -> dict:
 
 
 def no_main_echo(worn: dict) -> bool:
-    """The 声骸 page says no main echo is fitted (D367): "尚未装配主声骸"."""
-    return "尚未装配" in (worn.get("skill") or "").replace(" ", "")
+    """The 声骸 page says no main echo is fitted (D367): "尚未装配主声骸" -- or its arc's top
+    slot holds nothing (D377)."""
+    from .echo_slots import main_slot_empty
+
+    return ("尚未装配" in (worn.get("skill") or "").replace(" ", "")
+            or main_slot_empty(worn.get("slots")))
+
+
+def typed_reads(data: dict, known: list[dict], posted: list[dict], holder: str) -> list[dict]:
+    """Echoes typed over the 声骸 page's placeholders (D377), each as the read it is kept as: at
+    the level the arc showed, `by_hand`, so it fills its slot as a click would and a later click
+    replaces it. A placeholder still `unread`, or posted with nothing typed, is no read."""
+    from .echo_slots import same_echo
+
+    growth = (data.get("echo") or {}).get("growth") or [1.0]
+    out = []
+    for was, now in zip(known, posted, strict=False):
+        if not was.get("unread") or now.get("unread") or not now.get("echo"):
+            continue
+        if was.get("echo") is not None and not same_echo(was["echo"], now["echo"]):
+            continue  # another echo put in its place: the setup's, not the scan's
+        subs = [dict(s) for s in now.get("subs") or [] if s.get("stat")]
+        if not subs and now.get("main") == was.get("main"):
+            continue
+        level = int(was.get("level") if was.get("level") is not None else now.get("level") or 25)
+        cost = int(now.get("cost") or was.get("cost") or 4)
+        grow = growth[min(level, len(growth) - 1)]
+        mains = (data["echo"]["main"].get("5") or {}).get(str(cost)) or []
+        main = next((m for m in mains if m["stat"] == now.get("main")), None)
+        fixed = (data["echo"]["fixed"].get("5") or {}).get(str(cost))
+        out.append({
+            "kind": "echo", "name": now["echo"], "set": now.get("set") or was.get("set"),
+            "cost": cost, "level": level, "holder": holder,
+            "main": [{"stat": m["stat"], "value": m["value"] * grow} for m in (main, fixed) if m],
+            "subs": subs, "by_hand": True,
+        })
+    return out
+
+
+def _placeholder_echo(placed: dict, data: dict) -> dict:
+    """A slot the 声骸 page's arc showed and no read fills (D377): what is sure of it -- which
+    echo when its picture said, its set, cost and level -- and no stats, `unread`. Its main stat
+    is its cost's first, for the page to show; it counts nothing until read or typed."""
+    known = (data.get("echoes") or {}).get(placed.get("echo") or "") or {}
+    cost = int(placed.get("cost") or known.get("cost") or 4)
+    return {
+        "echo": placed.get("echo"),
+        "set": placed.get("set"),
+        "cost": cost,
+        "rarity": 5,
+        "level": int(placed["level"]) if placed.get("level") is not None else 25,
+        "main": _first_main(data, cost) or "crit",
+        "subs": [],
+        "unread": True,
+    }
 
 
 def _worn_echoes(read: list[dict], worn: dict, data: dict) -> list[dict]:
@@ -348,7 +401,19 @@ def known(
             "rank": int(arm.get("rank") or 1),
         }
         took = True
-    if scanned.get("echoes"):
+    page = scanned.get("worn") or {}
+    if page.get("slots"):
+        # the 声骸 page's arc says which echo sits where (D377): each slot its echo's read, or
+        # a placeholder; the main one first, unless its slot is empty
+        from .echo_slots import place
+
+        out["echoes"] = [_scanned_echo(p["read"], data) if p["read"] is not None
+                         else _placeholder_echo(p, data)
+                         for p in place(page["slots"], scanned.get("echoes") or [])]
+        if no_main_echo(page):
+            out["main_echo"] = False
+        took = True
+    elif scanned.get("echoes"):
         worn = _worn_echoes(scanned["echoes"], scanned.get("worn") or {}, data)
         out["echoes"] = [_scanned_echo(e, data) for e in worn]
         if no_main_echo(scanned.get("worn") or {}):
@@ -987,14 +1052,17 @@ def panel(data: dict, setup: dict, echoes: list | None = None) -> dict:
         rarity, cost = str(echo.get("rarity", 5)), str(echo.get("cost", 4))
         grow = growth[min(int(echo.get("level", 25)), len(growth) - 1)]
         mains = ((data["echo"]["main"].get(rarity) or {}).get(cost)) or []
-        main = next((m for m in mains if m["stat"] == echo.get("main")), None)
+        # an echo placed by the 声骸 page and never read (D377): its main stat and substats are
+        # not known, and count nothing; the fixed stat its cost and level give is the game's
+        unread = bool(echo.get("unread"))
+        main = None if unread else next((m for m in mains if m["stat"] == echo.get("main")), None)
         if main:
             add(main["stat"], main["value"] * grow)
         fixed = (data["echo"]["fixed"].get(rarity) or {}).get(cost)
         if fixed:
             add(fixed["stat"], fixed["value"] * grow)
         # only what its level has unlocked (D302)
-        for sub in unlocked_subs(echo):
+        for sub in [] if unread else unlocked_subs(echo):
             if sub.get("stat"):
                 add(sub["stat"], sub.get("value") or 0)
     sets = _set_counts(setup.get("echoes") if echoes is None else echoes)
@@ -2035,6 +2103,7 @@ def best_setup(data: dict, name: str, setup: dict) -> dict:
         for echo, worn_set in zip(trial["echoes"], sets, strict=True):
             echo["set"] = worn_set
         for echo in trial["echoes"]:
+            echo.pop("unread", None)  # a build tried is wholly typed: its main stat counts (D377)
             options = [
                 m["stat"] for m in (data["echo"]["main"].get("5") or {}).get(str(echo["cost"]), [])
             ]
@@ -2064,6 +2133,7 @@ def _weigher(data: dict, name: str, base: dict):
             trial["mode"] = mode
         for echo, worn_set in zip(trial["echoes"], worn, strict=True):
             echo["set"] = worn_set
+            echo.pop("unread", None)  # a build tried is wholly typed: its main stat counts (D377)
             echo["main"] = echo["main"] or _first_main(data, echo["cost"])
         return _score(data, name, compute(data, trial, name, _grade=False))
 

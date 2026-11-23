@@ -16,8 +16,10 @@ import json
 
 import numpy as np
 
+from ..echo_slots import place
 from ..ocr import character
 from ..store.db import Store
+from .echo_arc import EchoArt, read_slots
 from .portraits import ROVER, Column, Portraits, column, plain, same_selection
 
 
@@ -179,9 +181,14 @@ def holds_of(store: Store, name: str) -> list[dict]:
         # every element of the 漂泊者 holds the one weapon (D370)
         shared = store.rover_weapon_read()
         rows = [r for r in rows if r["screen"] != "weapon"] + ([shared] if shared else [])
+    reads = [json.loads(r["data"]) for r in rows if r["screen"] == "echo"]  # newest first
     for row in rows:
         data = json.loads(row["data"])
         kind = "echoes" if row["screen"] == "worn" else row["screen"]
+        if kind == "echoes" and data.get("slots"):
+            # which echo sits where, as 计算 places them (D377): each slot with the read that
+            # fills it, or none
+            data["placed"] = place(data["slots"], reads)
         out.append({"kind": kind, "key": row["key"], "summary": summary({**data, "kind": kind}),
                     "data": {**data, "kind": kind}, "read_at": row["read_at"]})
     order = {k: i for i, k in enumerate(_KEPT)}
@@ -239,6 +246,9 @@ def dress(entry: dict, pics: dict) -> dict:
         icons[data["name"]] = f"api/reference/{pics['weapons'][data['name']]}"
     for worn in data.get("sets") or []:
         a_set(worn.get("name"))
+    for placed in data.get("placed") or []:  # the 声骸 page's slots (D377)
+        echo(placed.get("echo"))
+        a_set(placed.get("set"))
     who = entry.get("resonator") or (data.get("name") if data.get("kind") == "attributes"
                                      else None)
     avatar = avatars.get(who or "")
@@ -255,6 +265,10 @@ def _thumb(rgb: np.ndarray) -> np.ndarray:
     return crop[::step, ::step].astype(np.float32).mean(axis=2)
 
 
+class _Unloaded:
+    """The 声骸 page's pictures, not loaded yet."""
+
+
 #: The screens a read is held on while whose cannot be told (D370); 共鸣链 keeps nothing.
 _HOLD = ("skills", "weapon", "echoes")
 
@@ -268,6 +282,9 @@ class CharacterScreens:
         self.reader = CharacterReader(store)
         self.portraits = Portraits(store)
         self.lists = lists if lists is not None else _lists()
+        #: the pictures the 声骸 page's slots are named by (D377), loaded on the first page read;
+        #: None, none to name them by
+        self.arc: EchoArt | None | type[_Unloaded] = _Unloaded
         self.last_kind: str | None = None
         self._panel: np.ndarray | None = None
         #: the last reading taken, with whose it was, and whose it was kept as (D359)
@@ -291,6 +308,11 @@ class CharacterScreens:
             self.last_kind = None
             return None
         self.last_kind = said["kind"]
+        if said["kind"] == "echoes":
+            # the arc: which echo sits in which slot (D377), kept with the page's read
+            if self.arc is _Unloaded:
+                self.arc = EchoArt.from_catalogue()
+            said = {**said, "slots": read_slots(rgb, self.arc)}  # type: ignore[arg-type]
         who: str | None = None
         why: str | None = None     # whose is asked (D370): not kept, the scan's page says why
         col: Column | None = None

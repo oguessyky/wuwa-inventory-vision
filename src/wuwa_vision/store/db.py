@@ -938,13 +938,15 @@ class Store:
         state.setdefault("nodes", {})
         state.setdefault("skills", {})
         # within the caller's transaction (a home taking an upload whole): no commit of its own.
-        # A resonator whose screen was read is owned.
+        # A resonator whose screen was read is owned. Moved by a read, the progress is as new as
+        # the read, not the upload (D379): 技能, read seconds after 属性详情 and sent with it,
+        # would look older than a change by hand otherwise, and be left.
         self.conn.execute(
             "INSERT INTO resonator_state (name, owned, state, updated_at) VALUES (?, 1, ?, ?) "
             "ON CONFLICT(name) DO UPDATE SET owned=1, state=excluded.state, "
             "updated_at=excluded.updated_at",
             (name, json.dumps(state, ensure_ascii=False),
-             datetime.now(UTC).isoformat(timespec="seconds")))
+             read_at or datetime.now(UTC).isoformat(timespec="seconds")))
         return True
 
     def set_chain(self, name: str, chain: int | None) -> None:

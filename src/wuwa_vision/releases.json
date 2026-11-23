@@ -2,6 +2,39 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
   {
+   "version": "1.4.6",
+   "date": "2026-11-23",
+   "scanner": [
+    {
+     "zh": "新：扫描共鸣者的声骸页时，也读右边那一圈的五个格子：每格是哪个声骸、COST、等级和套装，主声骸在最上面。看不准是哪个的格子（例如异相）会请你在游戏里点开它",
+     "en": "new: on a resonator's 声骸 page the scan also reads the five slots down the right: which echo each holds, its COST, level and set, the main echo at the top. A slot it cannot tell (a 异相 form, say) asks you to click it in game"
+    }
+   ],
+   "home": [
+    {
+     "zh": "修复：扫描共鸣者时，服务器只把第一个画面（属性详情）的读数更新到进度里，同一次扫描的技能和节点只在「计算」里看得到，「共鸣者」「规划」「材料」还是旧的；现在每个画面都会更新。已经错过的，再扫一次那位共鸣者的技能页即可",
+     "en": "fixed: from a resonator scan the server moved the progress by the first screen only (属性详情); the same scan's skills and nodes showed on 计算 but 共鸣者, 规划 and 材料 kept the old ones. Every screen moves it now; for one already missed, scan that resonator's 技能 screen again"
+    },
+    {
+     "zh": "修复：「配队」里切换共鸣者的共鸣模态后，轮转中新模态不计算的那一步会显示成「第一段伤害」且没有数值；现在它保留自己的名字，标着「这个模态不算」，可以改成别的或删掉",
+     "en": "fixed: in 配队, after switching a member's 共鸣模态, a rotation step the new mode does not count showed as 「第一段伤害」 with no number; it now keeps its own name and says 「这个模态不算」, to change or remove"
+    },
+    {
+     "zh": "修复：没装主声骸的共鸣者（例如莉莉），「计算」仍把第一个声骸当成主声骸；现在主声骸格空着，写「未装配」，四个声骸都不算主声骸",
+     "en": "fixed: for a resonator with no main echo fitted (莉莉, say), 计算 still took the first echo as the main one; the main slot now stands empty, says 「未装配」, and none of the four is the main echo"
+    },
+    {
+     "zh": "修复：扫描页和「计算」里声骸的位置按游戏里的格子排，不再按 COST 排；没点开读过的声骸先占着它的格子，标「未读详情」，只算套装和主声骸效果，在「计算」里填上主属性和副词条就算它读过了",
+     "en": "fixed: the scan page and 计算 place echoes as the game's slots do, not by COST; an echo never clicked holds its slot marked 「未读详情」, counting its set and main-echo effect only, and typing its main stat and substats on 计算 counts as reading it"
+    },
+    {
+     "zh": "修复：共鸣者和武器的列表统一按稀有度从高到低、再按版本从新到旧排列（「规划」的添加共鸣者/武器、「武器」页、面板、「更新」里的各列表等），以前有的按名字排",
+     "en": "fixed: every list of resonators and weapons runs by rarity, highest first, then by version, newest first (规划's add pickers, the 武器 page, the panels, 更新's lists and more); some ran by name before"
+    }
+   ],
+   "needs_server": "1.4.0"
+  },
+  {
    "version": "1.4.5",
    "date": "2026-11-23",
    "scanner": [

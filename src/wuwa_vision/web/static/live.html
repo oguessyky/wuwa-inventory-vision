@@ -173,6 +173,9 @@
   /* read this scan or before (D367) */
   .slot.now{border-color:var(--ok)} .slot.older{border-color:var(--warn);border-style:dashed}
   .slot.older .pic{opacity:.6}
+  .slot.unread,.slot.unsure{border-style:dashed} .slot.unsure{border-color:var(--box-click)}
+  .slot.unread .pic{opacity:.75} .slot .said{white-space:normal;margin-top:4px}
+  .slot.unsure .said{color:var(--box-click);font-weight:650}
   .slot .rmark{position:absolute;right:4px;top:4px;font-size:11px;font-weight:800;padding:0 6px;border-radius:5px;
               background:var(--ok);color:#04220f}
   .slot.older .rmark{background:var(--warn);color:#2a1d00}
@@ -595,6 +598,20 @@ function echoCard(x){
     + `<div style="grid-column:1/-1">${statList((e.main ?? []).map(s => statLine(s.stat, s.value)), 'rstats rmain')}`
     + statList((e.subs ?? []).map(s => statLine(s.stat, s.value))) + '</div></div>';
 }
+// A slot the 声骸 page's arc showed and no read fills (D377): what the arc showed of it, marked
+// 未读详情; with no name, its picture was not sure, and a click on it in game tells which.
+function placeholderSlot(p, icons){
+  const named = p.echo != null;
+  return `<div class="slot ${named ? 'unread' : 'unsure'}"><div class="pic">`
+    + (named ? (pic(icons[p.echo], p.echo) || `<span class="nopic">${esc(p.echo.replace(/^异相·/, '').slice(0, 1))}</span>`)
+      : '<span class="nopic">?</span>')
+    + (p.cost ? `<span class="cost">${esc(p.cost)}</span>` : '')
+    + (p.level != null ? `<span class="plus">+${esc(p.level)}</span>` : '') + '</div>'
+    + `<b title="${esc(p.echo ?? '')}">${esc(p.echo ?? '哪个声骸？')}</b>`
+    + (p.set ? `<small>${esc(p.set)}</small>` : '')
+    + (named ? '<small class="said">未读详情 · not read in detail</small>'
+      : '<small class="said">点它看看 · click it in game to tell which</small>') + '</div>';
+}
 function laidOut(x){
   const e = x.data;
   if(!e || !e.kind) return '';
@@ -668,9 +685,19 @@ function board(held, who, started){
   const head = held.find(x => x.avatar) ?? {};
   const a = attrs?.data ?? {};
   const when = x => x ? `<small>${esc(new Date(x.read_at).toLocaleString())}</small>` : '';
-  // no main echo fitted, as the 声骸 page says (D367): its slot says so, and four are all
-  const noMain = /尚未装配/.test(String(worn?.data?.skill ?? '').replace(/\s/g, ''));
-  const slots = pieces.slice(0, noMain ? 4 : 5).map(x => {
+  // no main echo fitted, as the 声骸 page says (D367), or its arc's top slot empty (D377): its
+  // slot says so, and four are all
+  const placed = worn?.data?.placed;
+  const noMain = /尚未装配/.test(String(worn?.data?.skill ?? '').replace(/\s/g, ''))
+    || !!worn?.data?.slots?.[0]?.empty;
+  // the 声骸 page's arc says which echo sits where (D377): each slot its echo's read, or what the
+  // arc showed of it; before the arc was read, the echoes read, costliest first
+  const order = placed
+    ? placed.map(p => p.read ? (pieces.find(x => x.data.name === p.read.name) ?? { data: p.read, read_at: worn.read_at })
+      : { placeholder: p })
+    : pieces.slice(0, noMain ? 4 : 5);
+  const slots = order.map(x => {
+    if(x.placeholder) return placeholderSlot(x.placeholder, worn.icons ?? {});
     const e = x.data, main = (e.main ?? [])[0];
     // read this scan (✓), or by an earlier one (its date): told apart at a glance (D367)
     const now = readNow(x, started);

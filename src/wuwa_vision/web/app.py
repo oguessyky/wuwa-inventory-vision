@@ -1626,7 +1626,7 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             )
         return {
             "faces": found,
-            "resonators": sorted(rows, key=lambda r: (not r["owned"], -r["rarity"], r["name"])),
+            "resonators": sorted(rows, key=lambda r: (not r["owned"], roster.order_key(r))),
         }
 
     @app.post("/api/holder")
@@ -1982,6 +1982,11 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         st = Store(db())
         try:
             st.save_calc_setup(found, setup)
+            # stats typed for an echo the 声骸 page placed and never read are kept as its read
+            # (D377): it fills its slot as a click would, and a later click replaces it
+            for read in calc_mod.typed_reads(data, known.get("echoes") or [],
+                                             setup.get("echoes") or [], found):
+                st.save_character_read(found, "echo", read, key=read["name"])
             known["kept_at"] = st.calc_setup_at(found)
             # the picker's tick for what was kept, worked out now, not on the next page (D330)
             kept_grade(st, data, found, setup)
@@ -2366,12 +2371,14 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         ]
         weapons = [
             {"name": n, "rarity": b.get("rarity") or 0, "type": b.get("type"),
+             "version": b.get("version"),
              "find": search.keys(n, cat.english(n) or ""),
              "icon_file": cat.icon_file(n), "materials": b.get("materials") or {}}
             for n, b in sorted(cat.builds["weapons"].items())
         ]
         people = [
             {"name": n, "rarity": b.get("rarity") or 0, "element": b.get("element"),
+             "version": b.get("version"),
              "find": search.keys(n, cat.english(n) or b.get("english") or ""),
              "weapon": b.get("weapon"), "icon": cat.avatar_file(n),
              "card": b.get("card"), "materials": b.get("materials") or {},
@@ -2898,10 +2905,12 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         for name, build in sorted((builds.get("resonators") or {}).items()):
             icon = cat.avatar_file(name)
             rows.append({"name": name, "kind": "共鸣者", "rarity": int(build.get("rarity") or 0),
+                         "version": build.get("version"),
                          "icon": f"/api/avatar/{icon}" if icon else None})
         for name in sorted(weapons):
             entry, icon = cat.entry(name) or {}, cat.icon_file(name)
             rows.append({"name": name, "kind": "武器", "rarity": entry.get("rarity") or 0,
+                         "version": ((builds.get("weapons") or {}).get(name) or {}).get("version"),
                          "icon": f"/api/reference/{icon}" if icon else None})
         for shop in cat.shops:
             rows.append({"name": shop["name"], "kind": "商店", "rarity": 0,
