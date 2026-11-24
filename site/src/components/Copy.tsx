@@ -4,10 +4,11 @@ import { useState } from 'react';
 import type { Lang } from '@/lib/content';
 
 /** A command, copied in one click: what a guide asks you to type is never retyped by hand. An
- * icon in the block's corner (D221): two sheets, a tick once it is copied. */
-export function Copy({ text, lang }: { text: string; lang: Lang }) {
+ * icon in the block's corner (D221): two sheets, a tick once it is copied. `what` names what it
+ * copies when that is more than the text beside it (D381). */
+export function Copy({ text, lang, label: what }: { text: string; lang: Lang; label?: string }) {
   const [done, setDone] = useState(false);
-  const label = done ? (lang === 'en' ? 'Copied' : '已复制') : (lang === 'en' ? 'Copy' : '复制');
+  const label = done ? (lang === 'en' ? 'Copied' : '已复制') : (what ?? (lang === 'en' ? 'Copy' : '复制'));
   return (
     <button type="button" className={`copy${done ? ' done' : ''}`} aria-label={label} title={label} onClick={async () => {
       try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 1600); }

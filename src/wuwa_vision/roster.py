@@ -53,6 +53,15 @@ def _cost(catalogue: Catalogue, inventory: list[Item], need: dict[str, int],
     }
 
 
+def readiness(cost: dict) -> str:
+    """How much of what is left of a build is on hand (D382), for the planner's rings: `all`
+    (nothing short), `some` (a material on hand toward it) or `none`."""
+    if not cost["shortfall"]:
+        return "all"
+    return "some" if any(r["target"] > r["shortfall"] for r in cost["materials"]
+                         if r["target"] > 0) else "none"
+
+
 def _art(catalogue: Catalogue, file: str | None) -> str | None:
     return file if file and file in catalogue.files_in("resonators") else None
 
@@ -253,7 +262,8 @@ def resonators(catalogue: Catalogue, inventory: list[Item] | None = None,
         if inventory is not None and build.get("materials"):
             need = remaining(catalogue, name, build, mine)
             row["maxed"] = bool(mine) and not need
-            row["shortfall"] = _cost(catalogue, inventory, need, complete_tabs)["shortfall"]
+            cost = _cost(catalogue, inventory, need, complete_tabs)
+            row["shortfall"], row["ready"] = cost["shortfall"], readiness(cost)
         out.append(row)
     return out
 
@@ -409,10 +419,20 @@ def reachable_rank(ranks: list[int]) -> int:
     return min(sum(max(r, 1) for r in ranks), MAX_RANK) if ranks else 0
 
 
-def weapons(catalogue: Catalogue, pulls: dict | None = None) -> list[dict]:
+def weapons(catalogue: Catalogue, pulls: dict | None = None,
+            inventory: list[Item] | None = None,
+            complete_tabs: set[str] | frozenset[str] = frozenset()) -> list[dict]:
+    """Every weapon, for the list; with `inventory`, how short its whole build is and how
+    ready (D382) -- the planner's rings."""
     have = (pulls or {}).get("weapons") or {}
-    return [weapon_summary(catalogue, n, w, have.get(n, 0))
-            for n, w in catalogue.builds.get("weapons", {}).items()]
+    out = []
+    for name, build in catalogue.builds.get("weapons", {}).items():
+        row = weapon_summary(catalogue, name, build, have.get(name, 0))
+        if inventory is not None and build.get("materials"):
+            cost = _cost(catalogue, inventory, build["materials"], complete_tabs)
+            row["shortfall"], row["ready"] = cost["shortfall"], readiness(cost)
+        out.append(row)
+    return out
 
 
 def weapon(catalogue: Catalogue, inventory: list[Item], name: str,

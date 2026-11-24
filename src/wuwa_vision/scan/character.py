@@ -166,7 +166,7 @@ def summary(said: dict) -> list[str]:
 
 
 #: The screens kept per resonator, as `holds_of` lists them.
-_KEPT = ("attributes", "weapon", "skills", "worn")
+KEPT = ("attributes", "weapon", "skills", "worn")
 
 
 def holds_of(store: Store, name: str) -> list[dict]:
@@ -191,7 +191,7 @@ def holds_of(store: Store, name: str) -> list[dict]:
             data["placed"] = place(data["slots"], reads)
         out.append({"kind": kind, "key": row["key"], "summary": summary({**data, "kind": kind}),
                     "data": {**data, "kind": kind}, "read_at": row["read_at"]})
-    order = {k: i for i, k in enumerate(_KEPT)}
+    order = {k: i for i, k in enumerate(KEPT)}
     return sorted(out, key=lambda h: (order.get(h["kind"], len(order)), h["key"]))
 
 

@@ -2,6 +2,26 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
   {
+   "version": "1.4.7",
+   "date": "2026-11-24",
+   "scanner": [],
+   "home": [
+    {
+     "zh": "「计算」选共鸣者时，每个头像外有一圈表示扫描了多少：绿色是四个画面（属性、武器、技能、声骸）都扫过，橙色是扫过一部分，虚线是没扫过；手动改过的再加一个蓝色笔的标记。可按「扫描」筛选（完整扫描、部分扫描、未扫描、手动修改），搜索框旁可排序：默认、最近更新、扫描完整度，并可切换升序或降序",
+     "en": "计算's resonator picker rings each face by how much was scanned: green for all four screens (属性, 武器, 技能, 声骸), orange for some, dashed for none; one changed by hand also wears a blue pen. A 扫描 chip row filters by these (完整扫描, 部分扫描, 未扫描, 手动修改), and a sort beside the search box orders them by 默认, 最近更新 or 扫描完整度, rising or falling"
+    },
+    {
+     "zh": "「规划」添加共鸣者和武器时，绿圈表示剩下要的材料都齐了，橙圈表示备了一部分；已练满的变暗并在角上打勾。可按「状态」筛选：材料齐全、部分材料、未备材料、已练满",
+     "en": "规划's add pickers, resonators and weapons: a green ring when everything still needed is on hand, orange when some is; the fully built are dimmed and ticked in the corner. A 状态 chip row filters by these: 材料齐全, 部分材料, 未备材料, 已练满"
+    },
+    {
+     "zh": "修复：武器只要有一把练到 90 级就算「已练满」；现在要每一把都到 90 级，还有没练完的（例如第二把异响空灵）仍可以加进「规划」",
+     "en": "fixed: a weapon counted as fully built once one copy reached Lv.90; now every copy must, so one with a copy still to build (a second 异响空灵, say) can still be planned"
+    }
+   ],
+   "needs_server": "1.4.0"
+  },
+  {
    "version": "1.4.6",
    "date": "2026-11-23",
    "scanner": [

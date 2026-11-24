@@ -1049,6 +1049,23 @@ class Store:
             row = cur.fetchone()
         return row[0] if row else None
 
+    def character_screens(self) -> dict[str, dict[str, str]]:
+        """Every resonator's screens the scan holds, each with when it was last read (D380):
+        {resonator: {screen: read_at}}."""
+        with closing(self.conn.execute(
+            "SELECT resonator, screen, MAX(read_at) FROM character_reads GROUP BY resonator, screen"
+        )) as cur:
+            rows = cur.fetchall()
+        out: dict[str, dict[str, str]] = {}
+        for who, screen, at in rows:
+            out.setdefault(who, {})[screen] = at
+        return out
+
+    def calc_setups_at(self) -> dict[str, str]:
+        """When 计算's setup was last kept, for every resonator kept (D380)."""
+        with closing(self.conn.execute("SELECT name, updated_at FROM calc_setups")) as cur:
+            return {name: at for name, at in cur.fetchall()}
+
     def save_calc_setup(self, name: str, setup: dict) -> None:
         with self.conn:
             self.conn.execute(

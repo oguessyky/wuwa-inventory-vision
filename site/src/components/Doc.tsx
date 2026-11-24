@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { address, guideSteps, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
+import { address, compose, guideSteps, pages, releases, rootText, title, words, type Group, type Lang } from '@/lib/content';
 import { anchor, Markdown } from './Markdown';
 import { Toc } from './Toc';
 import { GuideSteps, type Part } from './GuideSteps';
 import { Icon } from './Icons';
 import { Nav, type NavPage } from './Nav';
 import { describe, ld, pageMetadata, SITE } from '@/lib/seo';
-import { offer, type Offer, type VersionFile } from '@/lib/versions';
+import { offer, pinnedCompose, type Offer, type VersionFile } from '@/lib/versions';
 import { Copy } from './Copy';
 
 export const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -327,7 +327,8 @@ function Zip({ f, lang }: { f: VersionFile; lang: Lang }) {
 }
 
 /** A side's own downloads, under its changes: the scanner's zips and the servers it syncs
- * with; the server's zip and, from 1.2.0, the image pinned to this version. */
+ * with; the server's zip and, from 1.2.0, the image pinned to this version -- its button copies
+ * the whole compose file with the version filled in (D381), ready to paste. */
 function SideDownloads({ side, got, lang }: { side: 'scanner' | 'home'; got: Extract<Offer, { offered: true }>; lang: Lang }) {
   const en = lang === 'en';
   const range = (a: string, b: string) => (a === b ? `v${a}` : `v${a}–v${b}`);
@@ -345,8 +346,8 @@ function SideDownloads({ side, got, lang }: { side: 'scanner' | 'home'; got: Ext
       <div className="rel-zips">{got.files.filter(f => f.kind === 'server' || f.kind === 'home').map(f => <Zip key={f.kind} f={f} lang={lang} />)}</div>
       {got.image
         ? <div className="rel-pin">
-            <span>{en ? 'NAS, this version: ' : 'NAS 用这个版本：'}<code>WUWA_VERSION={got.image}</code>{en ? ' (' : '（'}<Link href={address(lang, 'server')}>{en ? 'Server guide' : '服务器教程'}</Link>{en ? ')' : '）'}</span>
-            <Copy text={`WUWA_VERSION=${got.image}`} lang={lang} />
+            <span>{en ? 'NAS, this version: the whole Compose configuration, pinned to ' : 'NAS 用这个版本：整份 Compose 配置，版本已填 '}<code>{got.image}</code>{en ? ' (' : '（'}<Link href={address(lang, 'server')}>{en ? 'Server guide' : '服务器教程'}</Link>{en ? ')' : '）'}</span>
+            <Copy text={pinnedCompose(compose(), got.image)} lang={lang} label={en ? `Copy the Compose configuration for v${got.image}` : `复制 v${got.image} 的整份 Compose 配置`} />
           </div>
         : null}
     </div>

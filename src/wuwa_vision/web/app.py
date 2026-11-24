@@ -70,6 +70,7 @@ from ..materials import (
 )
 from ..recognize.names import WEAPON_TAB
 from ..recognize.reference import name_to_file, reference_dir
+from ..scan import character as character_scan
 from ..scan.live_state import LiveState, needs_you
 from ..store.db import Store
 from ..update import UpdateJob
@@ -1474,16 +1475,22 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
             weapon["owned_count"] = counts.get(weapon["name"], 0)
             weapon["bag_complete"] = complete
             weapon["holder_icons"] = [face_file(st, cat, c.holder) for c in found if c.holder]
+            # every copy at the top level: built, the planner's tick (D382, D383)
+            weapon["built"] = bool(found) and all((c.level or 0) >= exp.CAPS[-1] for c in found)
         return {"scan": weapons_mod.latest_scan(st),
                 "faces": weapons_mod.faces(st, catalogue.get()),
                 "unknown": weapons_mod.unknown(st)}
 
     @app.get("/api/weapons")
-    def weapon_list() -> dict:
+    def weapon_list(costs: bool = False) -> dict:
+        """Every weapon; `costs`: with how ready each one's build is against the bag (D382),
+        for the planner -- the 武器 page does not ask, and does not wait for it."""
         st = Store(db())
         try:
             pulls = read_pulls(st)
-            rows = roster.weapons(catalogue.get(), pulls)
+            cat = catalogue.get()
+            rows = roster.weapons(cat, pulls, build_inventory(st, cat) if costs else None,
+                                  done_tabs(st) if costs else frozenset())
             scan = with_scan(st, rows)
         finally:
             st.close()
@@ -1782,8 +1789,27 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         try:
             kept = {n: st.calc_setup(n) for n in data["roles"]}
             ticked = {n: kept_grade(st, data, n, k) for n, k in kept.items() if k}
+            # what the scan read of each, and when; when each setup was kept; and whether it
+            # is edited by hand, as the page's 临时修改 says it (D380)
+            screens = st.character_screens()
+            shared = st.rover_weapon_read()
+            kept_at = st.calc_setups_at()
+            context = (st, known_context(st)) if any(kept.values()) else None
+            edited = {n: bool(calc_mod.edited(k, calc_known(data, n, n, context)))
+                      for n, k in kept.items() if k and context}
         finally:
             st.close()
+
+        def read_of(name: str) -> dict[str, str]:
+            mine = dict(screens.get(name) or {})
+            if name.startswith(f"{roster.ROVER}·"):
+                # every element of the 漂泊者 holds the one weapon (D370)
+                mine.pop("weapon", None)
+                if shared is not None:
+                    mine["weapon"] = shared["read_at"]
+            return {s: mine[s] for s in character_scan.KEPT if s in mine}
+
+        reads = {n: read_of(n) for n in data["roles"]}
         return {
             "have": True, "version": data.get("version"),
             # each one's modes and the game's recommended sets (D272)
@@ -1792,6 +1818,10 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
                             "recommended": r.get("recommended") or [],
                             # the picker's tick: 大毕业 on the kept setup (D274, D330)
                             "graduated": ticked.get(n, False),
+                            # the picker's ring, pen and sorts (D380)
+                            "scanned": list(reads[n]),
+                            "scanned_at": max(reads[n].values(), default=None),
+                            "kept_at": kept_at.get(n), "edited": edited.get(n, False),
                             "tags": r.get("tags") or [],
                             # the six chain nodes by name, once each (a mode's paragraph is
                             # the same node)
@@ -1854,27 +1884,37 @@ def _main_app(db_path: Path, home_key: str | None = None) -> FastAPI:
         known["scanned_at"], known["kept_at"] = scanned_at, kept_at
         return known
 
-    def calc_known(data: dict, found: str, asked: str) -> dict:
+    def known_context(st: Store) -> tuple[dict, list[dict], dict]:
+        """What every resonator's `calc_known` reads alike: the saved progress, the roster's
+        rows and the weapons held -- worked out once for many (the picker's pens, D380)."""
+        cat = catalogue.get()
+        progress = progress_of(st)
+        # each one's chain is all 计算 takes from the rows: no bag, so no build is priced
+        rows = roster.resonators(cat, None, progress=progress, pulls=read_pulls(st),
+                                 skip=hidden(st))
+        return progress, rows, weapons_mod.held(st)
+
+    def calc_known(data: dict, found: str, asked: str,
+                   context: tuple[Store, tuple[dict, list[dict], dict]] | None = None) -> dict:
         """What the app already knows of this resonator (D269): their saved progress, the
-        weapon the newest scan saw them hold, their chain."""
-        st = Store(db())
+        weapon the newest scan saw them hold, their chain. `context`: an open store and its
+        `known_context`, when many are asked at once."""
+        st = context[0] if context else Store(db())
         try:
-            cat = catalogue.get()
-            progress = progress_of(st)
+            progress, rows, holding = context[1] if context else known_context(st)
             rover = found.startswith(roster.ROVER)
             app_name = asked if asked in progress else next(
                 (k for k in progress if rover and roster.is_rover(k)
                  and k.endswith(found.split("·")[-1])), found)
             state = (progress.get(app_name) or {}).get("state")
-            rows = roster.resonators(cat, build_inventory(st, cat), done_tabs(st), progress,
-                                     read_pulls(st), skip=hidden(st))
             row = next((r for r in rows if r["name"] == app_name), None)
             scanned = st.character_reads(found, echoes=12)  # room to pick the five worn (D346)
             held = [{"name": c.name, "level": c.level, "rank": c.rank,
                      "holder": found if who in (app_name, roster.ROVER if rover else None) else who}
-                    for who, c in weapons_mod.held(st).items()]
+                    for who, c in holding.items()]
         finally:
-            st.close()
+            if not context:
+                st.close()
         return calc_mod.known(data, found, state, held, (row or {}).get("chain"), scanned=scanned)
 
     def calc_setup_of(data: dict, found: str, asked: str) -> dict:

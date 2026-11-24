@@ -48,6 +48,15 @@ function files(v: string): { files: VersionFile[]; sums: string; image: string |
   };
 }
 
+/** The server's whole compose file pinned to one version (D381): the card's copy button copies
+ * this, not `WUWA_VERSION=<version>` alone. Where the file says `latest` the version goes; a file
+ * that no longer says so stops the build rather than copy one still on `latest`. */
+export function pinnedCompose(file: string, version: string): string {
+  const at = '${WUWA_VERSION:-latest}';
+  if (!file.includes(at)) throw new Error(`the compose file has no ${at} to pin`);
+  return file.replace(at, `\${WUWA_VERSION:-${version}}`);
+}
+
 export function offer(releases: Release[], version: string): Offer {
   const r = releases.find(x => x.version === version);
   if (!r) throw new Error(`no release ${version}`);
