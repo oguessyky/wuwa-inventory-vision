@@ -2,6 +2,22 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
   {
+   "version": "1.4.8",
+   "date": "2026-11-25",
+   "scanner": [
+    {
+     "zh": "用 Tailscale 在手机上看扫描进度时，共鸣者的画面和电脑上的扫描页一样：彩色标题、排好的属性、声骸的图片、扫了哪些画面的清单，以及认不出是谁时的提问。手机上声骸的数值不再被截断，窄屏上一行显示两个声骸",
+     "en": "the scan's status on the phone, over Tailscale, shows a resonator's screens as the PC's scan page does: the coloured banners, the stats laid out, the echoes as pictures, the checklist of what is scanned, and the question when it cannot tell whose screen it is. An echo's values are no longer cut off on the phone, and a narrow screen shows two echoes to a row"
+    },
+    {
+     "zh": "修复：电脑的「智能应用控制」拦下某个文件（例如 torchvision 的 image.pyd）时，会弹出「python.exe - 损坏的映像」窗口；扫描本来就不需要那个文件，现在不再弹窗",
+     "en": "fixed: when Windows' Smart App Control refuses a file (torchvision's image.pyd, say), a 「python.exe - Bad Image」 box popped up; the scan never needed that file, and the box no longer appears"
+    }
+   ],
+   "home": [],
+   "needs_server": "1.4.0"
+  },
+  {
    "version": "1.4.7",
    "date": "2026-11-24",
    "scanner": [],

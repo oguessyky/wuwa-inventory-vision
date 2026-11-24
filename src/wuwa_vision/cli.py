@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .capture.windows import set_dpi_awareness
+from .capture.windows import quiet_load_errors, set_dpi_awareness
 from .scan.orchestrator import scan_path
 from .store.db import Store
 
@@ -1207,6 +1207,9 @@ def _cmd_serve(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # First, before anything loads torch: a file Smart App Control refuses fails
+    # quietly instead of holding the scan behind a "Bad Image" box (D384).
+    quiet_load_errors()
     # The Windows console defaults to cp1252, which cannot encode the CJK tab
     # labels and item names this tool exists to read.
     for stream in (sys.stdout, sys.stderr):

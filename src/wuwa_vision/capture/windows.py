@@ -21,6 +21,7 @@ game process memory and injects nothing.
 from __future__ import annotations
 
 import ctypes
+import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -95,6 +96,31 @@ def set_dpi_awareness() -> bool:
         return ctypes.windll.shcore.SetProcessDpiAwareness(2) == 0
     except (AttributeError, OSError):
         return False
+
+
+#: SetErrorMode's flag: a file that fails to load fails quietly, with no box.
+SEM_FAILCRITICALERRORS = 0x0001
+
+
+def quiet_load_errors() -> bool:
+    """Have Windows fail a refused file quietly instead of asking about it (D384).
+
+    Smart App Control refused torchvision's image.pyd on the laptop and Windows
+    held the scan behind a "python.exe - Bad Image" box (0xc0e90002) until OK was
+    pressed; then the scan went on, because torchvision catches the failure and
+    the scanner never uses that file. Without the box the same failure is a
+    warning in the log. Processes this one starts inherit the mode.
+
+    Returns False where there is nothing to set (not Windows, or the call failed).
+    """
+    if sys.platform != "win32":
+        return False
+    try:
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetErrorMode(kernel32.GetErrorMode() | SEM_FAILCRITICALERRORS)
+    except (AttributeError, OSError):
+        return False
+    return True
 
 
 def process_name(handle: int) -> str:

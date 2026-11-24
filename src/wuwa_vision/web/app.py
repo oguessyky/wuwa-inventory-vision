@@ -537,16 +537,34 @@ def _picture_routes(app: FastAPI) -> None:
                             else "image/webp", headers={"Cache-Control": "max-age=86400"})
 
 
+#: What both of a scan's pages draw a resonator's screens with (D385): one copy, so the phone's
+#: page cannot fall behind the PC's again.
+RESONATOR_FILES = {"resonator.js": "text/javascript; charset=utf-8",
+                   "resonator.css": "text/css; charset=utf-8"}
+
+
+def _resonator_files(app: FastAPI) -> None:
+    """The drawing of a resonator's screens, for the monitor's page and the phone's (D385)."""
+
+    for name, media in RESONATOR_FILES.items():
+        def served(name: str = name, media: str = media) -> Response:
+            return Response((STATIC / name).read_bytes(), media_type=media,
+                            headers={"Cache-Control": "no-cache"})
+
+        app.add_api_route(f"/{name}", served, methods=["GET"], include_in_schema=False)
+
+
 def _monitor_app(db_path: Path, live: LiveState) -> FastAPI:
     app = FastAPI(title="WuWa Inventory Vision -- scan monitor", docs_url="/api/docs")
     _shared_routes(app, db_path, live)
     _stop_route(app, live)
     _picture_routes(app)
+    _resonator_files(app)
 
     @app.get("/", response_class=HTMLResponse)
     @app.get("/live", response_class=HTMLResponse)
     def live_page() -> HTMLResponse:
-        # The monitor's one page is hand-written and self-contained: no build.
+        # The monitor's one page is hand-written: no build. It shares resonator.js with the phone's.
         return HTMLResponse((STATIC / "live.html").read_text(encoding="utf-8"),
                             headers={"Cache-Control": "no-cache"})
 
@@ -609,6 +627,11 @@ def create_phone_app(db_path: Path, live: LiveState) -> FastAPI:
                   docs_url=None, redoc_url=None, openapi_url=None)
     _icon_route(app, db_path)
     _stop_route(app, live)
+    # a resonator's screens drawn as on the PC (D385): the same drawing, and the catalogue's art
+    # it is drawn with, which the main app already shares on the tailnet (D108) -- still never a
+    # picture of the game
+    _resonator_files(app)
+    _picture_routes(app)
 
     @app.get("/", response_class=HTMLResponse)
     def phone_page() -> HTMLResponse:

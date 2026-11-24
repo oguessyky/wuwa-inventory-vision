@@ -1,0 +1,140 @@
+/* A resonator's screens as the scan's two pages draw them: the PC's (live.html) and the
+   phone's (phone.html), one file for both so neither falls behind (D385). Each page sets
+   its own .rread box; --rpad-x / --rpad-y are its padding, which the banner runs into. */
+/* whose screen, asked (D370) */
+.rask{border:1.5px solid var(--warn);border-radius:8px;padding:10px 14px;margin:0 0 12px;
+      background:color-mix(in srgb, var(--warn) 10%, transparent)}
+.rask b{display:block;color:var(--warn);font-size:15px}
+.rask p{margin:4px 0 0}
+.rask .held{color:var(--muted);font-size:13px}
+.rsettled{margin:0 0 10px;font-weight:650}
+.rsettled[data-kept="yes"]{color:var(--ok)}
+.rsettled[data-kept="no"]{color:var(--warn)}
+.rread ul{margin:0;padding-left:18px}
+.rread small{color:var(--muted)}
+.rboxes{width:100%;height:auto;background:#000;border-radius:6px;border:1px solid var(--line)}
+.rboxes rect{fill:rgba(95,208,143,.12);stroke:#5fd08f;stroke-width:.0015}
+.rboxes text{fill:#e6edf3}
+/* Each screen its own colour and banner (D365): which one it is, seen across the room. */
+.rread{--sc:var(--muted);border-left:4px solid var(--sc)}
+.rread[data-screen="attributes"]{--sc:#5b8def} .rread[data-screen="weapon"]{--sc:#e0a64a}
+.rread[data-screen="skills"]{--sc:#a77bf3} .rread[data-screen="echoes"]{--sc:#2fb5a0}
+.rread[data-screen="echo"]{--sc:#4cbf6a} .rread[data-screen="chain"]{--sc:#8d949f}
+.rbanner{display:flex;align-items:center;gap:12px;
+         margin:calc(-1 * var(--rpad-y,18px)) calc(-1 * var(--rpad-x,20px)) 14px;padding:12px var(--rpad-x,20px);
+         border-top:4px solid var(--sc);background:color-mix(in srgb,var(--sc) 16%,transparent);
+         border-radius:6px 6px 0 0}
+.rbanner svg{width:34px;height:34px;flex:none;fill:var(--sc)}
+.rb-what{font-size:22px;font-weight:800;line-height:1.1;color:var(--sc)}
+.rb-who{font-size:13px;color:var(--muted);font-weight:600}
+.rweapon{display:flex;align-items:center;gap:14px;margin:0 0 14px}
+.rweapon .pic{width:72px;height:72px;flex:none;border-radius:10px;border:1px solid var(--line);
+              background:var(--panel);overflow:hidden;display:grid;place-items:center}
+.rweapon .pic img{width:100%;height:100%;object-fit:contain}
+.rpips{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:650}
+.rpips i{width:10px;height:10px;transform:rotate(45deg);border:1.5px solid var(--sc,var(--warn));border-radius:2px}
+.rpips i.on{background:var(--sc,var(--warn))}
+/* Each screen laid out as the game lays it out (D357): the values read, not a list of lines. */
+.rrow{display:flex;align-items:center;gap:14px;margin:0 0 14px}
+.rav{width:56px;height:56px;border-radius:50%;flex:none;background:var(--panel);border:2px solid var(--line);
+     object-fit:cover;display:grid;place-items:center;font-weight:700;color:var(--muted);overflow:hidden}
+.rname{font-size:20px;font-weight:700;line-height:1.2}
+.rsub{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.rel{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;color:#fff;background:var(--el,#888)}
+.rlv{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.rstats{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:0;padding:0;list-style:none;max-width:420px}
+.rstats li{display:flex;justify-content:space-between;gap:10px;padding:5px 2px;border-bottom:1px solid var(--line)}
+.rstats li span{color:var(--muted)} .rstats li b{font-variant-numeric:tabular-nums}
+.rskills{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.rskills li{text-align:center;font-size:12.5px;color:var(--muted)}
+.rskills .ring{--p:0;width:64px;height:64px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;
+     background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--line) 0)}
+.rskills .ring b{width:52px;height:52px;border-radius:50%;background:var(--panel);display:grid;place-items:center;
+     font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums}
+.rskills li.max .ring{background:var(--r5)} .rskills li.max{color:var(--ink);font-weight:650}
+.rskills li.none .ring b{color:var(--muted);font-size:14px}
+/* the nodes above each skill, the upper first as the game stacks them (D358) */
+.rnodes{display:flex;flex-direction:column;align-items:center;gap:5px;margin:0 0 6px;min-height:34px}
+.rnode{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);background:transparent}
+.rnode.on{background:var(--ink);border-color:var(--ink)}
+.rnode.unsure{border-style:dashed;position:relative}
+.rnode.unsure::after{content:"?";position:absolute;inset:-2px 0 0;font-size:9px;line-height:14px;color:var(--muted)}
+.rnode.inherent{border-radius:2px;transform:rotate(45deg);width:12px;height:12px}
+.rnode.inherent.on{background:var(--r5);border-color:var(--r5)}
+.rnodes-said{text-align:center;color:var(--muted);font-size:12.5px;margin:8px 0 0}
+.rset{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+      background:var(--panel);margin:0 0 8px}
+.rset img,.rset .ph{width:34px;height:34px;object-fit:contain;flex:none}
+.rset .n{font-weight:650;flex:1}
+.rset .p{font-weight:700;font-variant-numeric:tabular-nums;padding:1px 9px;border-radius:999px;
+         border:1px solid var(--line);color:var(--muted)}
+.rset .p.on{color:#fff;background:var(--ok);border-color:var(--ok)}
+.rskill{font-size:13px;color:var(--muted);margin:4px 0 12px}
+.recho{display:grid;grid-template-columns:88px minmax(0,1fr);gap:4px 16px;align-items:start}
+.recho .pic{position:relative;width:88px;height:88px;border-radius:10px;background:var(--panel);
+            border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.recho .pic img{width:100%;height:100%;object-fit:contain}
+.cost{position:absolute;left:4px;top:4px;font-size:11px;font-weight:800;padding:0 6px;border-radius:5px;
+      background:var(--ink);color:var(--panel)}
+.plus{position:absolute;right:4px;bottom:4px;font-size:12px;font-weight:800;padding:0 5px;border-radius:5px;
+      background:var(--r5);color:#2a2000}
+.recho .rsub img{width:18px;height:18px;object-fit:contain;vertical-align:-4px}
+.recho{max-width:460px} .recho .rstats{grid-template-columns:1fr}
+.rmain{margin-bottom:6px} .rmain li{font-size:15px;background:color-mix(in srgb,var(--r5) 12%,transparent);border-bottom-color:transparent;
+          border-radius:6px;padding:5px 8px;margin-bottom:3px}
+.rmain li b{color:var(--ink)}
+.rworn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.slot{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);text-align:center;
+      font-size:12px;min-width:0}
+.slot .pic{position:relative;width:72px;height:72px;margin:0 auto;border-radius:8px;background:var(--bg);overflow:hidden;
+           display:grid;place-items:center;margin-bottom:6px}
+.slot .pic img{width:100%;height:100%;object-fit:contain}
+.slot b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot small{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.empty{border-style:dashed;color:var(--muted);display:grid;place-items:center;min-height:120px}
+/* read this scan or before (D367) */
+.slot.now{border-color:var(--ok)} .slot.older{border-color:var(--warn);border-style:dashed}
+.slot.older .pic{opacity:.6}
+.slot.unread,.slot.unsure{border-style:dashed} .slot.unsure{border-color:var(--box-click)}
+.slot.unread .pic{opacity:.75} .slot .said{white-space:normal;margin-top:4px}
+.slot.unsure .said{color:var(--box-click);font-weight:650}
+.slot .rmark{position:absolute;right:4px;top:4px;font-size:11px;font-weight:800;padding:0 6px;border-radius:5px;
+            background:var(--ok);color:#04220f}
+.slot.older .rmark{background:var(--warn);color:#2a1d00}
+.slot.nomain{align-content:center;gap:4px;font-weight:650;color:var(--ink)}
+.slot.nomain small{white-space:normal}
+.slot .rstats{text-align:left;font-size:11.5px;margin-top:6px;max-width:none}
+.slot .rstats li{padding:2px 0} .slot .rmain li{font-size:11.5px;padding:2px 4px;margin-bottom:2px}
+.slot .rstats li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+/* a value is never cut: the slot's name rule (.slot b) is for the echo's name, not its stats; the
+   stat's name gives way instead (D385, seen on a phone: "44...." for 44.0%) */
+.slot .rstats li b{flex:none;overflow:visible;text-overflow:clip}
+.nopic{font-size:34px;font-weight:800;color:var(--muted)}
+.rpart{margin:0 0 16px}
+/* the board's 武器, 属性详情 and 声骸 totals: a card each, stats one to a line within (D368) */
+.rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:0 0 16px}
+.rcards > .rpart{margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)} .rpart h3{margin:0 0 8px;font-size:12px;color:var(--muted);
+       text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.rpart h3 small{text-transform:none;letter-spacing:0;font-weight:500;margin-left:6px}
+.where-read{margin-top:14px} .where-read summary{cursor:pointer;color:var(--muted);font-size:12.5px}
+.where-read .rboxes{margin-top:8px}
+@media (max-width:760px){ .rworn{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rskills{grid-template-columns:repeat(3,minmax(0,1fr))} .recho{grid-template-columns:64px minmax(0,1fr)}
+  .recho .pic{width:64px;height:64px} }
+/* a phone: two echoes to a row, so what was read of each can be read (D385) */
+@media (max-width:480px){ .rworn{grid-template-columns:repeat(2,minmax(0,1fr))} }
+#items:has(.hold){grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+#items:has(.rboard){display:block}
+/* what is scanned of a resonator, and what not yet (D361) */
+.rcheck{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none}
+.rcheck li{display:flex;align-items:baseline;gap:6px;padding:4px 10px;border-radius:999px;font-size:13px;
+           font-weight:650;border:1px solid var(--line);background:var(--panel)}
+.rcheck li small{font-weight:600;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rcheck li.done{border-color:var(--ok)} .rcheck li.done small{color:var(--ok)}
+.rcheck li.part{border-color:var(--warn)} .rcheck li.part small{color:var(--warn)}
+.rcheck li.older{border-color:var(--warn);border-style:dashed} .rcheck li.older small{color:var(--warn)}
+.rcheck li.todo{border-style:dashed;color:var(--muted)}
+.rcheck li.never{opacity:.55}
+.hold{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);line-height:1.5}
+.hold small{display:block;color:var(--muted);font-size:12px}
+.hold ul{margin:6px 0 0;padding-left:18px}

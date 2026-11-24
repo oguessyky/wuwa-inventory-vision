@@ -70,18 +70,11 @@
   .where[data-kind="resonator"] b{background:var(--r4)}
   .where span{font-weight:650}
   .where small{color:var(--muted);font-size:13px}
-  .rread h3{margin:0 0 6px;font-size:18px}
+  /* the card's padding, which the screen's banner runs into (resonator.css, D385) */
+  .rread{--rpad-x:12px;--rpad-y:12px}
+  #items:has(.hold){grid-template-columns:1fr}
   .rread .ok{color:var(--ok);font-weight:650;margin:0 0 8px}
   .rread .wait{color:var(--muted);margin:0}
-  .rread ul{margin:0;padding-left:18px;line-height:1.6}
-  .rread small{color:var(--muted)}
-  .rboxes{display:block;width:100%;height:auto;margin-top:10px;background:#000;border-radius:6px;border:1px solid var(--line)}
-  .rboxes rect{fill:rgba(87,208,140,.12);stroke:#57d08c;stroke-width:.002}
-  .rboxes text{fill:#e6edf3}
-  #items:has(.hold){grid-template-columns:1fr}
-  .hold{padding:10px 12px;border:1px solid var(--line);border-radius:8px;line-height:1.5}
-  .hold small{display:block;color:var(--muted);font-size:12px}
-  .hold ul{margin:6px 0 0;padding-left:18px}
   .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:12px 12px 0}
   .tabs:empty{display:none}
   .tab{border:1px solid var(--line);border-radius:10px;padding:8px 12px 10px;background:var(--panel);min-width:0}
@@ -188,6 +181,8 @@
   /* A wide window is the PC, which has live.html: here, the same column, not stretched. */
   @media (orientation:landscape) and (min-width:1000px){ main{max-width:1100px;margin:0 auto} }
 </style>
+<link rel="stylesheet" href="resonator.css">
+<script src="resonator.js"></script>
 </head>
 <body>
 <header class="top">
@@ -276,52 +271,16 @@ function renderWhere(w){
   el.innerHTML = `<b>Resonator</b><span>${w.resonator ? `${esc(w.resonator)} · ` : ''}${esc(screen)}</span>`;
 }
 
-// On a resonator's screen (D340): whose, whether it has been read, and what -- in the view's place.
+// On a resonator's screen, in the view's place (D340): the card is drawn by resonator.js, the same
+// as on the PC's page, so this page cannot fall behind it again (D385).
 function renderResonatorRead(d){
-  const card = $('rread'), view = $('view-card');
-  const w = d.screen, on = !!w && w.kind === 'resonator';
-  card.hidden = !on;
-  view.hidden = on;
-  if(!on) return;
-  const screen = SCREEN_WORDS[w.screen] ?? w.screen ?? '?';
-  const r = d.resonator_read;
-  const read = r && r.kind === w.screen;
-  const who = (read ? r.resonator : w.resonator) ?? '?';
-  card.innerHTML = `<h3>${esc(who)} · ${esc(screen)}</h3>` + (
-    w.screen === 'chain' ? '<p class="wait">共鸣链 is not read.</p>'
-    : read ? `<p class="ok">✓ Read ${new Date(r.at * 1000).toLocaleTimeString()}`
-        + (r.resonator ? '' : ' <small>— whose? open 属性详情 or pick them on the right</small>') + '</p>'
-        + `<ul>${(r.summary ?? []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
-        + rreadBoxes(r)
-    : '<p class="wait">Not read yet: it is read once the panel holds still.</p>');
-}
-
-// The window, drawn to its shape, with a box round each piece of text read and what it was read
-// as (D343): what the scan looked at -- boxes and words, never a picture of the game (D153).
-function rreadBoxes(r){
-  if(!r.frame || !(r.boxes ?? []).length) return '';
-  // framed on what was read, so its words can be read; the text sits in its own box
-  const b = r.boxes, m = 0.02;
-  const x0 = Math.min(...b.map(x => x[0])) - m, y0 = Math.min(...b.map(x => x[1])) - m;
-  const x1 = Math.max(...b.map(x => x[2])) + m, y1 = Math.max(...b.map(x => x[3])) + m;
-  const boxes = b.map(([a, c, e, f, t]) => {
-    const fs = Math.max(0.008, (f - c) * 0.8);
-    return `<rect x="${a}" y="${c}" width="${e - a}" height="${f - c}"></rect>`
-      + `<text x="${a + 0.002}" y="${f - (f - c) * 0.2}" font-size="${fs}">${esc(t)}</text>`;
-  }).join('');
-  return `<svg class="rboxes" id="rreadBoxes" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" role="img"
-    aria-label="Where each value was read">${boxes}</svg>`;
+  const on = drawResonatorRead($('rread'), d);
+  $('rread').hidden = !on;
+  $('view-card').hidden = on;
 }
 
 // On a resonator's screens, what the scan holds for them, in the bag's items' place (D343).
-function renderHolds(d){
-  const who = d.resonator_read?.resonator ?? d.screen?.resonator;
-  $('items-title').textContent = who ? `What the scan holds for ${who}` : 'Not told whose yet';
-  $('items').innerHTML = (d.resonator_holds ?? []).map(x =>
-    `<div class="hold"><b>${esc(SCREEN_WORDS[x.kind] ?? x.kind)}${x.key ? ` · ${esc(x.key)}` : ''}</b>
-     <small>${new Date(x.read_at).toLocaleString()}</small>
-     <ul>${(x.summary ?? []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`).join('');
-}
+const renderHolds = d => drawHolds($('items-title'), $('items'), d);
 
 function renderTabs(d){
   $('tabs').innerHTML = d.tabs.filter(t => t.label).map(t => {
