@@ -2,6 +2,23 @@
  "about": "Every release, newest first, and what it changed on each side: the scanner and the server (PLAN.md D197, D217; the server was the home before 1.2.0, D225 -- the key stays \"home\", which every scanner since 1.1.1 reads). versions.py reads it, and the help site builds its page of every version from it. An entry may say `no_download` (why it is not offered on the help site's page of versions, and which version to `use` instead) and `needs_server` (the oldest server its scanner syncs with, from tools/sync_pairs.py; left out, every server).",
  "releases": [
   {
+   "version": "1.4.9",
+   "date": "2026-11-25",
+   "scanner": [
+    {
+     "zh": "修复：再扫一次某个共鸣者的声骸页时，如果右边的声骸槽没认出来（一个声骸和套装都没认出，或费用加起来超过 12，或页面写着「尚未装配主声骸」但槽里却有声骸），扫描页不再把之前扫过的声骸都换成「?」，而是照旧显示之前读到的声骸；命令行也会说明槽没读对、之前的声骸保留",
+     "en": "fixed: when a resonator's 声骸 page is scanned again and the echo slots on the right are not read right (no echo or set recognised on any slot, more than 12 cost, or an echo in the main slot while the page says 尚未装配主声骸), the scan page no longer turns the echoes scanned before into \"?\": it shows the echoes read before, and the command line says the slots did not read right and the echoes read before are kept"
+    }
+   ],
+   "home": [
+    {
+     "zh": "修复：同样的情况下，「计算」不再把之前扫过的声骸换成五个「?」，而是用之前读到的声骸和套装；已经出现「?」的共鸣者更新后不用重扫就会恢复（若在「计算」里保存过带「?」的配置，需要重置一次）",
+     "en": "fixed: in the same case, 计算 no longer shows five \"?\" in place of the echoes scanned before: it takes the echoes and sets read before. A resonator already showing \"?\" is put right after the update, without a new scan (a setup kept in 计算 with the \"?\" in it needs resetting once)"
+    }
+   ],
+   "needs_server": "1.4.0"
+  },
+  {
    "version": "1.4.8",
    "date": "2026-11-25",
    "scanner": [

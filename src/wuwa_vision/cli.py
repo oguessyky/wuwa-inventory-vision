@@ -549,6 +549,7 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
     screen_words = {"attributes": "属性详情", "skills": "技能", "weapon": "武器", "echo": "声骸",
                     "echoes": "声骸", "chain": "共鸣链"}
 
+    from .echo_slots import slots_of
     from .scan.character import pictures
 
     drawn: dict = {}  # the catalogue's pictures, loaded on the first resonator screen read
@@ -561,8 +562,13 @@ def _live(args: argparse.Namespace, ending: contextlib.ExitStack) -> int:
             what = screen_words.get(str(data.get("kind")), data.get("kind"))
             say(f"  -> {who}: {what} read")
             # a slot whose picture names no echo surely: a click on it tells (D377)
-            unsure = [s["slot"] for s in (data.get("data") or {}).get("slots") or []
+            page = data.get("data") or {}
+            arc = slots_of(page) if page.get("slots") else None
+            unsure = [s["slot"] for s in arc or []
                       if not s.get("empty") and s.get("echo") is None]
+            if page.get("slots") and arc is None and not data.get("same"):
+                # an arc that cannot be right takes nothing away (D386)
+                say("     ! the echo slots did not read right: the echoes read before are kept")
             if unsure and not data.get("same"):
                 say(f"     ! slot {', '.join(map(str, unsure))}: not sure which echo -- click"
                     " it to read it, or fill it in on 计算 later")

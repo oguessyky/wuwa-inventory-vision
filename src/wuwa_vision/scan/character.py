@@ -16,7 +16,7 @@ import json
 
 import numpy as np
 
-from ..echo_slots import place
+from ..echo_slots import place, slots_of
 from ..ocr import character
 from ..store.db import Store
 from .echo_arc import EchoArt, read_slots
@@ -186,9 +186,15 @@ def holds_of(store: Store, name: str) -> list[dict]:
         data = json.loads(row["data"])
         kind = "echoes" if row["screen"] == "worn" else row["screen"]
         if kind == "echoes" and data.get("slots"):
-            # which echo sits where, as 计算 places them (D377): each slot with the read that
-            # fills it, or none
-            data["placed"] = place(data["slots"], reads)
+            slots = slots_of(data)
+            if slots:
+                # which echo sits where, as 计算 places them (D377): each slot with the read
+                # that fills it, or none
+                data["placed"] = place(slots, reads)
+            else:
+                # an arc that cannot be right (D386): the board lays out the echoes read, as
+                # before the arc was read (D367)
+                data.pop("slots")
         out.append({"kind": kind, "key": row["key"], "summary": summary({**data, "kind": kind}),
                     "data": {**data, "kind": kind}, "read_at": row["read_at"]})
     order = {k: i for i, k in enumerate(KEPT)}

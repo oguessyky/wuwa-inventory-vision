@@ -1304,7 +1304,7 @@ wheels = [
 
 [[package]]
 name = "wuwa-vision"
-version = "1.4.8"
+version = "1.4.9"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

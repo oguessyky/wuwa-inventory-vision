@@ -215,11 +215,11 @@ def _scanned_echo(read: dict, data: dict) -> dict:
 
 def no_main_echo(worn: dict) -> bool:
     """The 声骸 page says no main echo is fitted (D367): "尚未装配主声骸" -- or its arc's top
-    slot holds nothing (D377)."""
-    from .echo_slots import main_slot_empty
+    slot holds nothing (D377), when the arc is believed (D386)."""
+    from .echo_slots import main_slot_empty, slots_of
 
     return ("尚未装配" in (worn.get("skill") or "").replace(" ", "")
-            or main_slot_empty(worn.get("slots")))
+            or main_slot_empty(slots_of(worn)))
 
 
 def typed_reads(data: dict, known: list[dict], posted: list[dict], holder: str) -> list[dict]:
@@ -402,14 +402,16 @@ def known(
         }
         took = True
     page = scanned.get("worn") or {}
-    if page.get("slots"):
-        # the 声骸 page's arc says which echo sits where (D377): each slot its echo's read, or
-        # a placeholder; the main one first, unless its slot is empty
-        from .echo_slots import place
+    from .echo_slots import place, slots_of
 
+    slots = slots_of(page)
+    if slots:
+        # the 声骸 page's arc says which echo sits where (D377): each slot its echo's read, or
+        # a placeholder; the main one first, unless its slot is empty. An arc that cannot be
+        # right takes no echo read away (D386): they are placed as before it was read
         out["echoes"] = [_scanned_echo(p["read"], data) if p["read"] is not None
                          else _placeholder_echo(p, data)
-                         for p in place(page["slots"], scanned.get("echoes") or [])]
+                         for p in place(slots, scanned.get("echoes") or [])]
         if no_main_echo(page):
             out["main_echo"] = False
         took = True

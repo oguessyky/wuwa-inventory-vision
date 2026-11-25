@@ -73,6 +73,32 @@ def _filled(slot: dict, read: dict | None) -> dict:
             "set": read.get("set") or slot.get("set"), "read": read, "unread": False}
 
 
+#: The most cost anyone wears: the game's limit on a resonator's echoes.
+COST_LIMIT = 12
+
+
+def slots_of(worn: dict | None) -> list[dict] | None:
+    """The 声骸 page's arc as kept with its read (D377), when it can be believed (D386); else
+    None, and the echoes read are placed as before the arc was read (D367). Not believed:
+    - nothing on it known: no slot's picture named and no set's badge matched (the badges were
+      right on every slot D377 measured): the arc was not seen;
+    - more cost than anyone wears;
+    - an echo in the top slot when the page's own words say 尚未装配 (no main echo).
+    The read keeps what it had: this is a judgement of it, not a change to it."""
+    slots = (worn or {}).get("slots")
+    if not slots:
+        return None
+    held = [s for s in slots if not s.get("empty")]
+    if held and not any(s.get("echo") or s.get("set") for s in held):
+        return None
+    if sum(int(s.get("cost") or 0) for s in held) > COST_LIMIT:
+        return None
+    says_none = "尚未装配" in str((worn or {}).get("skill") or "").replace(" ", "")
+    if says_none and not slots[0].get("empty") and slots[0].get("slot") == 1:
+        return None
+    return slots
+
+
 def main_slot_empty(slots: list[dict] | None) -> bool:
     """The arc's top slot holds nothing: no main echo fitted (D377, as D367's words say)."""
     if not slots:
